@@ -42,15 +42,17 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
     datafile = gdal.Open(ifname)
     iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', ifname).groups()
     step_x, step_y = tile_size
-    band = datafile.GetRasterBand(1)
-    xsize = band.XSize
-    ysize = band.YSize
+
+    xsize = datafile.RasterXSize
+    ysize = datafile.RasterYSize
+
     for x in range(0, xsize, step_x):
         for y in range(0, ysize, step_y):
             gdal.Translate(
                 f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
                 ifname,
-                srcwin=[x, y, step_x, step_y]
+                srcwin=[x, y, step_x, step_y],
+                format="GTiff"
             )
 
 
