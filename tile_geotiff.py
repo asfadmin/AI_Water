@@ -24,7 +24,7 @@ import gdal
 from matplotlib import pyplot
 from matplotlib.widgets import Button, RadioButtons
 
-FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?tiff|tif)')
+FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?:tiff|tif)')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
@@ -36,9 +36,9 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
     step_x, step_y = tile_size
 
     if lry < uly:
-        uly, lry = lry, uly
-    for x in range(ulx, lrx, step_x):
-        for y in range(uly, lry, step_y):
+        step_y *= -1
+    for x in range(int(ulx), int(lrx), step_x):
+        for y in range(int(uly), int(lry), step_y):
             os.system(
                 f'gdal_translate -projwin {x} {y} {x + step_x} {y + step_y} '
                 f'{ifname} {iftitle}_ulx_{x}_uly_{y}.{ifext}'
