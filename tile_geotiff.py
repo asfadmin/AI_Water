@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 """
 Rohan Weeden
 Helper script for tiling a GeoTiff and creating image labels.
@@ -30,17 +31,14 @@ FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?:tiff|tif)')
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
     datafile = gdal.Open(ifname)
     iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', ifname).groups()
-    ulx, xres, xskew, uly, yskew, yres = datafile.GetGeoTransform()
-    lrx = ulx + (datafile.RasterXSize * xres)
-    lry = uly + (datafile.RasterYSize * yres)
     step_x, step_y = tile_size
-
-    if lry < uly:
-        step_y *= -1
-    for x in range(int(ulx), int(lrx), step_x):
-        for y in range(int(uly), int(lry), step_y):
+    band = datafile.GetRasterBand(1)
+    xsize = band.XSize
+    ysize = band.YSize    
+    for x in range(0, xsize, step_x):
+        for y in range(0, ysize, step_y):
             os.system(
-                f'gdal_translate -projwin {x} {y} {x + step_x} {y + step_y} '
+                f'gdal_translate -of GTIFF -srcwin {x} {y} {step_x} {step_y} '
                 f'{ifname} {iftitle}_ulx_{x}_uly_{y}.{ifext}'
             )
 
@@ -74,7 +72,7 @@ def interactive_classifier(directory: str) -> None:
 
 
 def _show_plot(tif_array, file, image_labels, close):
-    pyplot.imshow(tif_array, clim=(0, 500), cmap=pyplot.get_cmap('gray'))
+    pyplot.imshow(tif_array, cmap=pyplot.get_cmap('gray'))
     pyplot.colorbar()
     rax = pyplot.axes([0.05, 0.7, 0.15, 0.15])
     classify_radio = RadioButtons(rax, ('Water', 'Not Water', 'Skip', 'Invalid'))
