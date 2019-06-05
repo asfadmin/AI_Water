@@ -9,11 +9,14 @@ needed. After its ran once the dataset folder (with all the SAR images) needs to
 AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
 """
 
+import os
+
 import asf_cnn as cnn
 import img_functions
 
 
 def main():
+    # Passing the file directory main.py is located to be used for the rest of the program
     img_functions.create_directories()
     img_functions.move_incorrect_predictions_back()
     img_functions.move_data_back()
@@ -25,6 +28,11 @@ def main():
     cnn.cnn()
     img_functions.move_data_back()
     img_functions.move_incorrect_predictions_back()
+
+
+def main_file_directory():
+    """Returns main.py working directory"""
+    return (os.path.dirname(os.path.abspath(__file__)))
 
 
 if __name__ == '__main__':

@@ -73,12 +73,12 @@ def cnn():
     # COMMENT OUT IF TRAINING IS BEING RESTARTED
     CURRENT_DIRECTORY = img_functions.get_file_root()
     with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-        classifier = load_model(os.path.join(CURRENT_DIRECTORY, 'AI_Project/asf_cnn.h5'))
+        classifier = load_model(os.path.join(CURRENT_DIRECTORY, 'asf_cnn.h5'))
     classifier.summary()
 
     # File paths for grabbing the images.
-    training_fpath = os.path.join(CURRENT_DIRECTORY, 'AI_Project/training_data')
-    test_fpath = os.path.join(CURRENT_DIRECTORY, 'AI_Project/test_data')
+    training_fpath = os.path.join(CURRENT_DIRECTORY, 'training_data')
+    test_fpath = os.path.join(CURRENT_DIRECTORY, 'test_data')
     print(CURRENT_DIRECTORY)
 
     # Part 2: Fitting the CNN to the image
@@ -136,17 +136,17 @@ def cnn():
     list_percent = []
     list_of_img_details = []
 
+    percent_of_pred *= 100
     for x in percent_of_pred:
         # Pulls the predictions and adds it to a dictonary to be stored in a list.
         # Also gives the percent that it is certain it got it right.
-        if x >= .5:
-            x *= 100
+        if x >= 50:
             list_percent.append(x)
             value = 'water'
         else:
-            x *= 100
             list_percent.append(x)
             value = 'no_water'
+
         list_pred.append(value)
 
     index = 0
@@ -184,5 +184,4 @@ def cnn():
     classifier.save('asf_cnn.h5')
     classifier.save(os.path.join(CNN_STATS_FILE, 'asf_cnn.h5'))
     # Opens all the directory with all the stats so that the user can view them.
-    # f-strings don't seem to like this line of code.
-    os.system('xdg-open "%s"' % CNN_STATS_FILE)
+    os.system(f'xdg-open "{CNN_STATS_FILE}"')

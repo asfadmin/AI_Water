@@ -17,31 +17,32 @@ import os as os
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
+import main
+
 # File Paths
-CURRENT_DIRECTORY = os.getcwd()
-AI_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project')
-DATASET_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project/dataset')
+CURRENT_DIRECTORY = main.main_file_directory()
+DATASET_FPATH = os.path.join(CURRENT_DIRECTORY, 'dataset')
 WATER_TRAINING_DATA = os.path.join(CURRENT_DIRECTORY,
-                                   'AI_Project/training_data/water')
+                                   'training_data/water')
 NO_WATER_TRAINING_DATA = os.path.join(CURRENT_DIRECTORY,
-                                      'AI_Project/training_data/no_water')
-WATER_TEST_DATA = os.path.join(CURRENT_DIRECTORY, 'AI_Project/test_data/water')
-NO_WATER_TEST_DATA = os.path.join(CURRENT_DIRECTORY, 'AI_Project/test_data/no_water')
-WATER_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project/water')
-NO_WATER_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project/no_water')
-SKIP_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project/skip')
-TRAINING_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project/training_data')
-TEST_FPATH = os.path.join(CURRENT_DIRECTORY, 'AI_Project/test_data')
+                                      'training_data/no_water')
+WATER_TEST_DATA = os.path.join(CURRENT_DIRECTORY, 'test_data/water')
+NO_WATER_TEST_DATA = os.path.join(CURRENT_DIRECTORY, 'test_data/no_water')
+WATER_FPATH = os.path.join(CURRENT_DIRECTORY, 'water')
+NO_WATER_FPATH = os.path.join(CURRENT_DIRECTORY, 'no_water')
+SKIP_FPATH = os.path.join(CURRENT_DIRECTORY, 'skip')
+TRAINING_FPATH = os.path.join(CURRENT_DIRECTORY, 'training_data')
+TEST_FPATH = os.path.join(CURRENT_DIRECTORY, 'test_data')
 INCORRECT_PREDICTIONS_FPATH = os.path.join(CURRENT_DIRECTORY,
-                                           'AI_Project/incorrect_predictions')
-CNN_RESULTS = os.path.join(AI_FPATH, 'cnn_results')
+                                           'incorrect_predictions')
+CNN_RESULTS = os.path.join(CURRENT_DIRECTORY, 'cnn_results')
 
 
 def sar_data_setup():
     """This function renames the image with water, skip, not_water. It also moves the imgs
     into to folders based on if they have water or not and skip. """
 
-    os.chdir(AI_FPATH)
+    os.chdir(CURRENT_DIRECTORY)
     with open('labels.json') as sar_img:
         sar_data = json.load(sar_img)
 
@@ -75,16 +76,15 @@ def create_directories():
     """This function creates all the correct directorys within the users
     file system if they're not already created"""
     # Creating the directorys
-    creating_file_directory(AI_FPATH, 'AI_Project', CURRENT_DIRECTORY)
-    creating_file_directory(WATER_TEST_DATA, 'test_data/water', AI_FPATH)
-    creating_file_directory(NO_WATER_TEST_DATA, 'test_data/no_water', AI_FPATH)
-    creating_file_directory(WATER_TRAINING_DATA, 'training_data/water', AI_FPATH)
-    creating_file_directory(NO_WATER_TRAINING_DATA, 'training_data/no_water', AI_FPATH)
-    creating_file_directory(CNN_RESULTS, 'cnn_results', AI_FPATH)
-    creating_file_directory(INCORRECT_PREDICTIONS_FPATH, 'incorrect_predictions', AI_FPATH)
-    creating_file_directory(SKIP_FPATH, 'skip', AI_FPATH)
-    creating_file_directory(WATER_FPATH, 'water', AI_FPATH)
-    creating_file_directory(NO_WATER_FPATH, 'no_water', AI_FPATH)
+    creating_file_directory(WATER_TEST_DATA, 'test_data/water', CURRENT_DIRECTORY)
+    creating_file_directory(NO_WATER_TEST_DATA, 'test_data/no_water', CURRENT_DIRECTORY)
+    creating_file_directory(WATER_TRAINING_DATA, 'training_data/water', CURRENT_DIRECTORY)
+    creating_file_directory(NO_WATER_TRAINING_DATA, 'training_data/no_water', CURRENT_DIRECTORY)
+    creating_file_directory(CNN_RESULTS, 'cnn_results', CURRENT_DIRECTORY)
+    creating_file_directory(INCORRECT_PREDICTIONS_FPATH, 'incorrect_predictions', CURRENT_DIRECTORY)
+    creating_file_directory(SKIP_FPATH, 'skip', CURRENT_DIRECTORY)
+    creating_file_directory(WATER_FPATH, 'water', CURRENT_DIRECTORY)
+    creating_file_directory(NO_WATER_FPATH, 'no_water', CURRENT_DIRECTORY)
 
 
 def creating_file_directory(file_path, file_name, directory):
@@ -147,7 +147,7 @@ def moving_training_test_data(current_file_path, new_file_path, number):
         os.rename(
             os.path.join(current_file_path, image_name),
             os.path.join(new_file_path,  image_name)
-            )
+        )
         count += 1
 
 
@@ -177,10 +177,10 @@ def move_incorrect_predictions(list_of_img_details={'img_name': '', 'status': ''
         if img['status'] != img['prediction']:
             if img['status'] == 'water':
                 c_file_path = os.path.join(CURRENT_DIRECTORY,
-                                           'AI_Project/test_data/water')
+                                           'test_data/water')
             elif img['status'] == 'no_water':
                 c_file_path = os.path.join(CURRENT_DIRECTORY,
-                                           'AI_Project/test_data/no_water')
+                                           'test_data/no_water')
             os.rename(
                 # Renames and moves the image to the proper directory
                 os.path.join(c_file_path, img['img_name']),
@@ -233,10 +233,10 @@ def plot_img_incorrect_pred(list_of_img_details={'img_name': '', 'status': '', '
 
     # These directories are created here instead of the create_directories() becuase the name
     # is dependent on the date and time.
-    CNN_STATS_FILE = creating_file_directory(os.path.join(AI_FPATH, 'cnn_results/cnn_' +
+    CNN_STATS_FILE = creating_file_directory(os.path.join(CURRENT_DIRECTORY, 'cnn_results/cnn_' +
                                              str(datetime.datetime.now())), 'cnn_' +
                                              str(datetime.datetime.now()),
-                                             os.path.join(AI_FPATH, 'cnn_results'))
+                                             os.path.join(CURRENT_DIRECTORY, 'cnn_results'))
     CNN_INCORRECT_PLOTS = creating_file_directory(os.path.join(CNN_STATS_FILE, 'plots'),
                                                   'plots', CNN_STATS_FILE)
 
@@ -264,7 +264,7 @@ def plot_img_incorrect_pred(list_of_img_details={'img_name': '', 'status': '', '
         plt.xlabel('Percent: ' + str(percent))
         plt.ylabel('Image: ' + img_name)
         plt.savefig(os.path.join(CNN_INCORRECT_PLOTS, img_name + '.png'))
-        os.chdir(AI_FPATH)
+        os.chdir(CURRENT_DIRECTORY)
 
     # Returns a file path so that the .csv file and .h5 can be saved to that file
     return CNN_STATS_FILE
