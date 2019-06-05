@@ -16,34 +16,50 @@ Then classify the tiles:
 
 import json
 import os
+import random
 import re
 from argparse import ArgumentParser
 from typing import Tuple
 
-import random
-import gdal
-from matplotlib import pyplot
-from matplotlib.widgets import Button, RadioButtons
+try:
+    from matplotlib import pyplot
+    from matplotlib.widgets import Button, RadioButtons
+except ImportError:
+    pyplot = None
+
+try:
+    import gdal
+except ImportError:
+    gdal = None
 
 FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?:tiff|tif)')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
+    if not check_dependencies(('gdal',)):
+        return
+
     datafile = gdal.Open(ifname)
     iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', ifname).groups()
     step_x, step_y = tile_size
-    band = datafile.GetRasterBand(1)
-    xsize = band.XSize
-    ysize = band.YSize    
+
+    xsize = datafile.RasterXSize
+    ysize = datafile.RasterYSize
+
     for x in range(0, xsize, step_x):
         for y in range(0, ysize, step_y):
-            os.system(
-                f'gdal_translate -of GTIFF -srcwin {x} {y} {step_x} {step_y} '
-                f'{ifname} {iftitle}_ulx_{x}_uly_{y}.{ifext}'
+            gdal.Translate(
+                f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
+                ifname,
+                srcwin=[x, y, step_x, step_y],
+                format="GTiff"
             )
 
 
 def interactive_classifier(directory: str) -> None:
+    if not check_dependencies(('gdal', 'matplotlib')):
+        return
+
     try:
         with open(os.path.join(directory, 'labels.json'), 'r') as f:
             image_labels = json.load(f)
@@ -113,6 +129,18 @@ def prepare_data(directory, holdout):
             os.makedirs(folder)
 
         os.rename(os.path.join(directory, file), os.path.join(folder, file))
+
+
+def check_dependencies(deps: Tuple[str, ...]) -> bool:
+    global_vars = globals()
+    for dep in deps:
+        if dep not in global_vars or global_vars[dep] is None:
+            print(
+                f"This function requires {dep}. "
+                "Please install it in the current shell and try again."
+            )
+            return False
+    return True
 
 
 if __name__ == '__main__':
