@@ -3,8 +3,8 @@ import math
 import os
 from argparse import ArgumentParser
 
-from main import get_model_dir_and_prefix, load_model
 from matplotlib import pyplot as plt
+from src.model import load_history, load_model
 from tensorflow.keras.layers import Conv2D
 
 
@@ -63,11 +63,7 @@ def plot_history(model_name, history):
 
 
 def plot_history_wrapper(args):
-    model_dir, prefix = get_model_dir_and_prefix(args.model)
-    with open(os.path.join(model_dir, 'history.json')) as f:
-        hist = json.load(f)
-
-    plot_history(args.model, hist)
+    plot_history(args.model, load_history(args.model))
 
 
 if __name__ == '__main__':

@@ -134,7 +134,7 @@ def load_history(model_name: str) -> History:
     model_path = path_from_model_name(model_name)
     model_dir = os.path.dirname(model_path)
 
-    load_history_from_path(model_dir)
+    return load_history_from_path(model_dir)
 
 
 def load_history_from_path(model_dir: str) -> History:
