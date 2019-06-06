@@ -9,10 +9,13 @@ needed. After its ran once the dataset folder (with all the SAR images) needs to
 AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
 """
 
+import os
 from argparse import ArgumentParser
 
-import asf_cnn as cnn
-import img_functions
+# import asf_cnn as cnn
+# import img_functions
+from src.asf_cnn import train_model
+from src.model import create_model, kload_model, path_from_model_name
 
 
 def main():
@@ -32,11 +35,17 @@ def main():
 
 def train_wrapper(args):
     model_name = args.model
-    if not args.overwrite and os.path.isfile(model_name):
+    model_path = path_from_model_name(model_name)
+    if not args.overwrite and os.path.isfile(model_path):
         print(f"File {model_name} already exists!")
         return
 
-    train_model(model_name, args.epochs, args.cont, args.dataset)
+    if args.cont:
+        model = kload_model(model_path)
+    else:
+        model = create_model()
+
+    train_model(model, args.dataset, args.epochs)
 
 
 def test_wrapper(args):

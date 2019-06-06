@@ -14,12 +14,13 @@ import datetime
 import json
 import os as os
 
-import main
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
+from .config import PROJECT_DIR
+
 # File Paths
-CURRENT_DIRECTORY = main.main_file_directory()
+CURRENT_DIRECTORY = PROJECT_DIR
 DATASET_FPATH = os.path.join(CURRENT_DIRECTORY, 'dataset')
 WATER_TRAINING_DATA = os.path.join(CURRENT_DIRECTORY, 'training_data/water')
 NO_WATER_TRAINING_DATA = os.path.join(

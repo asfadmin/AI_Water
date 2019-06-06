@@ -72,6 +72,5 @@ def path_from_model_name(model_name: str) -> str:
 
 
 def load_model(model_name: str) -> Model:
-
-    # with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-    pass
+    model_path = path_from_model_name(model_name)
+    return kload_model(model_path)
