@@ -19,85 +19,18 @@ import os
 
 import img_functions
 import pandas as pd
-from keras.initializers import glorot_uniform
-from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
-from keras.models import Sequential, load_model
 from keras.preprocessing.image import ImageDataGenerator
-from keras.utils import CustomObjectScope
+
+from .model import create_model, load_model
 
 
 def cnn():
-
-    # Part 1: Creating the CNN
-    # Initialising the CNN
-    classifier = Sequential()
-
-    # Step 1: Convolution
-    # 1st parameter is number of filters, 2nd is filter size (x^2), 3rd = stride
-    # 4th parameter is the expected format of the input images. The first two
-    # parameters within that parameter are the dimensions (x and y) and the
-    # last is color options. Color = 3, B/W = 1
-    # 5th parameter is the activation function
-    classifier.add(
-        Conv2D(
-            64, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        )
-    )
-    classifier.add(
-        Conv2D(
-            128, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        )
-    )
-    # Step 2: Pooling (Max)
-    # 1st parameter inside of MaxPooling2D is the gird size.
-    classifier.add(MaxPooling2D(pool_size=(2, 2)))
-    # Step 2.5 More Convo layers
-    classifier.add(
-        Conv2D(
-            128, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        )
-    )
-    classifier.add(
-        Conv2D(
-            128, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        )
-    )
-    classifier.add(MaxPooling2D(pool_size=(2, 2)))
-    # Step 3: Flattening
-    classifier.add(Flatten())
-    # Step 4: Full Connection
-    # 1st parameter is the amount of nodes (Neurons)
-    # 2nd parameter is the activation function
-    classifier.add(Dense(units=128, activation='relu'))
-    classifier.add(Dropout(rate=.5))
-    classifier.add(Dense(units=128, activation='relu'))
-    classifier.add(Dropout(rate=.5))
-    classifier.add(Dense(units=64, activation='relu'))
-    classifier.add(Dropout(rate=.3))
-    classifier.add(Dense(units=1, activation='sigmoid'))
-
-    # Compiling the CNN
-    # 1st parameter is the optimizer.
-    # 2nd parameter is the loss function
-    # 3rd parameter is the performance metric
+    classifier = load_model('asf_cnn.h5')
     # UNCOMMENT IF TRAINING IS BEING RESTARTED
-    # classifier.compile('adam', loss='binary_crossentropy', metrics=['accuracy'])
+    # classifier = create_model()
     # COMMENT OUT IF TRAINING IS BEING RESTARTED
     CURRENT_DIRECTORY = img_functions.get_file_root()
-    with CustomObjectScope({'GlorotUniform': glorot_uniform()}):
-        classifier = load_model(os.path.join(CURRENT_DIRECTORY, 'asf_cnn.h5'))
+
     classifier.summary()
 
     # File paths for grabbing the images.
