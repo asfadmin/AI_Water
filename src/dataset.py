@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
@@ -9,34 +9,27 @@ from osgeo import gdal
 from .config import PROJECT_DIR
 
 
-class DataGenerator(object):
-    def __init__(
-        self,
-        metadata,
-        rescale: int = 1,
-        clip_range: Optional[Tuple[float, float]] = None
-    ):
-        self.metadata = metadata
-        self.rescale = rescale
-        self.clip_range = clip_range
-        self.label_to_num = {'water': 1, 'not_water': 0}
+def generate_from_metadata(
+    metadata: List[Tuple[str, str]],
+    rescale: float = 1.0,
+    clip_range: Optional[Tuple[float, float]] = None
+):
+    label_to_num = {'water': 1, 'not_water': 0}
+    for file_name, label in metadata:
+        tif = gdal.Open(file_name)
+        tif_array = tif.ReadAsArray()
 
-    def generate(self):
-        for file_name, label in self.metadata:
-            tif = gdal.Open(file_name)
-            tif_array = tif.ReadAsArray()
+        if np.any(np.isnan(tif_array)):
+            continue
+        if 0 in tif_array:
+            continue
 
-            if np.any(np.isnan(tif_array)):
-                continue
-            if 0 in tif_array:
-                continue
-
-            x = np.array(tif_array).astype('float32') * self.rescale
-            # Clip all values to a fixed range
-            if self.clip_range:
-                l, h = self.clip_range
-                np.clip(x, l, h, out=x)
-            yield x.reshape((512, 512, 1)), np.array(self.label_to_num[label])
+        x = np.array(tif_array).astype('float32') * rescale
+        # Clip all values to a fixed range
+        if clip_range:
+            l, h = clip_range
+            np.clip(x, l, h, out=x)
+        yield x.reshape((512, 512, 1)), np.array(label_to_num[label])
 
 
 def dataset_dir(dataset: str):
@@ -56,12 +49,12 @@ def load_dataset(dataset: str):
     # Load the entire dataset into memory
     x_train = []
     y_train = []
-    for img, label in DataGenerator(train_metadata).generate():
+    for img, label in generate_from_metadata(train_metadata):
         x_train.append(img)
         y_train.append(label)
     x_test = []
     y_test = []
-    for img, label in DataGenerator(test_metadata).generate():
+    for img, label in generate_from_metadata(test_metadata):
         x_test.append(img)
         y_test.append(label)
 

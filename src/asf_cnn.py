@@ -23,9 +23,16 @@ from keras.models import Model
 from . import img_functions
 from .dataset import load_dataset
 from .model import save_model
+from .typing import History
 
 
-def train_model(model: Model, dataset: str, epochs: int, verbose: int = 1):
+def train_model(
+    model: Model,
+    model_history: History,
+    dataset: str,
+    epochs: int,
+    verbose: int = 1
+):
     if verbose > 0:
         model.summary()
 
@@ -39,14 +46,28 @@ def train_model(model: Model, dataset: str, epochs: int, verbose: int = 1):
             print("No training data! Aborting...")
             return
 
-    model.fit_generator(
-        training_set,
-        steps_per_epoch=step_size_training,
-        epochs=epochs,
-        validation_data=test_set,
-        validation_steps=step_size_vaild,
-        verbose=verbose
-    )
+    # Get the number of existing entries in the history
+    epoch_prev = len(next(iter(model_history.values())))
+
+    for epoch in range(epochs):
+        epoch += 1
+
+        if verbose > 0:
+            print(f"Epoch {epoch}/{epochs}")
+
+        history = model.fit_generator(
+            training_set,
+            steps_per_epoch=step_size_training,
+            epochs=1,
+            validation_data=test_set,
+            validation_steps=step_size_vaild,
+            verbose=verbose
+        )
+
+        for key in model_history.keys():
+            model_history[key] += history.history[key]
+
+        save_model(model, f"e{epoch + epoch_prev}", history=model_history)
 
     save_model(model, 'latest')
 

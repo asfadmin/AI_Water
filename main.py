@@ -38,14 +38,16 @@ def train_wrapper(args):
 
     if args.cont:
         model = load_model(model_name)
+        history = model.__asf_model_history
     else:
         model_path = path_from_model_name(model_name)
         if not args.overwrite and os.path.isfile(model_path):
             print(f"File {model_name} already exists!")
             return
         model = create_model(model_name)
+        history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
 
-    train_model(model, args.dataset, args.epochs)
+    train_model(model, history, args.dataset, args.epochs)
 
 
 def test_wrapper(args):
