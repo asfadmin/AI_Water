@@ -9,7 +9,7 @@ needed. After its ran once the dataset folder (with all the SAR images) needs to
 AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
 """
 
-import os
+from argparse import ArgumentParser
 
 import asf_cnn as cnn
 import img_functions
@@ -30,10 +30,52 @@ def main():
     img_functions.move_incorrect_predictions_back()
 
 
-def main_file_directory():
-    """Returns main.py working directory"""
-    return (os.path.dirname(os.path.abspath(__file__)))
+def train_wrapper(args):
+    model_name = args.model
+    if not args.overwrite and os.path.isfile(model_name):
+        print(f"File {model_name} already exists!")
+        return
+
+    train_model(model_name, args.epochs, args.cont, args.dataset)
+
+
+def test_wrapper(args):
+    test_model(args.model, args.dataset)
 
 
 if __name__ == '__main__':
-    main()
+    p = ArgumentParser()
+    sp = p.add_subparsers()
+
+    # Arguments for train mode
+    train = sp.add_parser('train', help='Train a new model')
+    train.add_argument('model', help='Name of the model to save: example_net')
+    train.add_argument('dataset', nargs='?', default='dataset_calibrated')
+    train.add_argument(
+        '--overwrite',
+        '-o',
+        action='store_true',
+        help='Replace the file if it exists'
+    )
+    train.add_argument(
+        '--continue',
+        '-c',
+        action='store_true',
+        dest='cont',
+        help='Continue training from existing model'
+    )
+    train.add_argument('--epochs', '-e', type=int, default=10)
+    train.set_defaults(func=train_wrapper)
+
+    # Arguments for test mode
+    test = sp.add_parser('test', help='Test an existing model')
+    test.add_argument('model', help='Name of the trained model')
+    test.add_argument('dataset', nargs='?', default='dataset_calibrated')
+    test.set_defaults(func=test_wrapper)
+
+    # Parse and execute selected function
+    args = p.parse_args()
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        p.print_help()
