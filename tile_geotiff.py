@@ -51,7 +51,7 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
             gdal.Translate(
                 f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
                 ifname,
-                srcwin=[x, y, step_x, step_y],
+                srcWin=[x, y, step_x, step_y],
                 format="GTiff"
             )
 
