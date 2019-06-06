@@ -4,12 +4,14 @@ Convolutional Neural Network
 McKade Sorensen (Douglas)
 05/20/2019
 
-This includes funtions that will set up the SAR data so that it can be correctly fed into the
-Convoulutional Neural Network. It sets up all the directorys that you should need, if you don't
-already have them. The only thing that needs to be done a user is to extract the images into
-the dataset file and move the labels.json and asf_cnn.h5 into the AI_Project directory. Running
-main.py once should create the AI_Project directory.
+This includes functions that will set up the SAR data so that it can be
+correctly fed into the Convoulutional Neural Network. It sets up all the
+directories that you should need, if you don't already have them. The only
+thing that needs to be done a user is to extract the images into the dataset
+file and move the labels.json and asf_cnn.h5 into the AI_Project directory.
+Running main.py once should create the AI_Project directory.
 """
+
 import datetime
 import json
 import os as os
