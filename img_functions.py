@@ -14,18 +14,17 @@ import datetime
 import json
 import os as os
 
+import main
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-
-import main
 
 # File Paths
 CURRENT_DIRECTORY = main.main_file_directory()
 DATASET_FPATH = os.path.join(CURRENT_DIRECTORY, 'dataset')
-WATER_TRAINING_DATA = os.path.join(CURRENT_DIRECTORY,
-                                   'training_data/water')
-NO_WATER_TRAINING_DATA = os.path.join(CURRENT_DIRECTORY,
-                                      'training_data/no_water')
+WATER_TRAINING_DATA = os.path.join(CURRENT_DIRECTORY, 'training_data/water')
+NO_WATER_TRAINING_DATA = os.path.join(
+    CURRENT_DIRECTORY, 'training_data/no_water'
+)
 WATER_TEST_DATA = os.path.join(CURRENT_DIRECTORY, 'test_data/water')
 NO_WATER_TEST_DATA = os.path.join(CURRENT_DIRECTORY, 'test_data/no_water')
 WATER_FPATH = os.path.join(CURRENT_DIRECTORY, 'water')
@@ -33,8 +32,9 @@ NO_WATER_FPATH = os.path.join(CURRENT_DIRECTORY, 'no_water')
 SKIP_FPATH = os.path.join(CURRENT_DIRECTORY, 'skip')
 TRAINING_FPATH = os.path.join(CURRENT_DIRECTORY, 'training_data')
 TEST_FPATH = os.path.join(CURRENT_DIRECTORY, 'test_data')
-INCORRECT_PREDICTIONS_FPATH = os.path.join(CURRENT_DIRECTORY,
-                                           'incorrect_predictions')
+INCORRECT_PREDICTIONS_FPATH = os.path.join(
+    CURRENT_DIRECTORY, 'incorrect_predictions'
+)
 CNN_RESULTS = os.path.join(CURRENT_DIRECTORY, 'cnn_results')
 
 
@@ -50,23 +50,29 @@ def sar_data_setup():
         now = datetime.datetime.now()
         # Loop through the dataset
         label = sar_data[image_name]
-        if label == 'skip' or label == 'invalid' and not image_name.startswith('skip'):
+        if label == 'skip' or label == 'invalid' and not image_name.startswith(
+            'skip'
+        ):
             os.rename(
-                # Renames and moves the image to the proper directory
                 os.path.join('dataset', image_name),
-                os.path.join('skip', 'skip_' + str(index) + '_' + str(now) + '.tiff')
+                os.path.join(
+                    'skip', 'skip_' + str(index) + '_' + str(now) + '.tiff'
+                )
             )
         elif label == 'water' and not image_name.startswith('water'):
             os.rename(
-                # Renames and moves the image to the proper directory
                 os.path.join('dataset', image_name),
-                os.path.join('water', 'water_' + str(index) + '_' + str(now) + '.tiff')
+                os.path.join(
+                    'water', 'water_' + str(index) + '_' + str(now) + '.tiff'
+                )
             )
         elif label == 'not_water' and not image_name.startswith('not_water'):
             os.rename(
-                # Renames and moves the image to the proper directory
                 os.path.join('dataset', image_name),
-                os.path.join('no_water', 'not_water_' + str(index) + '_' + str(now) + '.tiff')
+                os.path.join(
+                    'no_water',
+                    'not_water_' + str(index) + '_' + str(now) + '.tiff'
+                )
             )
         else:
             print('ERROR IN sar_data_setup')
@@ -76,12 +82,22 @@ def create_directories():
     """This function creates all the correct directorys within the users
     file system if they're not already created"""
     # Creating the directorys
-    creating_file_directory(WATER_TEST_DATA, 'test_data/water', CURRENT_DIRECTORY)
-    creating_file_directory(NO_WATER_TEST_DATA, 'test_data/no_water', CURRENT_DIRECTORY)
-    creating_file_directory(WATER_TRAINING_DATA, 'training_data/water', CURRENT_DIRECTORY)
-    creating_file_directory(NO_WATER_TRAINING_DATA, 'training_data/no_water', CURRENT_DIRECTORY)
+    creating_file_directory(
+        WATER_TEST_DATA, 'test_data/water', CURRENT_DIRECTORY
+    )
+    creating_file_directory(
+        NO_WATER_TEST_DATA, 'test_data/no_water', CURRENT_DIRECTORY
+    )
+    creating_file_directory(
+        WATER_TRAINING_DATA, 'training_data/water', CURRENT_DIRECTORY
+    )
+    creating_file_directory(
+        NO_WATER_TRAINING_DATA, 'training_data/no_water', CURRENT_DIRECTORY
+    )
     creating_file_directory(CNN_RESULTS, 'cnn_results', CURRENT_DIRECTORY)
-    creating_file_directory(INCORRECT_PREDICTIONS_FPATH, 'incorrect_predictions', CURRENT_DIRECTORY)
+    creating_file_directory(
+        INCORRECT_PREDICTIONS_FPATH, 'incorrect_predictions', CURRENT_DIRECTORY
+    )
     creating_file_directory(SKIP_FPATH, 'skip', CURRENT_DIRECTORY)
     creating_file_directory(WATER_FPATH, 'water', CURRENT_DIRECTORY)
     creating_file_directory(NO_WATER_FPATH, 'no_water', CURRENT_DIRECTORY)
@@ -111,13 +127,17 @@ def test_training_data_percent(percent_test_data=''):
     of the data you want to be test data then calls a function to move
     both the training data and the test data."""
     # Getting the number of test/training images to move.
-    water_count = round(get_img_count(WATER_FPATH) * (percent_test_data*.01))
-    no_water_count = round(get_img_count(NO_WATER_FPATH) * (percent_test_data*.01))
+    water_count = round(get_img_count(WATER_FPATH) * (percent_test_data * .01))
+    no_water_count = round(
+        get_img_count(NO_WATER_FPATH) * (percent_test_data * .01)
+    )
 
     # Moving the files from one file to the next
     # Test images
     moving_training_test_data(WATER_FPATH, WATER_TEST_DATA, water_count)
-    moving_training_test_data(NO_WATER_FPATH, NO_WATER_TEST_DATA, no_water_count)
+    moving_training_test_data(
+        NO_WATER_FPATH, NO_WATER_TEST_DATA, no_water_count
+    )
 
     # CODE Below will help create a 50/50 split in testing images.
     # comment out the function call of the larger data set above.
@@ -132,8 +152,12 @@ def test_training_data_percent(percent_test_data=''):
     # Training images
     water_count_training = get_img_count(WATER_FPATH)
     no_water_count_training = get_img_count(NO_WATER_FPATH)
-    moving_training_test_data(WATER_FPATH, WATER_TRAINING_DATA, water_count_training)
-    moving_training_test_data(NO_WATER_FPATH, NO_WATER_TRAINING_DATA, no_water_count_training)
+    moving_training_test_data(
+        WATER_FPATH, WATER_TRAINING_DATA, water_count_training
+    )
+    moving_training_test_data(
+        NO_WATER_FPATH, NO_WATER_TRAINING_DATA, no_water_count_training
+    )
 
 
 def moving_training_test_data(current_file_path, new_file_path, number):
@@ -146,7 +170,7 @@ def moving_training_test_data(current_file_path, new_file_path, number):
 
         os.rename(
             os.path.join(current_file_path, image_name),
-            os.path.join(new_file_path,  image_name)
+            os.path.join(new_file_path, image_name)
         )
         count += 1
 
@@ -162,27 +186,38 @@ def move_data_back():
 
     # Water
     moving_training_test_data(WATER_TEST_DATA, WATER_FPATH, water_test_count)
-    moving_training_test_data(WATER_TRAINING_DATA, WATER_FPATH, water_training_count)
+    moving_training_test_data(
+        WATER_TRAINING_DATA, WATER_FPATH, water_training_count
+    )
 
     # No water
-    moving_training_test_data(NO_WATER_TEST_DATA, NO_WATER_FPATH, no_water_test_count)
-    moving_training_test_data(NO_WATER_TRAINING_DATA, NO_WATER_FPATH, no_water_training_count)
+    moving_training_test_data(
+        NO_WATER_TEST_DATA, NO_WATER_FPATH, no_water_test_count
+    )
+    moving_training_test_data(
+        NO_WATER_TRAINING_DATA, NO_WATER_FPATH, no_water_training_count
+    )
 
 
-def move_incorrect_predictions(list_of_img_details={'img_name': '', 'status': '',
-                                                    'prediction': '', 'percent': ''}):
+def move_incorrect_predictions(
+    list_of_img_details={
+        'img_name': '',
+        'status': '',
+        'prediction': '',
+        'percent': ''
+    }
+):
     """Moves imgs that were incorrectly predicted to a folder"""
     for img in list_of_img_details:
         # Runs through the dictonary and looks for incorrect predictions
         if img['status'] != img['prediction']:
             if img['status'] == 'water':
-                c_file_path = os.path.join(CURRENT_DIRECTORY,
-                                           'test_data/water')
+                c_file_path = os.path.join(CURRENT_DIRECTORY, 'test_data/water')
             elif img['status'] == 'no_water':
-                c_file_path = os.path.join(CURRENT_DIRECTORY,
-                                           'test_data/no_water')
+                c_file_path = os.path.join(
+                    CURRENT_DIRECTORY, 'test_data/no_water'
+                )
             os.rename(
-                # Renames and moves the image to the proper directory
                 os.path.join(c_file_path, img['img_name']),
                 os.path.join('incorrect_predictions', img['img_name'])
             )
@@ -199,13 +234,11 @@ def move_incorrect_predictions_back():
     for img_name in os.listdir(INCORRECT_PREDICTIONS_FPATH):
         if img_name.startswith('water'):
             os.rename(
-                # Moves the image to the proper directory
                 os.path.join(INCORRECT_PREDICTIONS_FPATH, img_name),
                 os.path.join(WATER_TRAINING_DATA, img_name)
-                )
+            )
         elif img_name.startswith('not_water'):
             os.rename(
-                # Moves the image to the proper directory
                 os.path.join(INCORRECT_PREDICTIONS_FPATH, img_name),
                 os.path.join(NO_WATER_TRAINING_DATA, img_name)
             )
@@ -214,8 +247,15 @@ def move_incorrect_predictions_back():
             print(img_name)
 
 
-def dictonary_pair_to_list(pair, list_of_img_details={'img_name': '', 'status': '',
-                           'prediction': '', 'percent': ''}):
+def dictonary_pair_to_list(
+    pair,
+    list_of_img_details={
+        'img_name': '',
+        'status': '',
+        'prediction': '',
+        'percent': ''
+    }
+):
     """ Creates a list out of one of the dictonarys pairs"""
     returned_list = []
     for x in list_of_img_details:
@@ -224,8 +264,14 @@ def dictonary_pair_to_list(pair, list_of_img_details={'img_name': '', 'status': 
     return returned_list
 
 
-def plot_img_incorrect_pred(list_of_img_details={'img_name': '', 'status': '', 'prediction': '',
-                                                 'percent': ''}):
+def plot_img_incorrect_pred(
+    list_of_img_details={
+        'img_name': '',
+        'status': '',
+        'prediction': '',
+        'percent': ''
+    }
+):
     """Plots the imgs that were predicted incorrectly and saves them to a file. """
     prediction = ''
     status = ''
@@ -233,12 +279,16 @@ def plot_img_incorrect_pred(list_of_img_details={'img_name': '', 'status': '', '
 
     # These directories are created here instead of the create_directories() becuase the name
     # is dependent on the date and time.
-    CNN_STATS_FILE = creating_file_directory(os.path.join(CURRENT_DIRECTORY, 'cnn_results/cnn_' +
-                                             str(datetime.datetime.now())), 'cnn_' +
-                                             str(datetime.datetime.now()),
-                                             os.path.join(CURRENT_DIRECTORY, 'cnn_results'))
-    CNN_INCORRECT_PLOTS = creating_file_directory(os.path.join(CNN_STATS_FILE, 'plots'),
-                                                  'plots', CNN_STATS_FILE)
+    CNN_STATS_FILE = creating_file_directory(
+        os.path.join(
+            CURRENT_DIRECTORY,
+            'cnn_results/cnn_' + str(datetime.datetime.now())
+        ), 'cnn_' + str(datetime.datetime.now()),
+        os.path.join(CURRENT_DIRECTORY, 'cnn_results')
+    )
+    CNN_INCORRECT_PLOTS = creating_file_directory(
+        os.path.join(CNN_STATS_FILE, 'plots'), 'plots', CNN_STATS_FILE
+    )
 
     for img_name in os.listdir(INCORRECT_PREDICTIONS_FPATH):
         os.chdir(INCORRECT_PREDICTIONS_FPATH)
