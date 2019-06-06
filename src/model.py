@@ -1,5 +1,6 @@
 import os
 import re
+from typing import Tuple
 
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Model, Sequential
@@ -8,7 +9,7 @@ from keras.models import load_model as kload_model
 from .config import PROJECT_DIR
 
 
-def create_model() -> Model:
+def create_model(model_name: str) -> Model:
     model = Sequential([
         Conv2D(
             64, (3, 3),
@@ -48,6 +49,8 @@ def create_model() -> Model:
 
     model.compile('adam', loss='binary_crossentropy', metrics=['accuracy'])
 
+    model.__asf_model_name = model_name
+
     return model
 
 
@@ -60,17 +63,39 @@ def path_from_model_name(model_name: str) -> str:
             path_from_model_name("example_net:epoch1")
     ```
     """
+    name, tag = name_tag_from_model_name(model_name)
+    if not tag:
+        tag = "latest"
+
+    return path_from_model_name_tag(name, tag)
+
+
+def name_tag_from_model_name(model_name: str) -> Tuple[str, str]:
     m = re.match(r"^(.*?)(?::(.*))?$", model_name)
     if not m:
         raise ValueError("Invalid model name")
 
-    dir_path, file_name = m.groups()
-    if not file_name:
-        file_name = "latest"
+    name, tag = m.groups()
+    return name, tag or ''
 
-    return os.path.join(PROJECT_DIR, "models", dir_path, f"{file_name}.h5")
+
+def path_from_model_name_tag(name: str, tag: str) -> str:
+    return os.path.join(PROJECT_DIR, "models", name, f"{tag}.h5")
+
+
+def save_model(model: Model, model_tag: str):
+    name, _ = name_tag_from_model_name(model.__asf_model_name)
+    model_path = path_from_model_name_tag(name, model_tag)
+    model_dir = os.path.dirname(model_path)
+
+    if not os.path.isdir(model_dir):
+        os.makedirs(model_dir)
+
+    model.save(model_path)
 
 
 def load_model(model_name: str) -> Model:
     model_path = path_from_model_name(model_name)
-    return kload_model(model_path)
+    model = kload_model(model_path)
+    model.__asf_model_name = model_name
+    return model

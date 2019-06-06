@@ -15,7 +15,7 @@ from argparse import ArgumentParser
 # import asf_cnn as cnn
 # import img_functions
 from src.asf_cnn import train_model
-from src.model import create_model, kload_model, path_from_model_name
+from src.model import create_model, load_model, path_from_model_name
 
 
 def main():
@@ -35,15 +35,15 @@ def main():
 
 def train_wrapper(args):
     model_name = args.model
-    model_path = path_from_model_name(model_name)
-    if not args.overwrite and os.path.isfile(model_path):
-        print(f"File {model_name} already exists!")
-        return
 
     if args.cont:
-        model = kload_model(model_path)
+        model = load_model(model_name)
     else:
-        model = create_model()
+        model_path = path_from_model_name(model_name)
+        if not args.overwrite and os.path.isfile(model_path):
+            print(f"File {model_name} already exists!")
+            return
+        model = create_model(model_name)
 
     train_model(model, args.dataset, args.epochs)
 

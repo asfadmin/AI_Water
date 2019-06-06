@@ -22,10 +22,10 @@ from keras.models import Model
 
 from . import img_functions
 from .dataset import load_dataset
-from .model import create_model, load_model
+from .model import save_model
 
 
-def train_model(model: Model, dataset: str, epochs: int, verbose=1):
+def train_model(model: Model, dataset: str, epochs: int, verbose: int = 1):
     if verbose > 0:
         model.summary()
 
@@ -48,22 +48,19 @@ def train_model(model: Model, dataset: str, epochs: int, verbose=1):
         verbose=verbose
     )
 
+    save_model(model, 'latest')
 
-def cnn():
-    classifier = load_model('asf_cnn.h5')
-    # UNCOMMENT IF TRAINING IS BEING RESTARTED
-    # classifier = create_model()
-    # COMMENT OUT IF TRAINING IS BEING RESTARTED
 
+def test_model(model: Model, dataset: str, verbose: int = 1):
     training_set, test_set = load_dataset()
 
     step_size_vaild = len(test_set)
+    step_size_test = step_size_vaild
 
     # Code below sets up stats on how the CNN did
-    classifier.evaluate_generator(generator=test_set, steps=step_size_vaild)
-    step_size_test = len(test_set)
+    model.evaluate_generator(generator=test_set, steps=step_size_vaild)
     test_set.reset()
-    percent_of_pred = classifier.predict_generator(
+    percent_of_pred = model.predict_generator(
         test_set, steps=step_size_test, verbose=1
     )
 
@@ -122,7 +119,7 @@ def cnn():
     results.to_csv(os.path.join(CNN_STATS_FILE, "results.csv"), index=True)
 
     # Saving the model
-    classifier.save('asf_cnn.h5')
-    classifier.save(os.path.join(CNN_STATS_FILE, 'asf_cnn.h5'))
+    model.save('asf_cnn.h5')
+    model.save(os.path.join(CNN_STATS_FILE, 'asf_cnn.h5'))
     # Opens all the directory with all the stats so that the user can view them.
     os.system(f'xdg-open "{CNN_STATS_FILE}"')
