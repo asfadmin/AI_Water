@@ -70,7 +70,7 @@ def maximize_plot() -> None:
             mng.window.state('zoomed')
     elif backend == 'wxAgg':
         mng.frame.Maximize(True)
-    elif backend == 'QT4Agg':
+    elif 'QT' in backend:
         mng.window.showMaximized()
     else:
         raise RuntimeError(f"Backend {backend} is not supported")
