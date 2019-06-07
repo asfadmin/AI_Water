@@ -44,8 +44,12 @@ def plot_predictions(predictions: List[float], dataset: str):
 
             add_text(f"Actual: {label_text} [{label}]")
             add_text(f"Predicted: {predicted_text} [{predicted:.4}]")
-            verification_text = "Correct" if predicted_text == label_text else "Incorrect"
-            verification_color = "green" if verification_text == "Correct" else "red"
+            verification_text, verification_color = {
+                ('water', 'water'): ('True Positive', 'green'),
+                ('water', 'not_water'): ('False Negative', 'red'),
+                ('not_water', 'not_water'): ('True Negative', 'green'),
+                ('not_water', 'water'): ('False Positive', 'red'),
+            }.get((label_text, predicted_text), ("Unknown", 'yellow'))
             add_text(
                 verification_text,
                 bbox={
