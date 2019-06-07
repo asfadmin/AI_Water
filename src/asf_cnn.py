@@ -17,6 +17,7 @@ Part 2: Fitting the CNN to the image
 
 from typing import Any, Dict, List
 
+import numpy as np
 # import pandas as pd
 from keras.models import Model
 
@@ -103,4 +104,14 @@ def test_model(model: Model, dataset: str,
 
     print(f"Computed accuracy: {total_correct/total}")
 
-    return details
+    # Compute a confusion chart
+    test_iter.reset()
+    totals_matrix = np.zeros((2, 2))    # Hardcoded number of predictions
+    for prediction, (_, [label]) in zip(predictions, test_iter):
+        actual = label
+        prediction = int(round(prediction[0]))
+        totals_matrix[actual][prediction] += 1
+
+    confusion_matrix = totals_matrix / len(predictions)
+
+    return details, confusion_matrix

@@ -13,6 +13,7 @@ import csv
 import os
 from argparse import ArgumentParser
 
+from matplotlib import pyplot
 # import asf_cnn as cnn
 # import img_functions
 from src.asf_cnn import test_model, train_model
@@ -55,7 +56,7 @@ def test_wrapper(args):
     model_name = args.model
     model = load_model(model_name)
 
-    details = test_model(model, args.dataset)
+    details, confusion_matrix = test_model(model, args.dataset)
 
     # TODO: Refactor this to an analytics module
     model_path = path_from_model_name(model_name)
@@ -76,6 +77,24 @@ def test_wrapper(args):
                     rows[i + 1].append(value)
 
         writer.writerows(rows)
+
+    width, height = confusion_matrix.shape
+    for x in range(width):
+        for y in range(height):
+            pyplot.annotate(
+                str(confusion_matrix[x][y]),
+                xy=(y, x),
+                horizontalalignment='center',
+                verticalalignment='center'
+            )
+
+    pyplot.imshow(confusion_matrix, cmap=pyplot.get_cmap('RdBu'))
+    pyplot.xlabel("Actual")
+    pyplot.ylabel("Predicted")
+    pyplot.xticks(range(width))
+    pyplot.yticks(range(height))
+    pyplot.colorbar()
+    pyplot.show()
 
 
 if __name__ == '__main__':
