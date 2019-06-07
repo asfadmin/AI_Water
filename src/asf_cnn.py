@@ -22,7 +22,7 @@ from keras.models import Model
 
 from .dataset import load_dataset, make_label_conversions
 from .model import save_model
-from .typing import ConfMatrix, History
+from .typing import History
 
 
 def train_model(
@@ -72,7 +72,7 @@ def train_model(
 
 
 def test_model(model: Model, dataset: str,
-               verbose: int = 1) -> Tuple[Dict[str, List[Any]], ConfMatrix]:
+               verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
     if verbose > 0:
         model.summary()
 
