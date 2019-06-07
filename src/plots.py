@@ -2,14 +2,33 @@ import os
 import re
 from typing import List
 
+import numpy as np
 from matplotlib import pyplot
 
 from .dataset import load_dataset, make_label_conversions
 
 
-def plot_predictions(predictions: List[float], dataset: str):
-    # TODO: Find a better home for this
+def plot_confusion_chart(confusion_matrix: np.ndarray) -> None:
+    width, height = confusion_matrix.shape
+    for x in range(width):
+        for y in range(height):
+            pyplot.annotate(
+                str(confusion_matrix[x][y]),
+                xy=(y, x),
+                horizontalalignment='center',
+                verticalalignment='center'
+            )
 
+    pyplot.imshow(confusion_matrix, cmap=pyplot.get_cmap('RdBu'))
+    pyplot.xlabel("Actual")
+    pyplot.ylabel("Predicted")
+    pyplot.xticks(range(width))
+    pyplot.yticks(range(height))
+    pyplot.colorbar()
+    pyplot.show()
+
+
+def plot_predictions(predictions: List[float], dataset: str) -> None:
     TILENAME_REGEX = re.compile(r'.*_(ulx_[0-9]+_uly_[0-9]+).*\.(?:tiff|tif)')
 
     _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)

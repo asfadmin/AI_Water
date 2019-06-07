@@ -13,12 +13,10 @@ import csv
 import os
 from argparse import ArgumentParser
 
-from matplotlib import pyplot
-# import asf_cnn as cnn
 # import img_functions
 from src.asf_cnn import test_model, train_model
 from src.model import create_model, load_model, path_from_model_name
-from src.plots import plot_predictions
+from src.plots import plot_confusion_chart, plot_predictions
 
 
 def main():
@@ -79,24 +77,7 @@ def test_wrapper(args):
 
         writer.writerows(rows)
 
-    width, height = confusion_matrix.shape
-    for x in range(width):
-        for y in range(height):
-            pyplot.annotate(
-                str(confusion_matrix[x][y]),
-                xy=(y, x),
-                horizontalalignment='center',
-                verticalalignment='center'
-            )
-
-    pyplot.imshow(confusion_matrix, cmap=pyplot.get_cmap('RdBu'))
-    pyplot.xlabel("Actual")
-    pyplot.ylabel("Predicted")
-    pyplot.xticks(range(width))
-    pyplot.yticks(range(height))
-    pyplot.colorbar()
-    pyplot.show()
-
+    plot_confusion_chart(confusion_matrix)
     plot_predictions(details['Percent'], args.dataset)
 
 
