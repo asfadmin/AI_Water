@@ -1,8 +1,7 @@
 """
 Define custom type aliases here.
 """
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 History = Dict[str, List[float]]
 DatasetMetadata = List[Tuple[str, str]]
-JsonParsed = Union[Dict[Any, Any], List[Any]]

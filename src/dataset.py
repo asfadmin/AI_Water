@@ -1,13 +1,13 @@
 import json
 import os
-from typing import Any, Dict, Iterator, Optional, Set, Tuple, Union
+from typing import Dict, Iterator, Optional, Set, Tuple, Union
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
 from .config import DATASET_DIR
-from .typing import DatasetMetadata, JsonParsed
+from .typing import DatasetMetadata
 
 
 def generate_from_metadata(
@@ -120,6 +120,9 @@ def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
     return label_to_num, num_to_label
 
 
-def load_labels(dataset: str) -> JsonParsed:
+def load_labels(dataset: str) -> Dict[str, str]:
     with open(os.path.join(dataset_dir(dataset), 'labels.json')) as f:
-        return json.load(f)
+        labels = json.load(f)
+    if not isinstance(labels, dict):
+        raise ValueError("Label's file appears to be corrupted")
+    return labels
