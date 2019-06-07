@@ -1,9 +1,10 @@
 import os
 import re
-from typing import List
+from typing import Any, Callable, List, Optional
 
 import numpy as np
 from matplotlib import pyplot
+from matplotlib.widgets import Button
 
 from .dataset import load_dataset, make_label_conversions
 
@@ -25,6 +26,7 @@ def plot_confusion_chart(confusion_matrix: np.ndarray) -> None:
     pyplot.xticks(range(width))
     pyplot.yticks(range(height))
     pyplot.colorbar()
+    _btn = close_button()
     pyplot.show()
 
 
@@ -39,7 +41,10 @@ def plot_predictions(predictions: List[float], dataset: str) -> None:
     predict_iter = iter(predictions)
     meta_iter = iter(test_metadata)
 
+    done = False
     for i in range(len(test_iter) // 9):
+        if done:
+            break
         for j in range(9):
             # Test iter needs to have batch size of 1
             predicted, ([img], [label]), (image_name, _) = next(
@@ -78,6 +83,11 @@ def plot_predictions(predictions: List[float], dataset: str) -> None:
             )
             pyplot.title(os.path.basename(image_name))
 
+        def close_plot(_: Any) -> None:
+            nonlocal done
+            done = True
+
+        _cbtn = close_button(close_plot)
         maximize_plot()
         pyplot.show()
 
@@ -97,3 +107,17 @@ def maximize_plot() -> None:
         mng.window.showMaximized()
     else:
         raise RuntimeError(f"Backend {backend} is not supported")
+
+
+def close_button(callback: Optional[Callable[[Any], None]] = None) -> object:
+    "Create a 'close' button on the plot. Make sure to save this to a value."
+    button = Button(pyplot.axes([0.05, 0.05, 0.1, 0.075]), 'Close')
+
+    def click_handler(event: Any) -> None:
+        if callback:
+            callback(event)
+        pyplot.close()
+
+    button.on_clicked(click_handler)
+    # Need to return the button to prevent it from being garbage collected
+    return button
