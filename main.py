@@ -16,8 +16,9 @@ from argparse import ArgumentParser
 from matplotlib import pyplot
 # import asf_cnn as cnn
 # import img_functions
-from src.asf_cnn import display_predictions, test_model, train_model
+from src.asf_cnn import test_model, train_model
 from src.model import create_model, load_model, path_from_model_name
+from src.plots import plot_predictions
 
 
 def main():
@@ -96,7 +97,7 @@ def test_wrapper(args):
     pyplot.colorbar()
     pyplot.show()
 
-    display_predictions(details['Percent'], args.dataset)
+    plot_predictions(details['Percent'], args.dataset)
 
 
 if __name__ == '__main__':

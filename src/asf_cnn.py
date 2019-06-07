@@ -15,14 +15,12 @@ Step 4: Full Connection - ANN
 Part 2: Fitting the CNN to the image
 """
 
-import os
-import re
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from keras.models import Model
 
-from .dataset import load_dataset
+from .dataset import load_dataset, make_label_conversions
 from .model import save_model
 from .typing import ConfMatrix, History
 
@@ -87,7 +85,8 @@ def test_model(model: Model, dataset: str,
 
     total = 0
     total_correct = 0
-    num_to_labels = {0: "not_water", 1: "water"}
+    _, num_to_label = make_label_conversions(dataset, {"water", "not_water"})
+
     details: Dict[str, List[Any]] = {
         "Image": [],
         "Label": [],
@@ -107,8 +106,8 @@ def test_model(model: Model, dataset: str,
             total_correct += 1
 
         details["Image"].append(image_name)
-        details["Label"].append(num_to_labels[label])
-        details["Prediction"].append(num_to_labels[round(prediction)])
+        details["Label"].append(num_to_label[label])
+        details["Prediction"].append(num_to_label[round(prediction)])
         details["Percent"].append(prediction)
 
     print(f"Computed accuracy: {total_correct/total}")
@@ -124,39 +123,3 @@ def test_model(model: Model, dataset: str,
     confusion_matrix = totals_matrix / len(predictions)
 
     return details, confusion_matrix
-
-
-def display_predictions(predictions: List[float], dataset: str):
-    # TODO: Find a better home for this
-
-    TILENAME_REGEX = re.compile(r'.*_(ulx_[0-9]+_uly_[0-9]+).*\.(?:tiff|tif)')
-
-    _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)
-
-    # Show all of the test samples
-    from matplotlib import pyplot
-
-    test_iter.reset()
-    predict_iter = iter(predictions)
-    meta_iter = iter(test_metadata)
-
-    for i in range(len(test_iter) // 9):
-        for j in range(9):
-            # Test iter needs to have batch size of 1
-            predicted, ([img], [label]), (image_name, _) = next(
-                zip(predict_iter, test_iter, meta_iter)
-            )
-            m = re.match(TILENAME_REGEX, image_name)
-            if m:
-                image_name = m.group(1)
-            pyplot.subplot(3, 3, j + 1)
-            pyplot.imshow(
-                img.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
-            )
-            pyplot.text(512, 0, f"Actual: {label}")
-            pyplot.text(512, 40, f"Predicted: {predicted:.4}")
-            pyplot.title(os.path.basename(image_name))
-
-        mng = pyplot.get_current_fig_manager()
-        mng.resize(*mng.window.maxsize())
-        pyplot.show()
