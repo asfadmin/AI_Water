@@ -13,7 +13,6 @@ from .typing import DatasetMetadata, JsonParsed
 def generate_from_metadata(
     metadata: DatasetMetadata,
     label_to_num: Dict[str, int],
-    rescale: float = 1.0,
     clip_range: Optional[Tuple[float, float]] = None
 ):
     label_to_num = {'water': 1, 'not_water': 0}
@@ -26,7 +25,7 @@ def generate_from_metadata(
         if 0 in tif_array:
             continue
 
-        x = np.array(tif_array).astype('float32') * rescale
+        x = np.array(tif_array).astype('float32')
         # Clip all values to a fixed range
         if clip_range:
             l, h = clip_range
@@ -47,9 +46,9 @@ def load_dataset(
     classes = {'water', 'not_water'}
 
     train_gen = ImageDataGenerator(
-        rescale=1. / 512, shear_range=0.2, zoom_range=0.2, horizontal_flip=True
+        shear_range=0.2, zoom_range=0.2, horizontal_flip=True
     )
-    test_gen = ImageDataGenerator(rescale=1. / 512)
+    test_gen = ImageDataGenerator()
 
     train_metadata, test_metadata = make_metadata(dataset, classes)
     label_to_num, _ = make_label_conversions(dataset, classes)
@@ -58,14 +57,14 @@ def load_dataset(
     x_train = []
     y_train = []
     for img, label in generate_from_metadata(
-        train_metadata, label_to_num=label_to_num
+        train_metadata, label_to_num, clip_range=(0, 2)
     ):
         x_train.append(img)
         y_train.append(label)
     x_test = []
     y_test = []
     for img, label in generate_from_metadata(
-        test_metadata, label_to_num=label_to_num
+        test_metadata, label_to_num, clip_range=(0, 2)
     ):
         x_test.append(img)
         y_test.append(label)
