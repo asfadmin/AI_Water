@@ -23,7 +23,7 @@ from keras.models import Model
 
 from .dataset import load_dataset
 from .model import save_model
-from .typing import History
+from .typing import ConfMatrix, History
 
 
 def train_model(
@@ -73,11 +73,11 @@ def train_model(
 
 
 def test_model(model: Model, dataset: str,
-               verbose: int = 1) -> Dict[str, List[Any]]:
+               verbose: int = 1) -> Tuple[Dict[str, List[Any]], ConfMatrix]:
     if verbose > 0:
         model.summary()
 
-    _, test_iter = load_dataset(dataset)
+    _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)
 
     predictions = model.predict_generator(
         test_iter, steps=len(test_iter), verbose=verbose
@@ -87,17 +87,25 @@ def test_model(model: Model, dataset: str,
     total = 0
     total_correct = 0
     num_to_labels = {0: "not_water", 1: "water"}
-    details = {"Image": [], "Label": [], "Prediction": [], "Percent": []}
+    details: Dict[str, List[Any]] = {
+        "Image": [],
+        "Label": [],
+        "Prediction": [],
+        "Percent": []
+    }
 
     # Test iter needs to have batch size of 1
-    for prediction, (_, [label]) in zip(predictions, test_iter):
+    for prediction, (_, [label]), (image_name, _) in zip(
+        predictions,
+        test_iter,
+        test_metadata,
+    ):
         total += 1
         prediction = prediction[0]
         if label == round(prediction):
             total_correct += 1
 
-        # TODO: Get image name
-        details["Image"].append('image_name')
+        details["Image"].append(image_name)
         details["Label"].append(num_to_labels[label])
         details["Prediction"].append(num_to_labels[round(prediction)])
         details["Percent"].append(prediction)

@@ -1,16 +1,17 @@
 import json
 import os
-from typing import List, Optional, Set, Tuple
+from typing import Iterator, Optional, Set, Tuple, Union
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
 from .config import DATASET_DIR
+from .typing import DatasetMetadata
 
 
 def generate_from_metadata(
-    metadata: List[Tuple[str, str]],
+    metadata: DatasetMetadata,
     rescale: float = 1.0,
     clip_range: Optional[Tuple[float, float]] = None
 ):
@@ -29,14 +30,18 @@ def generate_from_metadata(
         if clip_range:
             l, h = clip_range
             np.clip(x, l, h, out=x)
-        yield x.reshape((512, 512, 1)), np.array(label_to_num[label])
+
+        yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
 
 
-def dataset_dir(dataset: str):
+def dataset_dir(dataset: str) -> str:
     return os.path.join(DATASET_DIR, dataset)
 
 
-def load_dataset(dataset: str):
+def load_dataset(
+    dataset: str, get_metadata: bool = False
+) -> Union[Tuple[Iterator, Iterator],
+           Tuple[Iterator, Iterator, DatasetMetadata, DatasetMetadata]]:
     train_gen = ImageDataGenerator(
         rescale=1. / 512, shear_range=0.2, zoom_range=0.2, horizontal_flip=True
     )
@@ -64,11 +69,14 @@ def load_dataset(dataset: str):
     test_iter = test_gen.flow(
         np.array(x_test), y=np.array(y_test), batch_size=1, shuffle=False
     )
+    if get_metadata:
+        return train_iter, test_iter, train_metadata, test_metadata
 
     return train_iter, test_iter
 
 
-def make_metadata(dataset: str, classes: Optional[Set[str]] = None):
+def make_metadata(dataset: str, classes: Optional[Set[str]] = None
+                  ) -> Tuple[DatasetMetadata, DatasetMetadata]:
     with open(os.path.join(dataset_dir(dataset), 'labels.json')) as f:
         labels = json.load(f)
 
