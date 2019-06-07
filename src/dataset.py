@@ -1,17 +1,18 @@
 import json
 import os
-from typing import List, Optional, Set, Tuple
+from typing import Dict, Iterator, Optional, Set, Tuple, Union
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
 from .config import DATASET_DIR
+from .typing import DatasetMetadata
 
 
 def generate_from_metadata(
-    metadata: List[Tuple[str, str]],
-    rescale: float = 1.0,
+    metadata: DatasetMetadata,
+    label_to_num: Dict[str, int],
     clip_range: Optional[Tuple[float, float]] = None
 ):
     label_to_num = {'water': 1, 'not_water': 0}
@@ -24,37 +25,47 @@ def generate_from_metadata(
         if 0 in tif_array:
             continue
 
-        x = np.array(tif_array).astype('float32') * rescale
+        x = np.array(tif_array).astype('float32')
         # Clip all values to a fixed range
         if clip_range:
             l, h = clip_range
             np.clip(x, l, h, out=x)
-        yield x.reshape((512, 512, 1)), np.array(label_to_num[label])
+
+        yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
 
 
-def dataset_dir(dataset: str):
+def dataset_dir(dataset: str) -> str:
     return os.path.join(DATASET_DIR, dataset)
 
 
-def load_dataset(dataset: str):
-    train_gen = ImageDataGenerator(
-        rescale=1. / 512, shear_range=0.2, zoom_range=0.2, horizontal_flip=True
-    )
-    test_gen = ImageDataGenerator(rescale=1. / 512)
+def load_dataset(
+    dataset: str, get_metadata: bool = False
+) -> Union[Tuple[Iterator, Iterator],
+           Tuple[Iterator, Iterator, DatasetMetadata, DatasetMetadata]]:
 
-    train_metadata, test_metadata = make_metadata(
-        dataset, {'water', 'not_water'}
+    classes = {'water', 'not_water'}
+
+    train_gen = ImageDataGenerator(
+        shear_range=0.2, zoom_range=0.2, horizontal_flip=True
     )
+    test_gen = ImageDataGenerator()
+
+    train_metadata, test_metadata = make_metadata(dataset, classes)
+    label_to_num, _ = make_label_conversions(dataset, classes)
 
     # Load the entire dataset into memory
     x_train = []
     y_train = []
-    for img, label in generate_from_metadata(train_metadata):
+    for img, label in generate_from_metadata(
+        train_metadata, label_to_num, clip_range=(0, 2)
+    ):
         x_train.append(img)
         y_train.append(label)
     x_test = []
     y_test = []
-    for img, label in generate_from_metadata(test_metadata):
+    for img, label in generate_from_metadata(
+        test_metadata, label_to_num, clip_range=(0, 2)
+    ):
         x_test.append(img)
         y_test.append(label)
 
@@ -64,28 +75,54 @@ def load_dataset(dataset: str):
     test_iter = test_gen.flow(
         np.array(x_test), y=np.array(y_test), batch_size=1, shuffle=False
     )
+    if get_metadata:
+        return train_iter, test_iter, train_metadata, test_metadata
 
     return train_iter, test_iter
 
 
-def make_metadata(dataset: str, classes: Optional[Set[str]] = None):
+def make_metadata(dataset: str, classes: Optional[Set[str]] = None
+                  ) -> Tuple[DatasetMetadata, DatasetMetadata]:
+    labels = load_labels(dataset)
+
+    train_metadata = []
+    test_metadata = []
+    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
+        for name in filenames:
+            if name not in labels:
+                continue
+
+            label = labels[name]
+            if classes and label not in classes:
+                continue
+
+            data = (os.path.join(dirpath, name), label)
+            if 'train' in dirpath:
+                train_metadata.append(data)
+            elif 'test' in dirpath:
+                test_metadata.append(data)
+    return train_metadata, test_metadata
+
+
+def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
+                           ) -> Tuple[Dict[str, int], Dict[int, str]]:
+    labels = load_labels(dataset)
+    categories = sorted(
+        list(filter(lambda x: x in classes, set(labels.values())))
+    )
+
+    label_to_num = {}
+    num_to_label = {}
+    for i, category in enumerate(categories):
+        label_to_num[category] = i
+        num_to_label[i] = category
+
+    return label_to_num, num_to_label
+
+
+def load_labels(dataset: str) -> Dict[str, str]:
     with open(os.path.join(dataset_dir(dataset), 'labels.json')) as f:
         labels = json.load(f)
-
-        train_metadata = []
-        test_metadata = []
-        for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
-            for name in filenames:
-                if name not in labels:
-                    continue
-
-                label = labels[name]
-                if classes and label not in classes:
-                    continue
-
-                data = (os.path.join(dirpath, name), label)
-                if 'train' in dirpath:
-                    train_metadata.append(data)
-                elif 'test' in dirpath:
-                    test_metadata.append(data)
-    return train_metadata, test_metadata
+    if not isinstance(labels, dict):
+        raise ValueError("Label's file appears to be corrupted")
+    return labels

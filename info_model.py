@@ -1,6 +1,4 @@
-import json
 import math
-import os
 from argparse import ArgumentParser
 
 from matplotlib import pyplot as plt

@@ -18,10 +18,9 @@ Part 2: Fitting the CNN to the image
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
-# import pandas as pd
 from keras.models import Model
 
-from .dataset import load_dataset
+from .dataset import load_dataset, make_label_conversions
 from .model import save_model
 from .typing import History
 
@@ -73,11 +72,11 @@ def train_model(
 
 
 def test_model(model: Model, dataset: str,
-               verbose: int = 1) -> Dict[str, List[Any]]:
+               verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
     if verbose > 0:
         model.summary()
 
-    _, test_iter = load_dataset(dataset)
+    _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)
 
     predictions = model.predict_generator(
         test_iter, steps=len(test_iter), verbose=verbose
@@ -86,20 +85,29 @@ def test_model(model: Model, dataset: str,
 
     total = 0
     total_correct = 0
-    num_to_labels = {0: "not_water", 1: "water"}
-    details = {"Image": [], "Label": [], "Prediction": [], "Percent": []}
+    _, num_to_label = make_label_conversions(dataset, {"water", "not_water"})
+
+    details: Dict[str, List[Any]] = {
+        "Image": [],
+        "Label": [],
+        "Prediction": [],
+        "Percent": []
+    }
 
     # Test iter needs to have batch size of 1
-    for prediction, (_, [label]) in zip(predictions, test_iter):
+    for prediction, (_, [label]), (image_name, _) in zip(
+        predictions,
+        test_iter,
+        test_metadata,
+    ):
         total += 1
         prediction = prediction[0]
         if label == round(prediction):
             total_correct += 1
 
-        # TODO: Get image name
-        details["Image"].append('image_name')
-        details["Label"].append(num_to_labels[label])
-        details["Prediction"].append(num_to_labels[round(prediction)])
+        details["Image"].append(image_name)
+        details["Label"].append(num_to_label[label])
+        details["Prediction"].append(num_to_label[round(prediction)])
         details["Percent"].append(prediction)
 
     print(f"Computed accuracy: {total_correct/total}")
@@ -115,31 +123,3 @@ def test_model(model: Model, dataset: str,
     confusion_matrix = totals_matrix / len(predictions)
 
     return details, confusion_matrix
-
-
-def display_predictions(predictions: List[float], dataset: str):
-    # TODO: Find a better home for this
-
-    _, test_iter = load_dataset(dataset)
-
-    # Show all of the test samples
-    from matplotlib import pyplot
-
-    test_iter.reset()
-    predict_iter = iter(predictions)
-
-    for i in range(len(test_iter) // 9):
-        for j in range(9):
-            # Test iter needs to have batch size of 1
-            [img], [label] = next(test_iter)
-            predicted = next(predict_iter)
-            pyplot.subplot(3, 3, j + 1)
-            pyplot.imshow(
-                img.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
-            )
-            pyplot.text(512, 0, "Actual: {}".format(label))
-            pyplot.text(512, 40, "Predicted: {}".format(predicted))
-
-        mng = pyplot.get_current_fig_manager()
-        mng.resize(*mng.window.maxsize())
-        pyplot.show()
