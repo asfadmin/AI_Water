@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+hypothesis = "*"
+
+[packages]
+tensorflow = "*"
+matplotlib = "*"
+pygdal = "==2.2.3.3"
+scipy = "*"
+keras = "*"
+
+[requires]
+python_version = "3.6"

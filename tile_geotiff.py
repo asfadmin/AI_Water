@@ -36,7 +36,7 @@ FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?:tiff|tif)')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
-    if not check_dependencies(('gdal',)):
+    if not check_dependencies(('gdal', )):
         return
 
     datafile = gdal.Open(ifname)
@@ -51,7 +51,7 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
             gdal.Translate(
                 f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
                 ifname,
-                srcwin=[x, y, step_x, step_y],
+                srcWin=[x, y, step_x, step_y],
                 format="GTiff"
             )
 
@@ -91,17 +91,21 @@ def _show_plot(tif_array, file, image_labels, close):
     pyplot.imshow(tif_array, cmap=pyplot.get_cmap('gray'))
     pyplot.colorbar()
     rax = pyplot.axes([0.05, 0.7, 0.15, 0.15])
-    classify_radio = RadioButtons(rax, ('Water', 'Not Water', 'Skip', 'Invalid'))
+    classify_radio = RadioButtons(
+        rax, ('Water', 'Not Water', 'Skip', 'Invalid')
+    )
     bclose = Button(pyplot.axes([0.05, 0.05, 0.1, 0.075]), 'Close')
 
     def close_handler(event):
         close['close'] = True
         pyplot.close()
+
     bclose.on_clicked(close_handler)
 
     def click_handler(label: str):
         image_labels[file] = label.lower().replace(' ', '_')
         pyplot.close()
+
     classify_radio.on_clicked(click_handler)
 
     mng = pyplot.get_current_fig_manager()
@@ -113,10 +117,12 @@ def prepare_data(directory, holdout):
     with open(os.path.join(directory, 'labels.json'), 'r') as f:
         image_labels = json.load(f)
 
-    file_names = list(filter(
-        lambda x: re.match(FILENAME_REGEX, x) is not None,
-        os.listdir(directory)
-    ))
+    file_names = list(
+        filter(
+            lambda x: re.match(FILENAME_REGEX, x) is not None,
+            os.listdir(directory)
+        )
+    )
 
     for file in file_names:
         if file not in image_labels:
@@ -148,29 +154,44 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers()
 
     # make_tiles
-    parser_make_tiles = subparsers.add_parser('tile', help='Tile a tiff into many smaller tiffs')
+    parser_make_tiles = subparsers.add_parser(
+        'tile', help='Tile a tiff into many smaller tiffs'
+    )
     parser_make_tiles.add_argument("file_name")
-    parser_make_tiles.add_argument("tile_size", type=int, help='Side length/height of the square tiles')
+    parser_make_tiles.add_argument(
+        "tile_size", type=int, help='Side length/height of the square tiles'
+    )
 
     def make_tiles_wrapper(args):
         make_tiles(args.file_name, (args.tile_size, args.tile_size))
+
     parser_make_tiles.set_defaults(func=make_tiles_wrapper)
 
     # interactive_classifier
-    parser_classifier = subparsers.add_parser('classify', help='Classify tiled images')
+    parser_classifier = subparsers.add_parser(
+        'classify', help='Classify tiled images'
+    )
     parser_classifier.add_argument("directory")
 
     def interactive_classifier_wrapper(args):
         interactive_classifier(args.directory)
+
     parser_classifier.set_defaults(func=interactive_classifier_wrapper)
 
     # interactive_classifier
-    parser_prepare = subparsers.add_parser('prepare', help='Prepare the data directory for use with `ImageGenerator.flow_from_directory`')
+    parser_prepare = subparsers.add_parser(
+        'prepare',
+        help=
+        'Prepare the data directory for use with `ImageGenerator.flow_from_directory`'
+    )
     parser_prepare.add_argument("directory")
-    parser_prepare.add_argument("holdout", type=float, help='Proportion of data to use for testing')
+    parser_prepare.add_argument(
+        "holdout", type=float, help='Proportion of data to use for testing'
+    )
 
     def prepare_data_wrapper(args):
         prepare_data(args.directory, args.holdout)
+
     parser_prepare.set_defaults(func=prepare_data_wrapper)
 
     args = parser.parse_args()
