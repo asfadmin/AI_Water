@@ -9,12 +9,13 @@ needed. After its ran once the dataset folder (with all the SAR images) needs to
 AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
 """
 
+import csv
 import os
 from argparse import ArgumentParser
 
 # import asf_cnn as cnn
 # import img_functions
-from src.asf_cnn import train_model
+from src.asf_cnn import test_model, train_model
 from src.model import create_model, load_model, path_from_model_name
 
 
@@ -51,7 +52,30 @@ def train_wrapper(args):
 
 
 def test_wrapper(args):
-    test_model(args.model, args.dataset)
+    model_name = args.model
+    model = load_model(model_name)
+
+    details = test_model(model, args.dataset)
+
+    # TODO: Refactor this to an analytics module
+    model_path = path_from_model_name(model_name)
+    with open(
+        os.path.join(os.path.dirname(model_path), 'results.csv'), 'w'
+    ) as f:
+        writer = csv.writer(f)
+
+        rows = []
+        for header, values in details.items():
+            if not rows:
+                rows.append([header])
+                for value in values:
+                    rows.append([value])
+            else:
+                rows[0].append(header)
+                for i, value in enumerate(values):
+                    rows[i + 1].append(value)
+
+        writer.writerows(rows)
 
 
 if __name__ == '__main__':

@@ -15,12 +15,11 @@ Step 4: Full Connection - ANN
 Part 2: Fitting the CNN to the image
 """
 
-import os
+from typing import Any, Dict, List
 
 # import pandas as pd
 from keras.models import Model
 
-from . import img_functions
 from .dataset import load_dataset
 from .model import save_model
 from .typing import History
@@ -32,7 +31,7 @@ def train_model(
     dataset: str,
     epochs: int,
     verbose: int = 1
-):
+) -> None:
     if verbose > 0:
         model.summary()
 
@@ -72,75 +71,36 @@ def train_model(
     save_model(model, 'latest')
 
 
-def test_model(model: Model, dataset: str, verbose: int = 1):
-    training_set, test_set = load_dataset()
+def test_model(model: Model, dataset: str,
+               verbose: int = 1) -> Dict[str, List[Any]]:
+    if verbose > 0:
+        model.summary()
 
-    step_size_vaild = len(test_set)
-    step_size_test = step_size_vaild
+    _, test_iter = load_dataset(dataset)
 
-    # Code below sets up stats on how the CNN did
-    model.evaluate_generator(generator=test_set, steps=step_size_vaild)
-    test_set.reset()
-    percent_of_pred = model.predict_generator(
-        test_set, steps=step_size_test, verbose=1
+    predictions = model.predict_generator(
+        test_iter, steps=len(test_iter), verbose=verbose
     )
+    test_iter.reset()
 
-    list_pred = []
-    list_of_img_details = []
+    total = 0
+    total_correct = 0
+    num_to_labels = {0: "not_water", 1: "water"}
+    details = {"Image": [], "Label": [], "Prediction": [], "Percent": []}
 
-    percent_of_pred *= 100
-    for x in percent_of_pred:
-        # Pulls the predictions and adds it to a dictonary to be stored in a list.
-        # Also gives the percent that it is certain it got it right.
-        if x >= 50:
-            value = 'water'
-        else:
-            value = 'no_water'
+    # Test iter needs to have batch size of 1
+    for prediction, (_, [label]) in zip(predictions, test_iter):
+        total += 1
+        prediction = prediction[0]
+        if label == round(prediction):
+            total_correct += 1
 
-        list_pred.append(value)
+        # TODO: Get image name
+        details["Image"].append('image_name')
+        details["Label"].append(num_to_labels[label])
+        details["Prediction"].append(num_to_labels[round(prediction)])
+        details["Percent"].append(prediction)
 
-    index = 0
-    for file_name in os.listdir(test_fpath):
-        # This loop creates a dictonary with all a images stats.
-        for img_name in os.listdir(os.path.join(test_fpath, file_name)):
-            details_of_img = {
-                'img_name': img_name,
-                'status': '',
-                'prediction': list_pred[index],
-                'percent': percent_of_pred[index]
-            }
-            if img_name.startswith('water'):
-                details_of_img['status'] = 'water'
-            elif img_name.startswith('not_water'):
-                details_of_img['status'] = 'no_water'
-            else:
-                print('ERROR WITH IMAGE DATA')
+    print(f"Computed accuracy: {total_correct/total}")
 
-            list_of_img_details.append(details_of_img)
-            index += 1
-
-    img_functions.move_incorrect_predictions(list_of_img_details)
-
-    # Pulling the data from the list to put into a .csv file.
-    img_names_list = img_functions.dictonary_pair_to_list(
-        'img_name', list_of_img_details
-    )
-    img_status = img_functions.dictonary_pair_to_list(
-        'status', list_of_img_details
-    )
-    results = pd.DataFrame({
-        "Images": img_names_list,
-        "Status": img_status,
-        "Predictions": list_pred,
-        "Percent": list(percent_of_pred)
-    })
-    CNN_STATS_FILE = img_functions.plot_img_incorrect_pred(list_of_img_details)
-    img_functions.move_incorrect_predictions_back()
-
-    results.to_csv(os.path.join(CNN_STATS_FILE, "results.csv"), index=True)
-
-    # Saving the model
-    model.save('asf_cnn.h5')
-    model.save(os.path.join(CNN_STATS_FILE, 'asf_cnn.h5'))
-    # Opens all the directory with all the stats so that the user can view them.
-    os.system(f'xdg-open "{CNN_STATS_FILE}"')
+    return details
