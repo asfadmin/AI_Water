@@ -9,14 +9,14 @@ needed. After its ran once the dataset folder (with all the SAR images) needs to
 AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
 """
 
-import csv
 import os
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 # import img_functions
 from src.asf_cnn import test_model, train_model
 from src.model import create_model, load_model, path_from_model_name
 from src.plots import plot_confusion_chart, plot_predictions
+from src.reports import write_dict_to_csv
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
     img_functions.move_incorrect_predictions_back()
 
 
-def train_wrapper(args):
+def train_wrapper(args: Namespace) -> None:
     model_name = args.model
 
     if args.cont:
@@ -51,31 +51,15 @@ def train_wrapper(args):
     train_model(model, history, args.dataset, args.epochs)
 
 
-def test_wrapper(args):
+def test_wrapper(args: Namespace) -> None:
     model_name = args.model
     model = load_model(model_name)
 
     details, confusion_matrix = test_model(model, args.dataset)
 
-    # TODO: Refactor this to an analytics module
-    model_path = path_from_model_name(model_name)
-    with open(
-        os.path.join(os.path.dirname(model_path), 'results.csv'), 'w'
-    ) as f:
-        writer = csv.writer(f)
-
-        rows = []
-        for header, values in details.items():
-            if not rows:
-                rows.append([header])
-                for value in values:
-                    rows.append([value])
-            else:
-                rows[0].append(header)
-                for i, value in enumerate(values):
-                    rows[i + 1].append(value)
-
-        writer.writerows(rows)
+    model_dir = os.path.dirname(path_from_model_name(model_name))
+    with open(os.path.join(model_dir, 'results.csv'), 'w') as f:
+        write_dict_to_csv(details, f)
 
     plot_confusion_chart(confusion_matrix)
     plot_predictions(details['Percent'], args.dataset)
