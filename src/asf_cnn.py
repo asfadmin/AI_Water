@@ -15,7 +15,7 @@ Step 4: Full Connection - ANN
 Part 2: Fitting the CNN to the image
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 # import pandas as pd
@@ -115,3 +115,31 @@ def test_model(model: Model, dataset: str,
     confusion_matrix = totals_matrix / len(predictions)
 
     return details, confusion_matrix
+
+
+def display_predictions(predictions: List[float], dataset: str):
+    # TODO: Find a better home for this
+
+    _, test_iter = load_dataset(dataset)
+
+    # Show all of the test samples
+    from matplotlib import pyplot
+
+    test_iter.reset()
+    predict_iter = iter(predictions)
+
+    for i in range(len(test_iter) // 9):
+        for j in range(9):
+            # Test iter needs to have batch size of 1
+            [img], [label] = next(test_iter)
+            predicted = next(predict_iter)
+            pyplot.subplot(3, 3, j + 1)
+            pyplot.imshow(
+                img.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+            )
+            pyplot.text(512, 0, "Actual: {}".format(label))
+            pyplot.text(512, 40, "Predicted: {}".format(predicted))
+
+        mng = pyplot.get_current_fig_manager()
+        mng.resize(*mng.window.maxsize())
+        pyplot.show()
