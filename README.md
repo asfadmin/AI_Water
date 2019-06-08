@@ -19,6 +19,40 @@ the unit tests.
 NOTE: *If you have trouble installing GDAL make sure that the package version
 in `Pipfile` corresponds to your GDAL installation.*
 
+## Project Layout
+
+The project is organized into directories as follows.
+
+```
+AI_Water
+├── dataset
+│   └── example_rtc       # Each dataset gets a directory
+│       ├── labels.json
+│       ├── test
+│       └── train
+├── models
+│   └── example_net       # Each model gets a directory containing .h5 files
+│       ├── epoch1.h5
+│       ├── history.json
+│       └── latest.h5
+├── src                   # Neural network source code
+├── tests                 # Unit and integration tests
+│   ├── unit_tests
+│   └── integration_tests
+└── ...
+```
+
+## Running Unit Tests
+This project uses `pytest` for unit testing. The easiest way to run the tests is
+with pipenv. Make sure you have installed the development dependencies with:
+```terminal
+$ pipenv install --dev
+```
+Then you can run the tests and get the full report with:
+```terminal
+$ pipenv run tests
+```
+
 ## Training
 1. Move your dataset (along with `labels.json`) to the dataset folder.
 2. If you’re loading in weights run `main.py` with the `--continue` option.
@@ -45,28 +79,4 @@ $ python main.py train awesome_net awesome_dataset --epochs 20 --continue
 View the models training history:
 ```terminal
 $ python model_info.py awesome_net history
-```
-
-
-## Project Layout
-
-The project is organized into directories as follows.
-
-```
-AI_Water
-├── dataset
-│   └── example_rtc       # Each dataset gets a directory
-│       ├── labels.json
-│       ├── test
-│       └── train
-├── models
-│   └── example_net       # Each model gets a directory containing .h5 files
-│       ├── epoch1.h5
-│       ├── history.json
-│       └── latest.h5
-├── src                   # Neural network source code
-├── tests                 # Unit and integration tests
-│   ├── unit_tests
-│   └── integration_tests
-└── ...
 ```

@@ -4,10 +4,11 @@ __pycache__/
 # Tests
 .hypothesis/
 .pytest_cache
+.coverage
 
 # Environments
 .venv
 
 # Neural Network Stuff
-dataset/
-models/
+/dataset/
+/models/
