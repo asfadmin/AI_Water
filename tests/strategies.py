@@ -1,3 +1,5 @@
+from typing import List
+
 import hypothesis.strategies as st
 
 
@@ -8,3 +10,7 @@ def model_component():
         ),
         min_size=1
     )
+
+
+def classes(elements: List[str] = ['water', 'not_water', 'skip', 'invalid']):
+    return st.sets(st.sampled_from(elements))
