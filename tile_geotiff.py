@@ -32,7 +32,8 @@ try:
 except ImportError:
     gdal = None
 
-FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?:tiff|tif)')
+EXT = "tiff|tif|TIFF|TIF"
+FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
@@ -113,9 +114,13 @@ def _show_plot(tif_array, file, image_labels, close):
     pyplot.show()
 
 
-def prepare_data(directory, holdout):
-    with open(os.path.join(directory, 'labels.json'), 'r') as f:
-        image_labels = json.load(f)
+def prepare_data(directory: str, holdout: float):
+    try:
+        with open(os.path.join(directory, 'labels.json'), 'r') as f:
+            image_labels = json.load(f)
+    except FileNotFoundError:
+        prepare_mask_data(directory, holdout)
+        return
 
     file_names = list(
         filter(
@@ -135,6 +140,37 @@ def prepare_data(directory, holdout):
             os.makedirs(folder)
 
         os.rename(os.path.join(directory, file), os.path.join(folder, file))
+
+
+def prepare_mask_data(directory: str, holdout: float) -> None:
+    # Keeps track of file names (without extension) and whether they were
+    # selected for training or testing data, so that the matching tile/mask
+    # will also end up in the same place
+    lookup = {}
+    ORIG_FILE_REGEX = re.compile(f"(.*)(Masks|Tile)_([0-9]+).*\\.({EXT})")
+
+    for file in os.listdir(directory):
+        m = re.match(ORIG_FILE_REGEX, file)
+        if not m:
+            continue
+
+        pre, mask_or_tile, num, ext = m.groups()
+        mask_or_tile = mask_or_tile.replace("Masks", 'Mask')
+        name_pre = f"{pre}_{num}"
+        new_tile_name = f"{name_pre}.{mask_or_tile}.{ext}".lower()
+
+        test_or_train = lookup.get(name_pre)
+        if not test_or_train:
+            test_or_train = 'train' if random.random() > holdout else 'test'
+            lookup[name_pre] = test_or_train
+
+        folder = os.path.join(directory, test_or_train)
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+
+        os.rename(
+            os.path.join(directory, file), os.path.join(folder, new_tile_name)
+        )
 
 
 def check_dependencies(deps: Tuple[str, ...]) -> bool:
