@@ -16,8 +16,8 @@ $ pipenv install --dev
 Specifying the `--dev` flag will also install dependencies you will need to run
 the unit tests.
 
-NOTE: *If you have trouble installing GDAL make sure that the package version
-in `Pipfile` corresponds to your GDAL installation.*
+NOTE: *If you have trouble installing PyGDAL make sure that the package version
+in `Pipfile` corresponds to the version of your GDAL installation.*
 
 ## Project Layout
 
