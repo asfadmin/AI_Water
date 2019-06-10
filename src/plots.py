@@ -93,17 +93,18 @@ def plot_predictions(predictions: List[float], dataset: str) -> None:
 
 
 def maximize_plot() -> None:
-    backend = pyplot.get_backend().lower()
+    backend = pyplot.get_backend()
     mng = pyplot.get_current_fig_manager()
 
-    if backend == 'tkagg':
+    backend_ = backend.lower()
+    if backend_ == 'tkagg':
         if os.name == 'posix':
             mng.resize(*mng.window.maxsize())
         else:
             mng.window.state('zoomed')
-    elif backend == 'wxagg':
+    elif backend_ == 'wxagg':
         mng.frame.Maximize(True)
-    elif re.match('qt[0-9]*agg', backend):
+    elif re.match('qt[0-9]*agg', backend_):
         mng.window.showMaximized()
     else:
         raise RuntimeError(f"Backend {backend} is not supported")
