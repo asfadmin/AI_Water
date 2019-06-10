@@ -6,7 +6,7 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
-from .config import DATASET_DIR
+from .config import DATASETS_DIR
 from .typing import DatasetMetadata
 
 
@@ -35,7 +35,7 @@ def generate_from_metadata(
 
 
 def dataset_dir(dataset: str) -> str:
-    return os.path.join(DATASET_DIR, dataset)
+    return os.path.join(DATASETS_DIR, dataset)
 
 
 def load_dataset(
@@ -93,13 +93,14 @@ def make_metadata(dataset: str, classes: Optional[Set[str]] = None
                 continue
 
             label = labels[name]
-            if classes and label not in classes:
+            if classes is not None and label not in classes:
                 continue
 
             data = (os.path.join(dirpath, name), label)
-            if 'train' in dirpath:
+            folder = os.path.basename(dirpath)
+            if folder == 'train':
                 train_metadata.append(data)
-            elif 'test' in dirpath:
+            elif folder == 'test':
                 test_metadata.append(data)
     return train_metadata, test_metadata
 
@@ -108,7 +109,7 @@ def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
                            ) -> Tuple[Dict[str, int], Dict[int, str]]:
     labels = load_labels(dataset)
     categories = sorted(
-        list(filter(lambda x: x in classes, set(labels.values())))
+        list(filter(lambda x: classes and x in classes, set(labels.values())))
     )
 
     label_to_num = {}
@@ -124,5 +125,5 @@ def load_labels(dataset: str) -> Dict[str, str]:
     with open(os.path.join(dataset_dir(dataset), 'labels.json')) as f:
         labels = json.load(f)
     if not isinstance(labels, dict):
-        raise ValueError("Label's file appears to be corrupted")
+        raise ValueError("Labels file appears to be corrupted")
     return labels

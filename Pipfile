@@ -1,3 +1,6 @@
+[scripts]
+tests = "pytest --cov-report term-missing --cov=src"
+
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
@@ -6,6 +9,7 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 hypothesis = "*"
+pytest-cov = "*"
 
 [packages]
 tensorflow = "*"
