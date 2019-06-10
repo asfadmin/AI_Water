@@ -19,12 +19,12 @@ from tests.strategies import classes
 @pytest.fixture
 def sample_dataset(tempdir: str):
     dataset = "unittest_dataset"
-    os.mkdir(os.path.join(tempdir, "dataset"))
-    temp_dataset_dir = os.path.join(tempdir, "dataset")
+    temp_dataset_dir = os.path.join(tempdir, "datasets")
+    os.mkdir(temp_dataset_dir)
     shutil.copytree(
         "tests/data/sample_dataset", os.path.join(temp_dataset_dir, dataset)
     )
-    with mock.patch("src.dataset.DATASET_DIR", temp_dataset_dir):
+    with mock.patch("src.dataset.DATASETS_DIR", temp_dataset_dir):
         yield dataset
 
 

@@ -6,7 +6,7 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
-from .config import DATASET_DIR
+from .config import DATASETS_DIR
 from .typing import DatasetMetadata
 
 
@@ -35,7 +35,7 @@ def generate_from_metadata(
 
 
 def dataset_dir(dataset: str) -> str:
-    return os.path.join(DATASET_DIR, dataset)
+    return os.path.join(DATASETS_DIR, dataset)
 
 
 def load_dataset(

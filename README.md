@@ -25,7 +25,7 @@ The project is organized into directories as follows.
 
 ```
 AI_Water
-├── dataset
+├── datasets
 │   └── example_rtc       # Each dataset gets a directory
 │       ├── labels.json
 │       ├── test
