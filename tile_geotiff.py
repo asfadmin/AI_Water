@@ -214,7 +214,7 @@ if __name__ == '__main__':
 
     parser_classifier.set_defaults(func=interactive_classifier_wrapper)
 
-    # interactive_classifier
+    # prepare_data
     parser_prepare = subparsers.add_parser(
         'prepare',
         help=
