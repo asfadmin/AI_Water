@@ -2,6 +2,7 @@ import os
 import shutil
 
 import mock
+import py
 import pytest
 from hypothesis import given
 from keras.layers import Dense, Flatten
@@ -16,13 +17,10 @@ from tests.strategies import model_component
 
 
 @pytest.fixture
-def sample_model(tempdir: str):
+def sample_model(tmpdir: py.path.local):
     model = "unittest_model"
-    temp_model_dir = os.path.join(tempdir, "models")
-    os.mkdir(temp_model_dir)
-    shutil.copytree(
-        "tests/data/sample_model", os.path.join(temp_model_dir, model)
-    )
+    temp_model_dir = tmpdir.mkdir("models")
+    shutil.copytree("tests/data/sample_model", temp_model_dir.join(model))
     with mock.patch("src.model.MODELS_DIR", temp_model_dir):
         yield model
 
@@ -108,13 +106,15 @@ def test_save_model_with_history(
     assert model.__asf_model_history == new_history
 
 
-def test_save_model_no_dir(sample_model: str, tempdir: str, fake_model: Model):
-    shutil.rmtree(os.path.join(tempdir, "models"))
+def test_save_model_no_dir(
+    sample_model: str, tmpdir: py.path.local, fake_model: Model
+):
+    shutil.rmtree(tmpdir.join("models"))
 
     fake_model.__asf_model_name = f"{sample_model}:some_old_tag"
     save_model(fake_model, "test_save_model")
 
-    assert os.path.isdir(os.path.join(tempdir, "models"))
+    assert tmpdir.join("models").check(dir=1)
 
 
 def test_load_history(sample_model: str):
@@ -132,10 +132,10 @@ def test_save_history(sample_model: str, new_history: History):
 
 
 def test_save_history_no_dir(
-    sample_model: str, tempdir: str, new_history: History
+    sample_model: str, tmpdir: py.path.local, new_history: History
 ):
-    shutil.rmtree(os.path.join(tempdir, "models"))
+    shutil.rmtree(tmpdir.join("models"))
 
     save_history(new_history, sample_model)
 
-    assert os.path.isdir(os.path.join(tempdir, "models"))
+    assert tmpdir.join("models").check(dir=1)

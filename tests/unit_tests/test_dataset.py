@@ -6,6 +6,7 @@ from typing import Set
 
 import mock
 import numpy as np
+import py
 import pytest
 from hypothesis import given
 from src.dataset import (
@@ -17,13 +18,11 @@ from tests.strategies import classes
 
 
 @pytest.fixture
-def sample_dataset(tempdir: str):
+def sample_dataset(tmpdir: py.path.local):
     dataset = "unittest_dataset"
-    temp_dataset_dir = os.path.join(tempdir, "datasets")
-    os.mkdir(temp_dataset_dir)
-    shutil.copytree(
-        "tests/data/sample_dataset", os.path.join(temp_dataset_dir, dataset)
-    )
+    temp_dataset_dir = tmpdir.mkdir("datasets")
+
+    shutil.copytree("tests/data/sample_dataset", temp_dataset_dir.join(dataset))
     with mock.patch("src.dataset.DATASETS_DIR", temp_dataset_dir):
         yield dataset
 
@@ -76,11 +75,11 @@ def test_fuzz_label_conversions(sample_dataset: str, classes: Set[str]):
         assert num_to_label[v] == k
 
 
-def test_make_metadata(sample_dataset: str, tempdir: str):
+def test_make_metadata(sample_dataset: str, tmpdir: py.path.local):
     train_metadata, test_metadata = make_metadata(sample_dataset)
 
     def abspath(*f: str) -> str:
-        return os.path.join(tempdir, "datasets", sample_dataset, *f)
+        return tmpdir.join("datasets", sample_dataset, *f)
 
     assert train_metadata == [
         (abspath("train", "test_file_2"), "not_water"),
@@ -100,14 +99,14 @@ def filter_classes(
 
 @given(classes())
 def test_make_metadata_with_classes(
-    sample_dataset: str, tempdir: str, classes: Set[str]
+    sample_dataset: str, tmpdir: py.path.local, classes: Set[str]
 ):
     train_metadata, test_metadata = make_metadata(
         sample_dataset, classes=classes
     )
 
     def abspath(*f: str) -> str:
-        return os.path.join(tempdir, "datasets", sample_dataset, *f)
+        return tmpdir.join("datasets", sample_dataset, *f)
 
     assert train_metadata == filter_classes([
         (abspath("train", "test_file_2"), "not_water"),
