@@ -25,12 +25,12 @@ try:
     from matplotlib import pyplot
     from matplotlib.widgets import Button, RadioButtons
 except ImportError:
-    pyplot = None
+    pass
 
 try:
     import gdal
 except ImportError:
-    gdal = None
+    pass
 
 EXT = "tiff|tif|TIFF|TIF"
 FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
@@ -176,7 +176,7 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
 def check_dependencies(deps: Tuple[str, ...]) -> bool:
     global_vars = globals()
     for dep in deps:
-        if dep not in global_vars or global_vars[dep] is None:
+        if dep not in global_vars:
             print(
                 f"This function requires {dep}. "
                 "Please install it in the current shell and try again."
