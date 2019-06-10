@@ -76,25 +76,19 @@ def test_fuzz_label_conversions(sample_dataset: str, classes: Set[str]):
         assert num_to_label[v] == k
 
 
-def filter_pathname(metadata: DatasetMetadata) -> DatasetMetadata:
-    return list(map(lambda x: (os.path.basename(x[0]), x[1]), metadata))
-
-
-def test_make_metadata(sample_dataset: str):
+def test_make_metadata(sample_dataset: str, tempdir: str):
     train_metadata, test_metadata = make_metadata(sample_dataset)
 
-    # Normally these are returned with absolute paths, but for verification we
-    # just need the file names.
-    train_metadata = filter_pathname(train_metadata)
-    test_metadata = filter_pathname(test_metadata)
+    def abspath(*f: str) -> str:
+        return os.path.join(tempdir, "datasets", sample_dataset, *f)
 
     assert train_metadata == [
-        ("test_file_2", "not_water"),
-        ("test_file_4", "skip"),
+        (abspath("train", "test_file_2"), "not_water"),
+        (abspath("train", "test_file_4"), "skip"),
     ]
     assert test_metadata == [
-        ("test_file_1", "water"),
-        ("test_file_3", "invalid"),
+        (abspath("test", "test_file_1"), "water"),
+        (abspath("test", "test_file_3"), "invalid"),
     ]
 
 
@@ -105,21 +99,23 @@ def filter_classes(
 
 
 @given(classes())
-def test_make_metadata_with_classes(sample_dataset: str, classes: Set[str]):
+def test_make_metadata_with_classes(
+    sample_dataset: str, tempdir: str, classes: Set[str]
+):
     train_metadata, test_metadata = make_metadata(
         sample_dataset, classes=classes
     )
 
-    train_metadata = filter_pathname(train_metadata)
-    test_metadata = filter_pathname(test_metadata)
+    def abspath(*f: str) -> str:
+        return os.path.join(tempdir, "datasets", sample_dataset, *f)
 
     assert train_metadata == filter_classes([
-        ("test_file_2", "not_water"),
-        ("test_file_4", "skip"),
+        (abspath("train", "test_file_2"), "not_water"),
+        (abspath("train", "test_file_4"), "skip"),
     ], classes)
     assert test_metadata == filter_classes([
-        ("test_file_1", "water"),
-        ("test_file_3", "invalid"),
+        (abspath("test", "test_file_1"), "water"),
+        (abspath("test", "test_file_3"), "invalid"),
     ], classes)
 
 
