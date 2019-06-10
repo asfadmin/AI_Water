@@ -7,7 +7,7 @@ from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Model, Sequential
 from keras.models import load_model as kload_model
 
-from .config import PROJECT_DIR
+from .config import MODELS_DIR
 from .typing import History
 
 
@@ -82,7 +82,7 @@ def name_tag_from_model_name(model_name: str) -> Tuple[str, str]:
 
 
 def path_from_model_name_tag(name: str, tag: str) -> str:
-    return os.path.join(PROJECT_DIR, "models", name, f"{tag}.h5")
+    return os.path.join(MODELS_DIR, name, f"{tag}.h5")
 
 
 def save_model(
