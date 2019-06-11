@@ -143,26 +143,25 @@ def prepare_data(directory: str, holdout: float):
 
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
-    # Keeps track of file names (without extension) and whether they were
-    # selected for training or testing data, so that the matching tile/mask
-    # will also end up in the same place
-    lookup = {}
-    ORIG_FILE_REGEX = re.compile(f"(.*)(Masks|Tile)_([0-9]+).*\\.({EXT})")
+
+    TILE_REGEX = re.compile(f"(.*)Tile_([0-9]+).*\\.({EXT})")
 
     for file in os.listdir(directory):
-        m = re.match(ORIG_FILE_REGEX, file)
+        m = re.match(TILE_REGEX, file)
         if not m:
             continue
 
-        pre, mask_or_tile, num, ext = m.groups()
-        mask_or_tile = mask_or_tile.replace("Masks", 'Mask')
+        pre, num, ext = m.groups()
         name_pre = f"{pre}_{num}"
-        new_tile_name = f"{name_pre}.{mask_or_tile}.{ext}".lower()
+        new_tile_name = f"{name_pre}.tile.{ext}".lower()
+        mask_name = f"{pre}Masks_{num}.{ext}"
+        new_mask_name = f"{name_pre}.mask.{ext}".lower()
 
-        test_or_train = lookup.get(name_pre)
-        if not test_or_train:
-            test_or_train = 'train' if random.random() > holdout else 'test'
-            lookup[name_pre] = test_or_train
+        if not os.path.isfile(os.path.join(directory, mask_name)):
+            print(f"Tile: {file} is missing a mask {mask_name}!")
+            continue
+
+        test_or_train = 'train' if random.random() > holdout else 'test'
 
         folder = os.path.join(directory, test_or_train)
         if not os.path.isdir(folder):
@@ -170,6 +169,10 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
 
         os.rename(
             os.path.join(directory, file), os.path.join(folder, new_tile_name)
+        )
+        os.rename(
+            os.path.join(directory, mask_name),
+            os.path.join(folder, new_mask_name)
         )
 
 
