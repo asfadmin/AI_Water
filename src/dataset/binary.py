@@ -7,7 +7,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
 from ..typing import DatasetMetadata
-from .common import dataset_dir
+from .common import dataset_dir, valid_image
 
 
 def load_dataset(
@@ -102,9 +102,7 @@ def generate_from_metadata(
         tif = gdal.Open(file_name)
         tif_array = tif.ReadAsArray()
 
-        if np.any(np.isnan(tif_array)):
-            continue
-        if 0 in tif_array:
+        if not valid_image(tif_array):
             continue
 
         x = np.array(tif_array).astype('float32')
