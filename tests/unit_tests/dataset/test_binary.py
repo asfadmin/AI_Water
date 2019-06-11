@@ -1,6 +1,5 @@
 import itertools
 import shutil
-from contextlib import contextmanager
 from typing import Set
 
 import mock
@@ -14,6 +13,8 @@ from src.dataset.binary import (
 )
 from src.typing import DatasetMetadata
 from tests.strategies import classes
+
+from .conftest import mock_gdal_open
 
 
 @pytest.fixture
@@ -29,17 +30,8 @@ def sample_binary(tmpdir: py.path.local):
 
 
 @pytest.fixture
-def metadata() -> DatasetMetadata:
+def metadata_binary() -> DatasetMetadata:
     return [("test_file_1", "water"), ("test_file_2", "not_water")]
-
-
-@contextmanager
-def mock_gdal_open(img: np.ndarray) -> mock.Mock:
-    mock_Open = mock.Mock()
-    mock_Open.return_value.ReadAsArray.return_value = img
-
-    with mock.patch("src.dataset.gdal.Open", mock_Open):
-        yield mock_Open
 
 
 def test_load_labels(sample_binary: str):
@@ -93,9 +85,9 @@ def test_make_metadata(sample_binary: str, tmpdir: py.path.local):
 
 
 def filter_classes(
-    metadata: DatasetMetadata, classes: Set[str]
+    metadata_binary: DatasetMetadata, classes: Set[str]
 ) -> DatasetMetadata:
-    return list(filter(lambda x: x[1] in classes, metadata))
+    return list(filter(lambda x: x[1] in classes, metadata_binary))
 
 
 @given(classes())
@@ -131,8 +123,8 @@ def generate_data(metadata: DatasetMetadata, img: np.ndarray):
         return list(generator)
 
 
-def test_generate_from_metadata(metadata: DatasetMetadata):
-    data = generate_data(metadata, np.ones((512, 512)))
+def test_generate_from_metadata(metadata_binary: DatasetMetadata):
+    data = generate_data(metadata_binary, np.ones((512, 512)))
 
     imgs = list(map(lambda x: x[0], data))
     labels = list(map(lambda x: x[1], data))
@@ -142,20 +134,12 @@ def test_generate_from_metadata(metadata: DatasetMetadata):
     assert labels == [1, 0]
 
 
-def test_generate_from_metadata_with_zeros(
-    sample_binary: str, metadata: DatasetMetadata
-):
-    data = generate_data(metadata, np.zeros((512, 512)))
-
-    assert data == []
+def test_generate_from_metadata_with_zeros(metadata_binary: DatasetMetadata):
+    assert generate_data(metadata_binary, np.zeros((512, 512))) == []
 
 
-def test_generate_from_metadata_with_nans(
-    sample_binary: str, metadata: DatasetMetadata
-):
-    data = generate_data(metadata, np.zeros((512, 512)) + np.nan)
-
-    assert data == []
+def test_generate_from_metadata_with_nans(metadata_binary: DatasetMetadata):
+    assert generate_data(metadata_binary, np.zeros((512, 512)) + np.nan) == []
 
 
 def test_load_dataset(sample_binary: str):
@@ -165,6 +149,7 @@ def test_load_dataset(sample_binary: str):
     train = list(itertools.islice(train_iter, len(train_iter)))
     test = list(itertools.islice(test_iter, len(test_iter)))
 
+    # Number of batches
     assert len(train) == 1
     assert len(test) == 1
 

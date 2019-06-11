@@ -60,7 +60,7 @@ def make_metadata(dataset: str, classes: Optional[Set[str]] = None
     train_metadata = []
     test_metadata = []
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
-        for name in filenames:
+        for name in sorted(filenames):
             if name not in labels:
                 continue
 
