@@ -10,30 +10,6 @@ from ..typing import DatasetMetadata
 from .common import dataset_dir
 
 
-def generate_from_metadata(
-    metadata: DatasetMetadata,
-    label_to_num: Dict[str, int],
-    clip_range: Optional[Tuple[float, float]] = None
-):
-    label_to_num = {'water': 1, 'not_water': 0}
-    for file_name, label in metadata:
-        tif = gdal.Open(file_name)
-        tif_array = tif.ReadAsArray()
-
-        if np.any(np.isnan(tif_array)):
-            continue
-        if 0 in tif_array:
-            continue
-
-        x = np.array(tif_array).astype('float32')
-        # Clip all values to a fixed range
-        if clip_range:
-            l, h = clip_range
-            np.clip(x, l, h, out=x)
-
-        yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
-
-
 def load_dataset(
     dataset: str, get_metadata: bool = False
 ) -> Union[Tuple[Iterator, Iterator],
@@ -115,6 +91,29 @@ def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
         num_to_label[i] = category
 
     return label_to_num, num_to_label
+
+
+def generate_from_metadata(
+    metadata: DatasetMetadata,
+    label_to_num: Dict[str, int],
+    clip_range: Optional[Tuple[float, float]] = None
+):
+    for file_name, label in metadata:
+        tif = gdal.Open(file_name)
+        tif_array = tif.ReadAsArray()
+
+        if np.any(np.isnan(tif_array)):
+            continue
+        if 0 in tif_array:
+            continue
+
+        x = np.array(tif_array).astype('float32')
+        # Clip all values to a fixed range
+        if clip_range:
+            l, h = clip_range
+            np.clip(x, l, h, out=x)
+
+        yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
 
 
 def load_labels(dataset: str) -> Dict[str, str]:
