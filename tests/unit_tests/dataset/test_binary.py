@@ -8,7 +8,7 @@ import numpy as np
 import py
 import pytest
 from hypothesis import given
-from src.dataset import (
+from src.dataset.binary import (
     generate_from_metadata, load_dataset, load_labels, make_label_conversions,
     make_metadata
 )
