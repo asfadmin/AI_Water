@@ -52,9 +52,8 @@ def train_model(
     step_size_vaild = len(test_set)
 
     if not step_size_training:
-        if verbose > 0:
-            print("No training data! Aborting...")
-            return
+        print("No training data! Aborting...")
+        return
 
     # Get the number of existing entries in the history
     epoch_prev = len(next(iter(model_history.values())))
