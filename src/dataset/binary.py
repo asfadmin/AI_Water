@@ -6,8 +6,8 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from osgeo import gdal
 
-from .config import DATASETS_DIR
-from .typing import DatasetMetadata
+from ..config import DATASETS_DIR
+from ..typing import DatasetMetadata
 
 
 def generate_from_metadata(
