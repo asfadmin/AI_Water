@@ -20,7 +20,9 @@ from tests.strategies import model_component
 def sample_model(tmpdir: py.path.local):
     model = "unittest_model"
     temp_model_dir = tmpdir.mkdir("models")
-    shutil.copytree("tests/data/sample_model", temp_model_dir.join(model))
+    shutil.copytree(
+        "tests/data/models/sample_model", temp_model_dir.join(model)
+    )
     with mock.patch("src.model.MODELS_DIR", temp_model_dir):
         yield model
 

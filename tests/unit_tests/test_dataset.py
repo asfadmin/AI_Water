@@ -21,7 +21,9 @@ def sample_dataset(tmpdir: py.path.local):
     dataset = "unittest_dataset"
     temp_dataset_dir = tmpdir.mkdir("datasets")
 
-    shutil.copytree("tests/data/sample_dataset", temp_dataset_dir.join(dataset))
+    shutil.copytree(
+        "tests/data/datasets/sample_dataset", temp_dataset_dir.join(dataset)
+    )
     with mock.patch("src.dataset.common.DATASETS_DIR", temp_dataset_dir):
         yield dataset
 
