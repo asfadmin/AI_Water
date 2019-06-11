@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from enum import Enum
 from typing import Optional, Tuple
 
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
@@ -9,6 +10,11 @@ from keras.models import load_model as kload_model
 
 from .config import MODELS_DIR
 from .typing import History
+
+
+class ModelType(Enum):
+    BINARY = 0
+    MASKED = 1
 
 
 def create_model(model_name: str) -> Model:
@@ -140,3 +146,12 @@ def load_history(model_name: str) -> History:
 def load_history_from_path(model_dir: str) -> History:
     with open(os.path.join(model_dir, "history.json")) as f:
         return json.load(f)
+
+
+def model_type(model: Model) -> Optional[ModelType]:
+    if model.output_shape == (None, 1):
+        return ModelType.BINARY
+    if model.output_shape == (None, 512, 512, 1):
+        return ModelType.MASKED
+
+    return None

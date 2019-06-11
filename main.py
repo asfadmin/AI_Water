@@ -14,7 +14,10 @@ from argparse import ArgumentParser, Namespace
 
 # import img_functions
 from src.asf_cnn import test_model, train_model
-from src.model import create_model, load_model, path_from_model_name
+from src.dataset.common import dataset_type
+from src.model import (
+    create_model, load_model, model_type, path_from_model_name
+)
 from src.plots import plot_confusion_chart, plot_predictions
 from src.reports import write_dict_to_csv
 
@@ -48,12 +51,20 @@ def train_wrapper(args: Namespace) -> None:
         model = create_model(model_name)
         history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
 
+    if model_type(model) != dataset_type(args.dataset):
+        print("ERROR: This dataset is not compatible with your model")
+        return
+
     train_model(model, history, args.dataset, args.epochs)
 
 
 def test_wrapper(args: Namespace) -> None:
     model_name = args.model
     model = load_model(model_name)
+
+    if model_type(model) != dataset_type(args.dataset):
+        print("ERROR: This dataset is not compatible with your model")
+        return
 
     details, confusion_matrix = test_model(model, args.dataset)
 
