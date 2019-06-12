@@ -11,6 +11,8 @@ from src.dataset.binary import (
     generate_from_metadata, load_dataset, load_labels, make_label_conversions,
     make_metadata
 )
+from src.dataset.common import dataset_type
+from src.model import ModelType
 from src.typing import DatasetMetadata
 from tests.strategies import classes
 
@@ -165,3 +167,7 @@ def test_load_dataset_and_metadata(sample_binary: str):
 
     assert len(train) == len(train_meta)
     assert len(test) == len(test_meta)
+
+
+def test_dataset_type(sample_binary: str):
+    assert dataset_type(sample_binary) == ModelType.BINARY

@@ -6,10 +6,11 @@ import mock
 import numpy as np
 import py
 import pytest
-from hypothesis import given
+from src.dataset.common import dataset_type
 from src.dataset.mask import (
     generate_from_metadata, load_dataset, make_metadata
 )
+from src.model import ModelType
 from src.typing import DatasetMetadata
 
 from .conftest import mock_gdal_open
@@ -114,3 +115,7 @@ def test_load_dataset(dataset_masked: str):
     # Number of batches
     assert len(train) == 1
     assert len(test) == 2
+
+
+def test_dataset_type(dataset_masked: str):
+    assert dataset_type(dataset_masked) == ModelType.MASKED
