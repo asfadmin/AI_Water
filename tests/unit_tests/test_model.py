@@ -2,26 +2,26 @@ import os
 import shutil
 
 import mock
+import py
 import pytest
 from hypothesis import given
 from keras.layers import Dense, Flatten
 from keras.models import Model, Sequential
 from src.config import PROJECT_DIR
 from src.model import (
-    create_model, load_history, load_model, path_from_model_name, save_history,
-    save_model
+    ModelType, create_model, load_history, load_model, model_type,
+    path_from_model_name, save_history, save_model
 )
 from src.typing import History
 from tests.strategies import model_component
 
 
 @pytest.fixture
-def sample_model(tempdir: str):
+def model_name(tmpdir: py.path.local):
     model = "unittest_model"
-    temp_model_dir = os.path.join(tempdir, "models")
-    os.mkdir(temp_model_dir)
+    temp_model_dir = tmpdir.mkdir("models")
     shutil.copytree(
-        "tests/data/sample_model", os.path.join(temp_model_dir, model)
+        "tests/data/models/sample_model", temp_model_dir.join(model)
     )
     with mock.patch("src.model.MODELS_DIR", temp_model_dir):
         yield model
@@ -29,10 +29,22 @@ def sample_model(tempdir: str):
 
 @pytest.fixture
 def fake_model() -> Model:
-    return Sequential([
+    model = Sequential([
         Flatten(input_shape=(512, 512)),
         Dense(1, activation='sigmoid')
     ])
+    model.compile('adam', loss='binary_crossentropy')
+    return model
+
+
+@pytest.fixture
+def fake_model_masked() -> Model:
+    return Sequential([Dense(1, input_shape=(512, 512, 1))])
+
+
+@pytest.fixture
+def fake_model_other() -> Model:
+    return Sequential([Dense(1, input_shape=(512, 512, 512, 1))])
 
 
 @pytest.fixture
@@ -73,11 +85,11 @@ def test_fuzz_path_from_model_name(network_name, tag):
     )
 
 
-def test_load_model(sample_model: str, fake_model: Model):
+def test_load_model(model_name: str, fake_model: Model):
     with mock.patch('src.model.kload_model', return_value=fake_model):
-        model = load_model(sample_model)
+        model = load_model(model_name)
 
-    assert model.__asf_model_name == sample_model
+    assert model.__asf_model_name == model_name
     assert model.__asf_model_history
 
 
@@ -87,55 +99,65 @@ def verify_model_layer_equality(m1: Model, m2: Model):
         assert l1.output_shape == l2.output_shape
 
 
-def test_save_model(sample_model: str, fake_model: Model):
-    fake_model.__asf_model_name = f"{sample_model}:some_old_tag"
+def test_save_model(model_name: str, fake_model: Model):
+    fake_model.__asf_model_name = f"{model_name}:some_old_tag"
 
     save_model(fake_model, "test_save_model")
-    model = load_model(f"{sample_model}:test_save_model")
+    model = load_model(f"{model_name}:test_save_model")
 
     verify_model_layer_equality(model, fake_model)
 
 
 def test_save_model_with_history(
-    sample_model: str, fake_model: Model, new_history: History
+    model_name: str, fake_model: Model, new_history: History
 ):
-    fake_model.__asf_model_name = f"{sample_model}:some_old_tag"
+    fake_model.__asf_model_name = f"{model_name}:some_old_tag"
 
     save_model(fake_model, "test_save_model", history=new_history)
-    model = load_model(f"{sample_model}:test_save_model")
+    model = load_model(f"{model_name}:test_save_model")
 
     verify_model_layer_equality(model, fake_model)
     assert model.__asf_model_history == new_history
 
 
-def test_save_model_no_dir(sample_model: str, tempdir: str, fake_model: Model):
-    shutil.rmtree(os.path.join(tempdir, "models"))
+def test_save_model_no_dir(
+    model_name: str, tmpdir: py.path.local, fake_model: Model
+):
+    shutil.rmtree(tmpdir.join("models"))
 
-    fake_model.__asf_model_name = f"{sample_model}:some_old_tag"
+    fake_model.__asf_model_name = f"{model_name}:some_old_tag"
     save_model(fake_model, "test_save_model")
 
-    assert os.path.isdir(os.path.join(tempdir, "models"))
+    assert tmpdir.join("models").check(dir=1)
 
 
-def test_load_history(sample_model: str):
-    history = load_history(sample_model)
+def test_load_history(model_name: str):
+    history = load_history(model_name)
 
     for key in ('acc', 'loss', 'val_acc', 'val_loss'):
         assert key in history
 
 
-def test_save_history(sample_model: str, new_history: History):
-    save_history(new_history, sample_model)
+def test_save_history(model_name: str, new_history: History):
+    save_history(new_history, model_name)
 
-    history = load_history(sample_model)
+    history = load_history(model_name)
     assert history == new_history
 
 
 def test_save_history_no_dir(
-    sample_model: str, tempdir: str, new_history: History
+    model_name: str, tmpdir: py.path.local, new_history: History
 ):
-    shutil.rmtree(os.path.join(tempdir, "models"))
+    shutil.rmtree(tmpdir.join("models"))
 
-    save_history(new_history, sample_model)
+    save_history(new_history, model_name)
 
-    assert os.path.isdir(os.path.join(tempdir, "models"))
+    assert tmpdir.join("models").check(dir=1)
+
+
+def test_model_type(
+    fake_model: Model, fake_model_masked: Model, fake_model_other: Model
+):
+    assert model_type(fake_model) == ModelType.BINARY
+    assert model_type(fake_model_masked) == ModelType.MASKED
+    assert model_type(fake_model_other) is None

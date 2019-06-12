@@ -25,14 +25,15 @@ try:
     from matplotlib import pyplot
     from matplotlib.widgets import Button, RadioButtons
 except ImportError:
-    pyplot = None
+    pass
 
 try:
     import gdal
 except ImportError:
-    gdal = None
+    pass
 
-FILENAME_REGEX = re.compile(r'.*_ulx_.*\.(?:tiff|tif)')
+EXT = "tiff|tif|TIFF|TIF"
+FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
@@ -113,9 +114,13 @@ def _show_plot(tif_array, file, image_labels, close):
     pyplot.show()
 
 
-def prepare_data(directory, holdout):
-    with open(os.path.join(directory, 'labels.json'), 'r') as f:
-        image_labels = json.load(f)
+def prepare_data(directory: str, holdout: float):
+    try:
+        with open(os.path.join(directory, 'labels.json'), 'r') as f:
+            image_labels = json.load(f)
+    except FileNotFoundError:
+        prepare_mask_data(directory, holdout)
+        return
 
     file_names = list(
         filter(
@@ -137,10 +142,44 @@ def prepare_data(directory, holdout):
         os.rename(os.path.join(directory, file), os.path.join(folder, file))
 
 
+def prepare_mask_data(directory: str, holdout: float) -> None:
+
+    TILE_REGEX = re.compile(f"(.*)Tile_([0-9]+).*\\.({EXT})")
+
+    for file in os.listdir(directory):
+        m = re.match(TILE_REGEX, file)
+        if not m:
+            continue
+
+        pre, num, ext = m.groups()
+        name_pre = f"{pre}_{num}"
+        new_tile_name = f"{name_pre}.tile.{ext}".lower()
+        mask_name = f"{pre}Masks_{num}.{ext}"
+        new_mask_name = f"{name_pre}.mask.{ext}".lower()
+
+        if not os.path.isfile(os.path.join(directory, mask_name)):
+            print(f"Tile: {file} is missing a mask {mask_name}!")
+            continue
+
+        test_or_train = 'train' if random.random() > holdout else 'test'
+
+        folder = os.path.join(directory, test_or_train)
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+
+        os.rename(
+            os.path.join(directory, file), os.path.join(folder, new_tile_name)
+        )
+        os.rename(
+            os.path.join(directory, mask_name),
+            os.path.join(folder, new_mask_name)
+        )
+
+
 def check_dependencies(deps: Tuple[str, ...]) -> bool:
     global_vars = globals()
     for dep in deps:
-        if dep not in global_vars or global_vars[dep] is None:
+        if dep not in global_vars:
             print(
                 f"This function requires {dep}. "
                 "Please install it in the current shell and try again."
@@ -178,7 +217,7 @@ if __name__ == '__main__':
 
     parser_classifier.set_defaults(func=interactive_classifier_wrapper)
 
-    # interactive_classifier
+    # prepare_data
     parser_prepare = subparsers.add_parser(
         'prepare',
         help=

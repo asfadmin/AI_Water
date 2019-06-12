@@ -20,8 +20,10 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 from keras.models import Model
 
-from .dataset import load_dataset, make_label_conversions
-from .model import save_model
+from .dataset.binary import load_dataset as load_dataset_binary
+from .dataset.binary import make_label_conversions
+from .dataset.mask import load_dataset as load_dataset_masked
+from .model import ModelType, model_type, save_model
 from .typing import History
 
 
@@ -35,15 +37,23 @@ def train_model(
     if verbose > 0:
         model.summary()
 
-    training_set, test_set = load_dataset(dataset)
+    if model_type(model) == ModelType.BINARY:
+        training_set, test_set = load_dataset_binary(dataset)
+    elif model_type(model) == ModelType.MASKED:
+        training_set, test_set = load_dataset_masked(dataset)
+    else:
+        print(
+            "Unknown model output shape. Expected either a binary"
+            "classification model or a 512x512 pixel mask."
+        )
+        return
 
     step_size_training = len(training_set)
     step_size_vaild = len(test_set)
 
     if not step_size_training:
-        if verbose > 0:
-            print("No training data! Aborting...")
-            return
+        print("No training data! Aborting...")
+        return
 
     # Get the number of existing entries in the history
     epoch_prev = len(next(iter(model_history.values())))
@@ -76,7 +86,14 @@ def test_model(model: Model, dataset: str,
     if verbose > 0:
         model.summary()
 
-    _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)
+    if model_type(model) != ModelType.BINARY:
+        raise NotImplementedError(
+            "Model analysis is only supported for binary output"
+        )
+
+    _, test_iter, _, test_metadata = load_dataset_binary(
+        dataset, get_metadata=True
+    )
 
     predictions = model.predict_generator(
         test_iter, steps=len(test_iter), verbose=verbose

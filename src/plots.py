@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot
 from matplotlib.widgets import Button
 
-from .dataset import load_dataset, make_label_conversions
+from .dataset.binary import load_dataset, make_label_conversions
 
 
 def plot_confusion_chart(confusion_matrix: np.ndarray) -> None:

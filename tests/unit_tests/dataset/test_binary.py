@@ -1,49 +1,43 @@
 import itertools
-import os
 import shutil
-from contextlib import contextmanager
 from typing import Set
 
 import mock
 import numpy as np
+import py
 import pytest
 from hypothesis import given
-from src.dataset import (
+from src.dataset.binary import (
     generate_from_metadata, load_dataset, load_labels, make_label_conversions,
     make_metadata
 )
+from src.dataset.common import dataset_type
+from src.model import ModelType
 from src.typing import DatasetMetadata
 from tests.strategies import classes
 
+from .conftest import mock_gdal_open
+
 
 @pytest.fixture
-def sample_dataset(tempdir: str):
+def dataset_binary(tmpdir: py.path.local):
     dataset = "unittest_dataset"
-    temp_dataset_dir = os.path.join(tempdir, "datasets")
-    os.mkdir(temp_dataset_dir)
+    temp_dataset_dir = tmpdir.mkdir("datasets")
+
     shutil.copytree(
-        "tests/data/sample_dataset", os.path.join(temp_dataset_dir, dataset)
+        "tests/data/datasets/sample_binary", temp_dataset_dir.join(dataset)
     )
-    with mock.patch("src.dataset.DATASETS_DIR", temp_dataset_dir):
+    with mock.patch("src.dataset.common.DATASETS_DIR", temp_dataset_dir):
         yield dataset
 
 
 @pytest.fixture
-def metadata() -> DatasetMetadata:
+def metadata_binary() -> DatasetMetadata:
     return [("test_file_1", "water"), ("test_file_2", "not_water")]
 
 
-@contextmanager
-def mock_gdal_open(img: np.ndarray) -> mock.Mock:
-    mock_Open = mock.Mock()
-    mock_Open.return_value.ReadAsArray.return_value = img
-
-    with mock.patch("src.dataset.gdal.Open", mock_Open):
-        yield mock_Open
-
-
-def test_load_labels(sample_dataset: str):
-    labels = load_labels(sample_dataset)
+def test_load_labels(dataset_binary: str):
+    labels = load_labels(dataset_binary)
 
     assert labels["test_file_1"] == "water"
     assert labels["test_file_2"] == "not_water"
@@ -51,15 +45,15 @@ def test_load_labels(sample_dataset: str):
     assert labels["test_file_4"] == "skip"
 
 
-def test_load_labels_corrupted(sample_dataset: str):
+def test_load_labels_corrupted(dataset_binary: str):
     with pytest.raises(ValueError):
         with mock.patch('json.load', return_value=[]):
-            load_labels(sample_dataset)
+            load_labels(dataset_binary)
 
 
-def test_make_label_conversions(sample_dataset: str):
+def test_make_label_conversions(dataset_binary: str):
     label_to_num, num_to_label = make_label_conversions(
-        sample_dataset, {"water", "not_water"}
+        dataset_binary, {"water", "not_water"}
     )
 
     assert label_to_num == {"water": 1, "not_water": 0}
@@ -67,20 +61,20 @@ def test_make_label_conversions(sample_dataset: str):
 
 
 @given(classes())
-def test_fuzz_label_conversions(sample_dataset: str, classes: Set[str]):
+def test_fuzz_label_conversions(dataset_binary: str, classes: Set[str]):
     label_to_num, num_to_label = make_label_conversions(
-        sample_dataset, classes=classes
+        dataset_binary, classes=classes
     )
 
     for k, v in label_to_num.items():
         assert num_to_label[v] == k
 
 
-def test_make_metadata(sample_dataset: str, tempdir: str):
-    train_metadata, test_metadata = make_metadata(sample_dataset)
+def test_make_metadata(dataset_binary: str, tmpdir: py.path.local):
+    train_metadata, test_metadata = make_metadata(dataset_binary)
 
     def abspath(*f: str) -> str:
-        return os.path.join(tempdir, "datasets", sample_dataset, *f)
+        return tmpdir.join("datasets", dataset_binary, *f)
 
     assert train_metadata == [
         (abspath("train", "test_file_2"), "not_water"),
@@ -93,21 +87,21 @@ def test_make_metadata(sample_dataset: str, tempdir: str):
 
 
 def filter_classes(
-    metadata: DatasetMetadata, classes: Set[str]
+    metadata_binary: DatasetMetadata, classes: Set[str]
 ) -> DatasetMetadata:
-    return list(filter(lambda x: x[1] in classes, metadata))
+    return list(filter(lambda x: x[1] in classes, metadata_binary))
 
 
 @given(classes())
 def test_make_metadata_with_classes(
-    sample_dataset: str, tempdir: str, classes: Set[str]
+    dataset_binary: str, tmpdir: py.path.local, classes: Set[str]
 ):
     train_metadata, test_metadata = make_metadata(
-        sample_dataset, classes=classes
+        dataset_binary, classes=classes
     )
 
     def abspath(*f: str) -> str:
-        return os.path.join(tempdir, "datasets", sample_dataset, *f)
+        return tmpdir.join("datasets", dataset_binary, *f)
 
     assert train_metadata == filter_classes([
         (abspath("train", "test_file_2"), "not_water"),
@@ -131,8 +125,8 @@ def generate_data(metadata: DatasetMetadata, img: np.ndarray):
         return list(generator)
 
 
-def test_generate_from_metadata(metadata: DatasetMetadata):
-    data = generate_data(metadata, np.ones((512, 512)))
+def test_generate_from_metadata(metadata_binary: DatasetMetadata):
+    data = generate_data(metadata_binary, np.ones((512, 512)))
 
     imgs = list(map(lambda x: x[0], data))
     labels = list(map(lambda x: x[1], data))
@@ -142,37 +136,30 @@ def test_generate_from_metadata(metadata: DatasetMetadata):
     assert labels == [1, 0]
 
 
-def test_generate_from_metadata_with_zeros(
-    sample_dataset: str, metadata: DatasetMetadata
-):
-    data = generate_data(metadata, np.zeros((512, 512)))
-
-    assert data == []
+def test_generate_from_metadata_with_zeros(metadata_binary: DatasetMetadata):
+    assert generate_data(metadata_binary, np.zeros((512, 512))) == []
 
 
-def test_generate_from_metadata_with_nans(
-    sample_dataset: str, metadata: DatasetMetadata
-):
-    data = generate_data(metadata, np.zeros((512, 512)) + np.nan)
-
-    assert data == []
+def test_generate_from_metadata_with_nans(metadata_binary: DatasetMetadata):
+    assert generate_data(metadata_binary, np.zeros((512, 512)) + np.nan) == []
 
 
-def test_load_dataset(sample_dataset: str):
+def test_load_dataset(dataset_binary: str):
     with mock_gdal_open(np.ones((512, 512))):
-        train_iter, test_iter = load_dataset(sample_dataset)
+        train_iter, test_iter = load_dataset(dataset_binary)
 
     train = list(itertools.islice(train_iter, len(train_iter)))
     test = list(itertools.islice(test_iter, len(test_iter)))
 
+    # Number of batches
     assert len(train) == 1
     assert len(test) == 1
 
 
-def test_load_dataset_and_metadata(sample_dataset: str):
+def test_load_dataset_and_metadata(dataset_binary: str):
     with mock_gdal_open(np.ones((512, 512))):
         train_iter, test_iter, train_meta, test_meta = load_dataset(
-            sample_dataset, get_metadata=True
+            dataset_binary, get_metadata=True
         )
 
     train = list(itertools.islice(train_iter, len(train_iter)))
@@ -180,3 +167,7 @@ def test_load_dataset_and_metadata(sample_dataset: str):
 
     assert len(train) == len(train_meta)
     assert len(test) == len(test_meta)
+
+
+def test_dataset_type(dataset_binary: str):
+    assert dataset_type(dataset_binary) == ModelType.BINARY
