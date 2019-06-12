@@ -79,8 +79,7 @@ def create_model(model_name: str) -> Model:
     model = Model(inputs=inputs, outputs=classify)
 
     model.__asf_model_name = model_name
-    # TODO figure out of 'accuracy will work for metrics.'
-    # TODO figure out the loss
+    
     model.compile(loss=dice_loss, optimizer=Adam(), metrics=['accuracy'])
     return model
 
@@ -93,7 +92,7 @@ def coef(y_true, y_pred, smooth=1):
     return (2. * intersection + smooth) / (backend.sum(y_true_f) + backend.sum(y_pred_f) + smooth)
 
 
-def coef_loss(y_true, y_pred):
+def dice_coef_loss(y_true, y_pred):
     return 1-coef(y_true, y_pred)
 
 
