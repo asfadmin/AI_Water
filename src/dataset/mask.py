@@ -1,9 +1,9 @@
 import os
 import re
-from typing import Iterator, Optional, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
 
 from ..typing import DatasetMetadata

@@ -1,9 +1,9 @@
 import json
 import os
-from typing import Dict, Iterator, Optional, Set, Tuple, Union
+from typing import Dict, Optional, Set, Tuple, Union
 
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
 
 from ..typing import DatasetMetadata
