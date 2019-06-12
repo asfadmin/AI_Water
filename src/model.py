@@ -23,60 +23,58 @@ class ModelType(Enum):
     MASKED = 1
 
 
-def down(filters, input_):
-    down_ = Conv2D(filters, (3, 3), padding='same')(input_)
-    down_ = BatchNormalization(epsilon=1e-4)(down_)
-    down_ = Activation('relu')(down_)
-    # down_ = Conv2D(filters, (3, 3), padding='same')(down_)
-    # down_ = BatchNormalization(epsilon=1e-4)(down_)
-    down_res = Activation('relu')(down_)
-    down_pool = MaxPooling2D((2, 2), strides=(2, 2))(down_)
+def down(filters, input):
+    down = Conv2D(filters, (3, 3), padding='same')(input)
+    down = BatchNormalization(epsilon=1e-4)(down)
+    down = Activation('relu')(down)
+    down = Conv2D(filters, (3, 3), padding='same')(down)
+    down = BatchNormalization(epsilon=1e-4)(down)
+    down_res = Activation('relu')(down)
+    down_pool = MaxPooling2D((2, 2), strides=(2, 2))(down)
     return down_pool, down_res
 
 
-def up(filters, input_, down_):
-    up_ = UpSampling2D((2, 2))(input_)
-    up_ = concatenate([down_, up_], axis=3)
-    up_ = Conv2D(filters, (3, 3), padding='same')(up_)
-    up_ = BatchNormalization(epsilon=1e-4)(up_)
-    up_ = Activation('relu')(up_)
-    # up_ = Conv2D(filters, (3, 3), padding='same')(up_)
-    # up_ = BatchNormalization(epsilon=1e-4)(up_)
-    # up_ = Activation('relu')(up_)
-    # up_ = Conv2D(filters, (3, 3), padding='same')(up_)
-    # up_ = BatchNormalization(epsilon=1e-4)(up_)
-    # up_ = Activation('relu')(up_)
-    return up_
+def up(filters, input, down):
+    up = UpSampling2D((2, 2))(input)
+    up = concatenate([down, up], axis=3)
+    up = Conv2D(filters, (3, 3), padding='same')(up)
+    up = BatchNormalization(epsilon=1e-4)(up)
+    up = Activation('relu')(up)
+    up = Conv2D(filters, (3, 3), padding='same')(up)
+    up = BatchNormalization(epsilon=1e-4)(up)
+    up = Activation('relu')(up)
+    up = Conv2D(filters, (3, 3), padding='same')(up)
+    up = BatchNormalization(epsilon=1e-4)(up)
+    up = Activation('relu')(up)
+    return up
 
 
 def create_model(model_name: str) -> Model:
     num_classes = 1
     inputs = Input(shape=(512, 512, 1))
 
-    # down0b, down0b_res = down(8, inputs)
-    down0a, down0a_res = down(24, inputs)
-    down0, down0_res = down(64, down0a)
-    down1, down1_res = down(128, down0)
-    down2, down2_res = down(256, down1)
-    down3, down3_res = down(512, down2)
-    down4, down4_res = down(768, down3)
+    down_0a, down_0a_res = down(24, inputs)
+    down_0, down_0_res = down(64, down_0a)
+    down_1, down_1_res = down(128, down_0)
+    down_2, down_2_res = down(256, down_1)
+    down_3, down_3_res = down(512, down_2)
+    down_4, down_4_res = down(768, down_3)
 
-    center = Conv2D(768, (3, 3), padding='same')(down4)
+    center = Conv2D(768, (3, 3), padding='same')(down_4)
     center = BatchNormalization(epsilon=1e-4)(center)
     center = Activation('relu')(center)
     center = Conv2D(768, (3, 3), padding='same')(center)
     center = BatchNormalization(epsilon=1e-4)(center)
     center = Activation('relu')(center)
 
-    up4 = up(768, center, down4_res)
-    up3 = up(512, up4, down3_res)
-    up2 = up(256, up3, down2_res)
-    up1 = up(128, up2, down1_res)
-    up0 = up(64, up1, down0_res)
-    up0a = up(24, up0, down0a_res)
-    # up0b = up(8, up0a, down0b_res)
+    up_4 = up(768, center, down_4_res)
+    up_3 = up(512, up_4, down_3_res)
+    up_2 = up(256, up_3, down_2_res)
+    up_1 = up(128, up_2, down_1_res)
+    up_0 = up(64, up_1, down_0_res)
+    up_0a = up(24, up_0, down_0a_res)
 
-    classify = Conv2D(num_classes, (1, 1), activation='sigmoid', name='last_layer')(up0a)
+    classify = Conv2D(num_classes, (1, 1), activation='sigmoid', name='last_layer')(up_0a)
 
     model = Model(inputs=inputs, outputs=classify)
 
@@ -95,7 +93,6 @@ def coef(y_true, y_pred, smooth=1):
     return (2. * intersection + smooth) / (backend.sum(y_true_f) + backend.sum(y_pred_f) + smooth)
 
 
-# TODO: Understand how this works so it can be changeds.
 def coef_loss(y_true, y_pred):
     return 1-coef(y_true, y_pred)
 
