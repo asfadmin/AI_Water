@@ -6,11 +6,11 @@ from typing import Optional, Tuple
 
 from keras import backend
 from keras.layers import (
-    Activation, BatchNormalization, Conv2D, Dense, Dropout, Flatten, Input,
-    MaxPooling2D, UpSampling2D, concatenate
+    Activation, BatchNormalization, Conv2D, Input, MaxPooling2D, UpSampling2D,
+    concatenate
 )
 from keras.losses import binary_crossentropy
-from keras.models import Model, Sequential
+from keras.models import Model
 from keras.models import load_model as kload_model
 from keras.optimizers import Adam
 
