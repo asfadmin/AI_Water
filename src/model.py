@@ -7,6 +7,7 @@ from typing import Optional, Tuple
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Model, Sequential
 from keras.models import load_model as kload_model
+from keras.optimizers import Adam
 
 from .config import MODELS_DIR
 from .typing import History
@@ -55,7 +56,9 @@ def create_model(model_name: str) -> Model:
         Dense(units=1, activation='sigmoid')
     ])
 
-    model.compile('adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(
+        Adam(lr=0.001), loss='binary_crossentropy', metrics=['accuracy']
+    )
 
     model.__asf_model_name = model_name
 

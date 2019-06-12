@@ -13,8 +13,8 @@ TILE_REGEX = re.compile(r"(.*)\.tile\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
-    train_gen = ImageDataGenerator()
-    test_gen = ImageDataGenerator()
+    train_gen = ImageDataGenerator(rescale=10)
+    test_gen = ImageDataGenerator(rescale=10)
 
     train_metadata, test_metadata = make_metadata(dataset)
     # Load the entire dataset into memory
