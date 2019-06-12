@@ -22,6 +22,7 @@ from src.reports import write_dict_to_csv
 
 
 def train_wrapper(args: Namespace) -> None:
+    data_type = dataset_type(args.dataset)
     model_name = args.model
     if args.cont:
         model = load_model(model_name)
@@ -31,20 +32,18 @@ def train_wrapper(args: Namespace) -> None:
         if not args.overwrite and os.path.isfile(model_path):
             print(f"File {model_name} already exists!")
             return
-        model = create_model(model_name)
+        model = create_model(model_name, data_type)
         history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
 
-    if model_type(model) != dataset_type(args.dataset):
+    if model_type(model) != data_type:
         print("ERROR: This dataset is not compatible with your model")
         return
-
     train_model(model, history, args.dataset, args.epochs)
 
 
 def test_wrapper(args: Namespace) -> None:
     model_name = args.model
     model = load_model(model_name)
-    print(path_from_model_name(model_name))
 
     if model_type(model) != dataset_type(args.dataset):
         print("ERROR: This dataset is not compatible with your model")

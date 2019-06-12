@@ -36,7 +36,7 @@ def train_model(
 ) -> None:
     if verbose > 0:
         model.summary()
-
+    # If the model type isn't being passed how does it know.
     if model_type(model) == ModelType.BINARY:
         training_set, test_set = load_dataset_binary(dataset)
     elif model_type(model) == ModelType.MASKED:
