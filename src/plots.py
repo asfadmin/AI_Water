@@ -32,7 +32,7 @@ def plot_confusion_chart(confusion_matrix: np.ndarray) -> None:
 
 def plot_predictions(predictions: List[float], dataset: str) -> None:
     TILENAME_REGEX = re.compile(r'.*_(ulx_[0-9]+_uly_[0-9]+).*\.(?:tiff|tif)')
-
+    print(dataset)
     _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)
     _, num_to_label = make_label_conversions(dataset, {"water", "not_water"})
 

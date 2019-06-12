@@ -23,12 +23,14 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
     for img, mask in generate_from_metadata(train_metadata, clip_range=(0, 2)):
         x_train.append(img)
         y_train.append(mask)
+
     x_test = []
     y_test = []
     for img, mask in generate_from_metadata(test_metadata, clip_range=(0, 2)):
         x_test.append(img)
         y_test.append(mask)
 
+    print(np.array(x_train))
     train_iter = train_gen.flow(
         np.array(x_train), y=np.array(y_train), batch_size=16
     )

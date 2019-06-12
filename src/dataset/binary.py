@@ -10,6 +10,7 @@ from ..typing import DatasetMetadata
 from .common import dataset_dir, valid_image
 
 
+# TODO: load the mask data (This is where is should be loaded from)
 def load_dataset(
     dataset: str, get_metadata: bool = False
 ) -> Union[Tuple[Iterator, Iterator],
@@ -111,6 +112,7 @@ def generate_from_metadata(
             l, h = clip_range
             np.clip(x, l, h, out=x)
 
+        print(x.shape)
         yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
 
 

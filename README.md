@@ -63,20 +63,20 @@ will need to run `main.py` with the `--overwrite` option.
 
 Start training a new network:
 ```terminal
-$ python main.py train awesome_net awesome_dataset --epochs 10
+$ python3 main.py train awesome_net awesome_dataset --epochs 10
 ```
 
 Evaluate the models performance:
 ```terminal
-$ python main.py test awesome_net awesome_dataset
+$ python3 main.py test awesome_net awesome_dataset
 ```
 
 Train for an additional 20 epochs:
 ```terminal
-$ python main.py train awesome_net awesome_dataset --epochs 20 --continue
+$ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
 ```
 
 View the models training history:
 ```terminal
-$ python model_info.py awesome_net history
+$ python3 model_info.py awesome_net history
 ```

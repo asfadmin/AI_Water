@@ -15,6 +15,8 @@ Running main.py once should create the AI_Project directory.
 import datetime
 import json
 import os as os
+import re
+from typing import Any, Callable, List, Optional
 
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
@@ -267,57 +269,58 @@ def dictonary_pair_to_list(
     return returned_list
 
 
-def plot_img_incorrect_pred(
-    list_of_img_details={
-        'img_name': '',
-        'status': '',
-        'prediction': '',
-        'percent': ''
-    }
-):
-    """Plots the imgs that were predicted incorrectly and saves them to a file. """
-    prediction = ''
-    status = ''
-    percent = ''
+def save_incorrect_predictions(current_directory, predictions: List[float], dataset: str) -> None:
 
-    # These directories are created here instead of the create_directories() becuase the name
-    # is dependent on the date and time.
-    CNN_STATS_FILE = creating_file_directory(
-        os.path.join(
-            CURRENT_DIRECTORY,
-            'cnn_results/cnn_' + str(datetime.datetime.now())
-        ), 'cnn_' + str(datetime.datetime.now()),
-        os.path.join(CURRENT_DIRECTORY, 'cnn_results')
-    )
-    CNN_INCORRECT_PLOTS = creating_file_directory(
-        os.path.join(CNN_STATS_FILE, 'plots'), 'plots', CNN_STATS_FILE
-    )
+        TILENAME_REGEX = re.compile(r'.*_(ulx_[0-9]+_uly_[0-9]+).*\.(?:tiff|tif)')
 
-    for img_name in os.listdir(INCORRECT_PREDICTIONS_FPATH):
-        os.chdir(INCORRECT_PREDICTIONS_FPATH)
-        # Gets the percecent that the NN gave an image.
-        # And saves the images to the given directory
-        for x in list_of_img_details:
-            if img_name == x['img_name']:
-                percent = x['percent']
+        _, test_iter, _, test_metadata = load_dataset(dataset, get_metadata=True)
+        _, num_to_label = make_label_conversions(dataset, {"water", "not_water"})
 
-        if img_name.startswith('water'):
-            prediction = 'no_water'
-            status = 'water'
-        elif img_name.startswith('not_water'):
-            prediction = 'water'
-            status = 'no_water'
-        else:
-            print("ERROR IN plot_img_incorrect_pred()")
+        # Show all of the test samples
+        test_iter.reset()
+        predict_iter = iter(predictions)
+        meta_iter = iter(test_metadata)
 
-        # Creating and saving incorrect photos as a png file
-        img = mpimg.imread(os.path.join(INCORRECT_PREDICTIONS_FPATH, img_name))
-        plt.imshow(img)
-        plt.title('Prediction = ' + prediction + '  Solution = ' + status)
-        plt.xlabel('Percent: ' + str(percent))
-        plt.ylabel('Image: ' + img_name)
-        plt.savefig(os.path.join(CNN_INCORRECT_PLOTS, img_name + '.png'))
-        os.chdir(CURRENT_DIRECTORY)
+        done = False
+        for i in range(len(test_iter) // 9):
+            if done:
+                break
+            for j in range(9):
+                # Test iter needs to have batch size of 1
+                predicted, ([img], [label]), (image_name, _) = next(
+                    zip(predict_iter, test_iter, meta_iter)
+                )
+                label_text = num_to_label[label]
+                predicted_text = num_to_label[int(round(predicted))]
+                m = re.match(TILENAME_REGEX, image_name)
+                if m:
+                    image_name = m.group(1)
+                pyplot.subplot(3, 3, j + 1)
+                pyplot.imshow(
+                    img.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+                )
+                y = 0
 
-    # Returns a file path so that the .csv file and .h5 can be saved to that file
-    return CNN_STATS_FILE
+                def add_text(text, **kwargs) -> None:
+                    nonlocal y
+                    pyplot.text(540, y, text, **kwargs)
+                    y += 50
+
+                add_text(f"Actual: {label_text} [{label}]")
+                add_text(f"Predicted: {predicted_text} [{predicted:.4}]")
+                verification_text, verification_color = {
+                    ('water', 'water'): ('True Positive', 'green'),
+                    ('water', 'not_water'): ('False Negative', 'red'),
+                    ('not_water', 'not_water'): ('True Negative', 'green'),
+                    ('not_water', 'water'): ('False Positive', 'red'),
+                }.get((label_text, predicted_text), ("Unknown", 'yellow'))
+                add_text(
+                    verification_text,
+                    bbox={
+                        "facecolor": verification_color,
+                        "alpha": 0.5
+                    }
+                )
+                pyplot.title(os.path.basename(image_name))
+
+            pyplot.savefig(os.path.join(current_directory, i + '.png'))
