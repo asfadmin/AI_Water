@@ -4,17 +4,12 @@ import re
 from enum import Enum
 from typing import Optional, Tuple
 
-from keras import backend
-from keras.layers import (
-    Activation, BatchNormalization, Conv2D, Dense, Dropout, Flatten, Input,
-    MaxPooling2D, UpSampling2D, concatenate
-)
-from keras.losses import binary_crossentropy
-from keras.models import Model, Sequential
+from keras.models import Model
 from keras.models import load_model as kload_model
-from keras.optimizers import Adam
 
 from .config import MODELS_DIR
+from .model_architecture.binary_architecture import create_model_binary
+from .model_architecture.masked_architecture import create_model_masked
 from .typing import History
 
 
@@ -23,124 +18,14 @@ class ModelType(Enum):
     MASKED = 1
 
 
-def down(filters, input):
-    down = Conv2D(filters, (3, 3), padding='same')(input)
-    down = BatchNormalization(epsilon=1e-4)(down)
-    down = Activation('relu')(down)
-    down = Conv2D(filters, (3, 3), padding='same')(down)
-    down = BatchNormalization(epsilon=1e-4)(down)
-    down_res = Activation('relu')(down)
-    down_pool = MaxPooling2D((2, 2), strides=(2, 2))(down)
-    return down_pool, down_res
-
-
-def up(filters, input, down):
-    up = UpSampling2D((2, 2))(input)
-    up = concatenate([down, up], axis=3)
-    up = Conv2D(filters, (3, 3), padding='same')(up)
-    up = BatchNormalization(epsilon=1e-4)(up)
-    up = Activation('relu')(up)
-    up = Conv2D(filters, (3, 3), padding='same')(up)
-    up = BatchNormalization(epsilon=1e-4)(up)
-    up = Activation('relu')(up)
-    up = Conv2D(filters, (3, 3), padding='same')(up)
-    up = BatchNormalization(epsilon=1e-4)(up)
-    up = Activation('relu')(up)
-    return up
-
-
 def create_model(model_name: str, model_type: ModelType) -> Model:
+
     if model_type == ModelType.MASKED:
-        inputs = Input(shape=(512, 512, 1))
-
-        down_0a, down_0a_res = down(24, inputs)
-        down_0, down_0_res = down(64, down_0a)
-        down_1, down_1_res = down(128, down_0)
-        down_2, down_2_res = down(256, down_1)
-        down_3, down_3_res = down(512, down_2)
-        down_4, down_4_res = down(768, down_3)
-
-        center = Conv2D(768, (3, 3), padding='same')(down_4)
-        center = BatchNormalization(epsilon=1e-4)(center)
-        center = Activation('relu')(center)
-        center = Conv2D(768, (3, 3), padding='same')(center)
-        center = BatchNormalization(epsilon=1e-4)(center)
-        center = Activation('relu')(center)
-
-        up_4 = up(768, center, down_4_res)
-        up_3 = up(512, up_4, down_3_res)
-        up_2 = up(256, up_3, down_2_res)
-        up_1 = up(128, up_2, down_1_res)
-        up_0 = up(64, up_1, down_0_res)
-        up_0a = up(24, up_0, down_0a_res)
-
-        classify = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(up_0a)
-
-        model = Model(inputs=inputs, outputs=classify)
-
-        model.__asf_model_name = model_name
-
-        model.compile(loss=dice_loss, optimizer=Adam(), metrics=['accuracy'])
-
+        model = create_model_masked(model_name)
     elif model_type == ModelType.BINARY:
-        model = Sequential([
-            Conv2D(
-                64, (3, 3),
-                strides=(3, 3),
-                input_shape=(512, 512, 1),
-                activation='relu'
-            ),
-            Conv2D(
-                128, (3, 3),
-                strides=(3, 3),
-                input_shape=(512, 512, 1),
-                activation='relu'
-            ),
-            MaxPooling2D(pool_size=(2, 2)),
-            Conv2D(
-                128, (3, 3),
-                strides=(3, 3),
-                input_shape=(512, 512, 1),
-                activation='relu'
-            ),
-            Conv2D(
-                128, (3, 3),
-                strides=(3, 3),
-                input_shape=(512, 512, 1),
-                activation='relu'
-            ),
-            MaxPooling2D(pool_size=(2, 2)),
-            Flatten(),
-            Dense(units=128, activation='relu'),
-            Dropout(rate=0.5),
-            Dense(units=128, activation='relu'),
-            Dropout(rate=0.5),
-            Dense(units=64, activation='relu'),
-            Dropout(rate=0.3),
-            Dense(units=1, activation='sigmoid')
-        ])
-
-        model.compile('adam', loss='binary_crossentropy', metrics=['accuracy'])
-
-        model.__asf_model_name = model_name
+        model = create_model_binary(model_name)
 
     return model
-
-
-def coef(y_true, y_pred, smooth=1):
-    y_true_f = backend.flatten(y_true)
-    y_pred_f = backend.flatten(y_pred)
-
-    intersection = backend.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (backend.sum(y_true_f) + backend.sum(y_pred_f) + smooth)
-
-
-def dice_coef_loss(y_true, y_pred):
-    return 1-coef(y_true, y_pred)
-
-
-def dice_loss(y_true, y_pred):
-    return binary_crossentropy(y_true, y_pred) + dice_coef_loss(y_true, y_pred)
 
 
 def path_from_model_name(model_name: str) -> str:

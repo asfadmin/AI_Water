@@ -10,7 +10,6 @@ from ..typing import DatasetMetadata
 from .common import dataset_dir, valid_image
 
 
-# TODO: load the mask data (This is where is should be loaded from)
 def load_dataset(
     dataset: str, get_metadata: bool = False
 ) -> Union[Tuple[Iterator, Iterator],
@@ -57,7 +56,6 @@ def load_dataset(
 def make_metadata(dataset: str, classes: Optional[Set[str]] = None
                   ) -> Tuple[DatasetMetadata, DatasetMetadata]:
     labels = load_labels(dataset)
-
     train_metadata = []
     test_metadata = []
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
@@ -112,7 +110,6 @@ def generate_from_metadata(
             l, h = clip_range
             np.clip(x, l, h, out=x)
 
-        print(x.shape)
         yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
 
 
