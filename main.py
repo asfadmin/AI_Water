@@ -1,14 +1,3 @@
-"""
-Alaska Satellite Facility
-Convolutional Neural Network
-McKade Sorensen (Douglas)
-05/21/2019
-
-main.py, runs the code for AI_Project. The first time the program runs it'll create the files
-needed. After its ran once the dataset folder (with all the SAR images) needs to be extracted into
-AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
-"""
-
 import os
 from argparse import ArgumentParser, Namespace
 
@@ -32,6 +21,7 @@ def train_wrapper(args: Namespace) -> None:
         if not args.overwrite and os.path.isfile(model_path):
             print(f"File {model_name} already exists!")
             return
+
         model = create_model(model_name, data_type)
         history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
 

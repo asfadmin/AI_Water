@@ -30,7 +30,6 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
         x_test.append(img)
         y_test.append(mask)
 
-    print(np.array(x_train))
     train_iter = train_gen.flow(
         np.array(x_train), y=np.array(y_train), batch_size=16
     )
