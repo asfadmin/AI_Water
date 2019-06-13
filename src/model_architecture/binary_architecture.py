@@ -48,10 +48,5 @@ def create_model_binary(model_name: str) -> Model:
     model.compile('adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     model.__asf_model_name = model_name
-    x = str(model.layers[-1].output_shape)
-    if x == '(None, 1)':
-        print('it works')
-    else:
-        print("ERROR DID NOT WORK")
-    print(x)
+
     return model
