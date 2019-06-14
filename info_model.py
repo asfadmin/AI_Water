@@ -2,8 +2,9 @@ import math
 from argparse import ArgumentParser
 
 from matplotlib import pyplot as plt
-from src.model import load_history, load_model
 from tensorflow.keras.layers import Conv2D
+
+from src.model import load_history, load_model
 
 
 def print_summary_wrapper(args):

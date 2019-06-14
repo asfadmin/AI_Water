@@ -56,7 +56,6 @@ def load_dataset(
 def make_metadata(dataset: str, classes: Optional[Set[str]] = None
                   ) -> Tuple[DatasetMetadata, DatasetMetadata]:
     labels = load_labels(dataset)
-
     train_metadata = []
     test_metadata = []
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):

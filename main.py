@@ -1,18 +1,6 @@
-"""
-Alaska Satellite Facility
-Convolutional Neural Network
-McKade Sorensen (Douglas)
-05/21/2019
-
-main.py, runs the code for AI_Project. The first time the program runs it'll create the files
-needed. After its ran once the dataset folder (with all the SAR images) needs to be extracted into
-AI_Project. asf_cnn.h5 and labels.json both need to be moved there into the AI_Project folder.
-"""
-
 import os
 from argparse import ArgumentParser, Namespace
 
-# import img_functions
 from src.asf_cnn import test_model, train_model
 from src.dataset.common import dataset_type
 from src.model import (
@@ -22,24 +10,9 @@ from src.plots import plot_confusion_chart, plot_predictions
 from src.reports import write_dict_to_csv
 
 
-def main():
-    # Passing the file directory main.py is located to be used for the rest of the program
-    img_functions.create_directories()
-    img_functions.move_incorrect_predictions_back()
-    img_functions.move_data_back()
-    # Setting up SAR data
-    img_functions.sar_data_setup()
-    # The paramerter is the percent of the data that is going to be test data.
-    img_functions.test_training_data_percent(30)
-    # Creating and running the CNN.
-    cnn.cnn()
-    img_functions.move_data_back()
-    img_functions.move_incorrect_predictions_back()
-
-
 def train_wrapper(args: Namespace) -> None:
+    data_type = dataset_type(args.dataset)
     model_name = args.model
-
     if args.cont:
         model = load_model(model_name)
         history = model.__asf_model_history
@@ -48,13 +21,13 @@ def train_wrapper(args: Namespace) -> None:
         if not args.overwrite and os.path.isfile(model_path):
             print(f"File {model_name} already exists!")
             return
-        model = create_model(model_name)
+
+        model = create_model(model_name, data_type)
         history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
 
-    if model_type(model) != dataset_type(args.dataset):
+    if model_type(model) != data_type:
         print("ERROR: This dataset is not compatible with your model")
         return
-
     train_model(model, history, args.dataset, args.epochs)
 
 

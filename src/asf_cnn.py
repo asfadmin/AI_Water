@@ -36,7 +36,6 @@ def train_model(
 ) -> None:
     if verbose > 0:
         model.summary()
-
     if model_type(model) == ModelType.BINARY:
         training_set, test_set = load_dataset_binary(dataset)
     elif model_type(model) == ModelType.MASKED:

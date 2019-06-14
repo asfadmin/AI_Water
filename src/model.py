@@ -4,12 +4,12 @@ import re
 from enum import Enum
 from typing import Optional, Tuple
 
-from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
-from keras.models import Model, Sequential
+from keras.models import Model
 from keras.models import load_model as kload_model
-from keras.optimizers import Adam
 
 from .config import MODELS_DIR
+from .model_architecture.binary_architecture import create_model_binary
+from .model_architecture.masked_architecture import create_model_masked
 from .typing import History
 
 
@@ -18,49 +18,12 @@ class ModelType(Enum):
     MASKED = 1
 
 
-def create_model(model_name: str) -> Model:
-    model = Sequential([
-        Conv2D(
-            64, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        ),
-        Conv2D(
-            128, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        ),
-        MaxPooling2D(pool_size=(2, 2)),
-        Conv2D(
-            128, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        ),
-        Conv2D(
-            128, (3, 3),
-            strides=(3, 3),
-            input_shape=(512, 512, 1),
-            activation='relu'
-        ),
-        MaxPooling2D(pool_size=(2, 2)),
-        Flatten(),
-        Dense(units=128, activation='relu'),
-        Dropout(rate=0.5),
-        Dense(units=128, activation='relu'),
-        Dropout(rate=0.5),
-        Dense(units=64, activation='relu'),
-        Dropout(rate=0.3),
-        Dense(units=1, activation='sigmoid')
-    ])
+def create_model(model_name: str, model_type: ModelType) -> Model:
 
-    model.compile(
-        Adam(lr=0.001), loss='binary_crossentropy', metrics=['accuracy']
-    )
-
-    model.__asf_model_name = model_name
+    if model_type == ModelType.MASKED:
+        model = create_model_masked(model_name)
+    elif model_type == ModelType.BINARY:
+        model = create_model_binary(model_name)
 
     return model
 
