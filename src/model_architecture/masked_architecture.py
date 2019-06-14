@@ -13,7 +13,8 @@ from keras.models import Model
 from keras.optimizers import Adam
 
 
-def down(filters, input_):
+# input_ type is <class 'tensorflow.python.framework.ops.Tensor'>
+def down(filters: int, input_):
     conv_down = Conv2D(filters, (3, 3), padding='same')(input_)
     conv_down = BatchNormalization(epsilon=1e-4)(conv_down)
     conv_down = Activation('relu')(conv_down)
@@ -24,7 +25,8 @@ def down(filters, input_):
     return conv_down_pool, conv_down_res
 
 
-def up(filters, input_, down):
+# input_ type is <class 'tensorflow.python.framework.ops.Tensor'>
+def up(filters: int, input_, down):
     conv_up = UpSampling2D((2, 2))(input_)
     conv_up = concatenate([down, conv_up], axis=3)
     conv_up = Conv2D(filters, (3, 3), padding='same')(conv_up)
@@ -70,25 +72,29 @@ def create_model_masked(model_name: str) -> Model:
     model = Model(inputs=inputs, outputs=classify)
 
     model.__asf_model_name = model_name
-    print(model.layers[-1].output_shape)
 
     model.compile(loss=dice_loss, optimizer=Adam(), metrics=['accuracy'])
 
     return model
 
 
+# Type y_true: <class 'tensorflow.python.framework.ops.Tensor'>
+# Tpye y_pred: <class 'tensorflow.python.framework.ops.Tensor'>
 def coef(y_true, y_pred, smooth=1):
     y_true_f = backend.flatten(y_true)
     y_pred_f = backend.flatten(y_pred)
-
     intersection = backend.sum(y_true_f * y_pred_f)
     return (2. * intersection + smooth) / (backend.sum(y_true_f) +
                                            backend.sum(y_pred_f) + smooth)
 
 
+# Type y_true: <class 'tensorflow.python.framework.ops.Tensor'>
+# Tpye y_pred: <class 'tensorflow.python.framework.ops.Tensor'>
 def dice_coef_loss(y_true, y_pred):
     return 1-coef(y_true, y_pred)
 
 
+# Type y_true: <class 'tensorflow.python.framework.ops.Tensor'>
+# Tpye y_pred: <class 'tensorflow.python.framework.ops.Tensor'>
 def dice_loss(y_true, y_pred):
     return binary_crossentropy(y_true, y_pred) + dice_coef_loss(y_true, y_pred)
