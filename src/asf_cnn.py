@@ -1,18 +1,6 @@
 """
-Alaska Satellite Facility
-Convolutional Neural Network
-McKade Sorensen (Douglas)
-05/16/2019
-
-Detects water within a SAR image.
-
-Part 1: Creating the CNN
-Step 1: Convolution
-Step 2: Max Pooling
-Step 3: Flattening
-Step 4: Full Connection - ANN
-
-Part 2: Fitting the CNN to the image
+asf_cnn.py contains the code that connects the Keras library with asf
+written code.
 """
 
 from typing import Any, Dict, List, Tuple

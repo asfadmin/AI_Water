@@ -1,3 +1,7 @@
+"""
+plots.py contains the code for plotting the results of binary datasets
+"""
+
 import os
 import re
 from typing import Any, Callable, List, Optional

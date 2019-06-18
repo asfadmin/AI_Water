@@ -3,6 +3,7 @@ from typing import Any, Dict, List, TextIO
 
 
 def write_dict_to_csv(data: Dict[Any, Any], f: TextIO) -> None:
+    """Creates a .csv file containing stats"""
     writer = csv.writer(f)
 
     rows: List[List[Any]] = []

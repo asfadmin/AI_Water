@@ -1,3 +1,8 @@
+"""
+mask.py contains the code for preparing a maseked data set,
+then loading the prepared data set for use.
+"""
+
 import os
 import re
 from typing import Optional, Tuple
@@ -41,6 +46,8 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
 
 def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
+    """Sets up masked metadata into two lists, one for training and one for
+    testing data. Returns both lists."""
     train_metadata = []
     test_metadata = []
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
