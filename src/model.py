@@ -30,7 +30,6 @@ def create_model(model_name: str, model_type: ModelType) -> Model:
     elif model_type == ModelType.BINARY:
         model = create_model_binary(model_name)
     else:
-        # TODO: look into making this more sophisticated
         print("ERROR: UNSUPPORTED DATA TYPE")
     return model
 
@@ -84,8 +83,8 @@ def save_model(
 
 
 def load_model(model_name: str) -> Model:
-    """Creates and returns a model with the given .h5 (HDF5)
-    file and attaches the model name and that models history."""
+    """Loads and returns a model. Attaches the model name
+    and that models history."""
     model_path = path_from_model_name(model_name)
     model_dir = os.path.dirname(model_path)
 

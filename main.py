@@ -1,5 +1,5 @@
 """
-main.py can be ran in the terminal.s
+main.py can be ran in the terminal.
 To run a test type:
     '$ python3 main.py test name_of_net name_of_dataset'
 To train a a network tpye:
@@ -38,6 +38,7 @@ def train_wrapper(args: Namespace) -> None:
     if model_type(model) != data_type:
         print("ERROR: This dataset is not compatible with your model")
         return
+        
     train_model(model, history, args.dataset, args.epochs)
 
 
