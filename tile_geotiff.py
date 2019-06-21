@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 """
 Rohan Weeden
-Helper script for tiling a GeoTiff and creating image labels.
+Helper script for tiling a GeoTiff, creating image labels, and for preparing
+data to be used in the network.
+
 
 ## Annoying dependencies:
   * matplotlib
@@ -37,6 +39,7 @@ FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
+
     if not check_dependencies(('gdal', )):
         return
 
@@ -115,6 +118,8 @@ def _show_plot(tif_array, file, image_labels, close):
 
 
 def prepare_data(directory: str, holdout: float):
+    """Moves images to correct directory for binary data,
+     calls prepare_mask_data to prepare masked data."""
     try:
         with open(os.path.join(directory, 'labels.json'), 'r') as f:
             image_labels = json.load(f)
@@ -135,7 +140,7 @@ def prepare_data(directory: str, holdout: float):
 
         label = image_labels[file]
         test_or_train = 'train' if random.random() > holdout else 'test'
-        folder = os.path.join(directory, test_or_train, label)
+        folder = os.path.join(directory, test_or_train)
         if not os.path.isdir(folder):
             os.makedirs(folder)
 
@@ -144,7 +149,7 @@ def prepare_data(directory: str, holdout: float):
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
     """Renames and moves mask and tile images"""
-    TILE_REGEX = re.compile(f"(.*)Tile_ulx_([0-9]+)_uly_([0-9]+)\\.({EXT})")
+    TILE_REGEX = re.compile(f"resized(.*)Tile_ulx_([0-9]+)_uly_([0-9]+)\\.({EXT})")
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
@@ -154,7 +159,7 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
         pre, num, num2, ext = m.groups()
         name_pre = f"{pre}_{num2}_{num}"
         new_tile_name = f"{name_pre}.tile.{ext}".lower()
-        mask_name = f"{pre}Mask_ulx_{num}_uly_{num2}.{ext}"
+        mask_name = f"resizedMASK{pre}Tile_ulx_{num}_uly_{num2}.{ext}"
         new_mask_name = f"{name_pre}.mask.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
