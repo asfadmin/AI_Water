@@ -19,7 +19,7 @@ the unit tests.
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
-## Tiling tiff images into smaller tiffs
+## Tiling .tiff Images
 To tile your tiff file create a folder in the same directory as
 main.py and name it prep_tile. Store the tiff file within this
 folder, like below:
@@ -42,7 +42,7 @@ command:
 $ python3 tile_geotiff.py tile -h
 ```
 
-## Classifying images (for binary data sets)
+## Classifying Images (for binary data sets)
 In the terminal run the command:
 ```terminal
 $ python3 tile_geotiff.py classify prep_tiles
@@ -53,7 +53,7 @@ to get more help run the command:
 $ python3 tile_geotiff.py classify -h
 ```
 
-## Preparing tiled and classified data set
+## Preparing Tiled and Classified data set
 To run the Neural Net your data will first need to be prepared.
 (This example directory tree is a example of a binary output.
 A masked output would not have the labels.json file)
@@ -156,7 +156,7 @@ Train for an additional 20 epochs:
 $ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
 ```
 
-## Getting information on a model
+## Getting Information on a Model
 Viewing information on a model is possible. The summary, filters,
 and history of each model is saved to access the information. To
 get access to this information use info_model.py, example:
