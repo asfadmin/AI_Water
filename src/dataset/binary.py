@@ -56,7 +56,7 @@ def load_dataset(
     test_iter = test_gen.flow(
         np.array(x_test), y=np.array(y_test), batch_size=1, shuffle=False
     )
-    # TODO: Figure out why there is a case for getting metadata
+
     if get_metadata:
         return train_iter, test_iter, train_metadata, test_metadata
 
