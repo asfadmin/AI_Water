@@ -23,6 +23,8 @@ import re
 from argparse import ArgumentParser
 from typing import Tuple
 
+import src.config as config
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import Button, RadioButtons
@@ -39,12 +41,14 @@ FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
+    """Takes a .tiff file and breaks it into smaller .tiff files"""
+    img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
 
     if not check_dependencies(('gdal', )):
         return
 
-    datafile = gdal.Open(ifname)
-    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', ifname).groups()
+    datafile = gdal.Open(img_fpath)
+    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
     step_x, step_y = tile_size
 
     xsize = datafile.RasterXSize
@@ -54,7 +58,7 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
         for y in range(0, ysize, step_y):
             gdal.Translate(
                 f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
-                ifname,
+                img_fpath,
                 srcWin=[x, y, step_x, step_y],
                 format="GTiff"
             )
@@ -138,7 +142,6 @@ def prepare_data(directory: str, holdout: float):
         if file not in image_labels:
             continue
 
-        label = image_labels[file]
         test_or_train = 'train' if random.random() > holdout else 'test'
         folder = os.path.join(directory, test_or_train)
         if not os.path.isdir(folder):
