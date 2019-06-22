@@ -41,6 +41,7 @@ def up(filters: int, input_, down):
 
 
 def create_model_masked(model_name: str) -> Model:
+    """Creates a maksed model with the output (None, 512, 512, 1)"""
 
     inputs = Input(shape=(512, 512, 1))
 
