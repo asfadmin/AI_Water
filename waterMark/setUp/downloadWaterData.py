@@ -1,10 +1,10 @@
-import urllib, sys, getopt, os
+import urllib.request, urllib.parse, urllib.error, sys, getopt, os
 def main(argv):
    DESTINATION_FOLDER = argv[0]
    if (DESTINATION_FOLDER[-1:]!="/"):
       DESTINATION_FOLDER = DESTINATION_FOLDER + "/"
    if not os.path.exists(DESTINATION_FOLDER):
-      print "Creating folder " + DESTINATION_FOLDER
+      print("Creating folder " + DESTINATION_FOLDER)
       os.makedirs(DESTINATION_FOLDER)
    DATASET_NAME = argv[1]
    longs = [str(w) + "W" for w in range(180,0,-10)]
@@ -17,15 +17,15 @@ def main(argv):
       for lat in lats:
         filename = DATASET_NAME+ "_" + str(lng) + "_" + str(lat) + ".tif"
         if os.path.exists(DESTINATION_FOLDER + filename):
-           print DESTINATION_FOLDER + filename + " already exists - skipping"
+           print(DESTINATION_FOLDER + filename + " already exists - skipping")
         else:
            url = "http://storage.googleapis.com/global-surface-water/downloads2/" + DATASET_NAME + "/" + filename
-           code = urllib.urlopen(url).getcode()
+           code = urllib.request.urlopen(url).getcode()
            if (code != 404):
-              print "Downloading " + url + " (" + str(counter) + "/" + str(fileCount) + ")"
-              urllib.urlretrieve(url, DESTINATION_FOLDER + filename)
+              print("Downloading " + url + " (" + str(counter) + "/" + str(fileCount) + ")")
+              urllib.request.urlretrieve(url, DESTINATION_FOLDER + filename)
            else:
-              print url + " not found"
+              print(url + " not found")
         counter += 1
 if __name__ == "__main__":
    main(sys.argv[1:])

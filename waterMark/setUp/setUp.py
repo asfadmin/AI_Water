@@ -28,6 +28,7 @@ windowsMode = args.w
 if windowsMode==True:
     linuxMode = False
 
+os.mkdir('inputs')
 shutil.move('downloadWaterData.py', 'inputs')
 os.chdir('inputs')
 
