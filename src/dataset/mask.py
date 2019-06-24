@@ -73,10 +73,13 @@ def generate_from_metadata(
 ):
     output_shape = (512, 512, 1)
     for tile_name, mask_name in metadata:
+
         tile = gdal.Open(tile_name)
         tile_array = tile.ReadAsArray()
 
         mask = gdal.Open(mask_name)
+        if mask is None:
+            continue
         mask_array = mask.ReadAsArray()
 
         if not valid_image(tile_array):
