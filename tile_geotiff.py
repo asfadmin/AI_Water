@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 """
 Rohan Weeden
-Helper script for tiling a GeoTiff and creating image labels.
+Helper script for tiling a GeoTiff, creating image labels, and for preparing
+data to be used in the network.
+
 
 ## Annoying dependencies:
   * matplotlib
@@ -21,6 +23,8 @@ import re
 from argparse import ArgumentParser
 from typing import Tuple
 
+import src.config as config
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import Button, RadioButtons
@@ -37,11 +41,14 @@ FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
+    """Takes a .tiff file and breaks it into smaller .tiff files"""
+    img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
+
     if not check_dependencies(('gdal', )):
         return
 
-    datafile = gdal.Open(ifname)
-    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', ifname).groups()
+    datafile = gdal.Open(img_fpath)
+    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
     step_x, step_y = tile_size
 
     xsize = datafile.RasterXSize
@@ -51,7 +58,7 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
         for y in range(0, ysize, step_y):
             gdal.Translate(
                 f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
-                ifname,
+                img_fpath,
                 srcWin=[x, y, step_x, step_y],
                 format="GTiff"
             )
@@ -115,6 +122,8 @@ def _show_plot(tif_array, file, image_labels, close):
 
 
 def prepare_data(directory: str, holdout: float):
+    """Moves images to correct directory for binary data,
+     calls prepare_mask_data to prepare masked data."""
     try:
         with open(os.path.join(directory, 'labels.json'), 'r') as f:
             image_labels = json.load(f)
@@ -133,9 +142,8 @@ def prepare_data(directory: str, holdout: float):
         if file not in image_labels:
             continue
 
-        label = image_labels[file]
         test_or_train = 'train' if random.random() > holdout else 'test'
-        folder = os.path.join(directory, test_or_train, label)
+        folder = os.path.join(directory, test_or_train)
         if not os.path.isdir(folder):
             os.makedirs(folder)
 
@@ -143,18 +151,18 @@ def prepare_data(directory: str, holdout: float):
 
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
-
-    TILE_REGEX = re.compile(f"(.*)Tile_([0-9]+).*\\.({EXT})")
+    """Renames and moves mask and tile images"""
+    TILE_REGEX = re.compile(f"resized(.*)Tile_ulx_([0-9]+)_uly_([0-9]+)\\.({EXT})")
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
         if not m:
             continue
 
-        pre, num, ext = m.groups()
-        name_pre = f"{pre}_{num}"
+        pre, num, num2, ext = m.groups()
+        name_pre = f"{pre}_{num2}_{num}"
         new_tile_name = f"{name_pre}.tile.{ext}".lower()
-        mask_name = f"{pre}Masks_{num}.{ext}"
+        mask_name = f"resizedMASK{pre}Tile_ulx_{num}_uly_{num2}.{ext}"
         new_mask_name = f"{name_pre}.mask.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
@@ -221,7 +229,7 @@ if __name__ == '__main__':
     parser_prepare = subparsers.add_parser(
         'prepare',
         help=
-        'Prepare the data directory for use with `ImageGenerator.flow_from_directory`'
+        'Prepare the data directory for use with `ImageGenerator.flow`'
     )
     parser_prepare.add_argument("directory")
     parser_prepare.add_argument(

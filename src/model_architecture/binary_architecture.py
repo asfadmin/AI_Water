@@ -8,6 +8,7 @@ from keras.models import Model, Sequential
 
 
 def create_model_binary(model_name: str) -> Model:
+    """ Creates a binary model with the output = (None, 1)"""
     model = Sequential([
         Conv2D(
             64, (3, 3),

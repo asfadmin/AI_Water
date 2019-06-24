@@ -1,3 +1,8 @@
+"""
+mask.py contains the code for preparing a maseked data set,
+then loading the prepared data set for use.
+"""
+
 import os
 import re
 from typing import Optional, Tuple
@@ -41,6 +46,8 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
 
 def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
+    """Sets up masked metadata into two lists, one for training and one for
+    testing data. Returns both lists."""
     train_metadata = []
     test_metadata = []
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
@@ -66,10 +73,15 @@ def generate_from_metadata(
 ):
     output_shape = (512, 512, 1)
     for tile_name, mask_name in metadata:
+
         tile = gdal.Open(tile_name)
+        if tile is None:
+            continue
         tile_array = tile.ReadAsArray()
 
         mask = gdal.Open(mask_name)
+        if mask is None:
+            continue
         mask_array = mask.ReadAsArray()
 
         if not valid_image(tile_array):

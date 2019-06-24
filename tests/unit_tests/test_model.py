@@ -7,6 +7,7 @@ import pytest
 from hypothesis import given
 from keras.layers import Dense, Flatten
 from keras.models import Model, Sequential
+
 from src.config import PROJECT_DIR
 from src.model import (
     ModelType, create_model, load_history, load_model, model_type,
@@ -59,9 +60,11 @@ def new_history() -> History:
 
 def test_create_model():
     # Verifying that create_model doesn't throw any errors
-    model = create_model("some_model")
+    model_binary = create_model("some_binary_model", ModelType.BINARY)
+    model_masked = create_model("some_masked_model", ModelType.MASKED)
 
-    assert model.__asf_model_name == "some_model"
+    assert model_binary.__asf_model_name == "some_binary_model"
+    assert model_masked.__asf_model_name == "some_masked_model"
 
 
 def test_path_from_model_name():

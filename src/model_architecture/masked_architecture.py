@@ -3,12 +3,11 @@ masked.py contains the architecture for creating a
 water mask within SAR imgaes.
 """
 
-from keras import backend
+
 from keras.layers import (
     Activation, BatchNormalization, Conv2D, Input, MaxPooling2D, UpSampling2D,
     concatenate
 )
-from keras.losses import binary_crossentropy
 from keras.models import Model
 from keras.optimizers import Adam
 
@@ -42,6 +41,7 @@ def up(filters: int, input_, down):
 
 
 def create_model_masked(model_name: str) -> Model:
+    """Creates a maksed model with the output (None, 512, 512, 1)"""
 
     inputs = Input(shape=(512, 512, 1))
 
@@ -73,28 +73,6 @@ def create_model_masked(model_name: str) -> Model:
 
     model.__asf_model_name = model_name
 
-    model.compile(loss=dice_loss, optimizer=Adam(), metrics=['accuracy'])
+    model.compile(loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy'])
 
     return model
-
-
-# Type y_true: <class 'tensorflow.python.framework.ops.Tensor'>
-# Tpye y_pred: <class 'tensorflow.python.framework.ops.Tensor'>
-def coef(y_true, y_pred, smooth=1):
-    y_true_f = backend.flatten(y_true)
-    y_pred_f = backend.flatten(y_pred)
-    intersection = backend.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (backend.sum(y_true_f) +
-                                           backend.sum(y_pred_f) + smooth)
-
-
-# Type y_true: <class 'tensorflow.python.framework.ops.Tensor'>
-# Tpye y_pred: <class 'tensorflow.python.framework.ops.Tensor'>
-def dice_coef_loss(y_true, y_pred):
-    return 1-coef(y_true, y_pred)
-
-
-# Type y_true: <class 'tensorflow.python.framework.ops.Tensor'>
-# Tpye y_pred: <class 'tensorflow.python.framework.ops.Tensor'>
-def dice_loss(y_true, y_pred):
-    return binary_crossentropy(y_true, y_pred) + dice_coef_loss(y_true, y_pred)
