@@ -18,6 +18,7 @@
 import argparse
 import os
 import subprocess
+import shutil
 
 parser=argparse.ArgumentParser()
 parser.add_argument('-w', type=bool , default=False)
@@ -27,17 +28,28 @@ windowsMode = args.w
 if windowsMode==True:
     linuxMode = False
 
+shutil.move('downloadWaterData.py', 'inputs')
 os.chdir('inputs')
-os.mkdir('worldMask')
+
+# windows linux toggle
 if windowsMode:
-    subprocess.call("python downloadWaterData.py 'worldMask' 'occurrence'", \
+    os.mkdir('worldMask')
+    subprocess.call("python downloadWaterData.py worldMask occurrence",     \
                                                                   shell=True)
-subprocess.call("python3 downloadWaterData.py 'worldMask' 'occurrence'", \
-                                                               shell=True)
+    shutil.move('downloadWaterData.py', 'worldMask')
+
+if linuxMode:
+    subprocess.call("python3 downloadWaterData.py worldMask occurrence",     \
+                                                                   shell=True)
+    shutil.move('downloadWaterData.py', 'worldMask')
+
 os.chdir('worldMask')
 with open('worldMask.txt', 'w') as file:
     for item in os.listdir(os.getcwd()):
-        file.write(item+'\n')    
+        if item.endswith('.tif'):
+            file.write(item+'\n')    
+        else:
+            pass            
     subprocess.call('gdalbuildvrt -input_file_list worldMask.txt \
                                         worldMask.vrt', shell=True)
-os.remove('worldMask.txt')
+
