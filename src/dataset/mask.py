@@ -75,6 +75,8 @@ def generate_from_metadata(
     for tile_name, mask_name in metadata:
 
         tile = gdal.Open(tile_name)
+        if tile is None:
+            continue
         tile_array = tile.ReadAsArray()
 
         mask = gdal.Open(mask_name)
