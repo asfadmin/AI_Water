@@ -20,8 +20,8 @@ NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
 ## Tiling .tiff Images
-To tile your tiff file create a folder in the same directory as
-main.py and name it prep_tile. Store the tiff file within this
+To tile your tiff image create a folder in the same directory as
+main.py and name it prep_tiles. Store the tiff file within this
 folder, like below:
 ```
 AI_Water
@@ -80,7 +80,7 @@ $ python3 tile_geotiff.py prepare datasets/example_rtc .3
 ```
 
 The .3 at the end is the holdout, the proportion of data that
-will be used for testing. At this point your data set is
+will be used for testing. At this point your data set is ready
 and the file should look like this:
 
 To get more information on preparing the data set run this
@@ -158,8 +158,8 @@ $ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
 
 ## Getting Information on a Model
 Viewing information on a model is possible. The summary, filters,
-and history of each model is saved to access the information. To
-get access to this information use info_model.py, example:
+and history of each model is saved to access the information later. 
+To get access to this information use info_model.py, example:
 
 View the models training history:
 ```terminal
