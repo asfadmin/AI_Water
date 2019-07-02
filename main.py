@@ -44,7 +44,7 @@ def train_wrapper(args: Namespace) -> None:
 
 
 def test_wrapper(args: Namespace) -> None:
-    print(f'DELETE {dataset_type(args.dataset)} ***********************************' )
+
     model_name = args.model
     model = load_model(model_name)
 
@@ -52,11 +52,11 @@ def test_wrapper(args: Namespace) -> None:
         print("ERROR: This dataset is not compatible with your model")
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
-        print("Masked test_wrapper ***********************************************************")
+
         mask_pixel_preds = test_masked_model(model, args.dataset)
 #        plot_masked_predictions(mask_pixel_preds, args.dataset)
     else:
-        print('Binary test_wrapper ***********************************************************')
+
         details, confusion_matrix = test_model(model, args.dataset)
 
         model_dir = os.path.dirname(path_from_model_name(model_name))
@@ -100,7 +100,6 @@ if __name__ == '__main__':
     # Parse and execute selected function
     args = p.parse_args()
     if hasattr(args, 'func'):
-        print('DELETE ME *************************************')
         args.func(args)
     else:
         p.print_help()

@@ -1,4 +1,3 @@
-
 """
 asf_cnn.py contains the code that connects the Keras library with asf
 written code.
@@ -132,7 +131,7 @@ def test_model(model: Model, dataset: str,
 
 
 def test_masked_model(model: Model, dataset: str, verbose: int=1):
-    print("DELETE test_masked_model ********************************")
+
     if verbose > 0:
         model.summary()
 
@@ -143,14 +142,22 @@ def test_masked_model(model: Model, dataset: str, verbose: int=1):
     predictions = model.predict_generator(test_iter, len(test_iter), verbose=verbose)
     test_iter.reset()
 
-    for row in test_iter:
-        for cell in row:
-            for x in cell:
-                for y in x:
-                    print(y)
+    count = 0
+    for img in predictions:
+        for height in img:
+           for pixel in height:
+               if pixel < .5:
+                   pixel = 0
+               elif pixel >= .5 and pixel <= 1:
+                   count += 1
+                   pixel = 1
+               else:
+                  print('ERROR **************************************************')
 
+    print(count)
     pred_mask_pixels = []
     error_pixels = []
+
     for prediction in predictions:
         for pred in prediction:
             for x in pred:
