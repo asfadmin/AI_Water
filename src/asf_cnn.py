@@ -130,8 +130,9 @@ def test_model(model: Model, dataset: str,
     return details, confusion_matrix
 
 
-def test_masked_model(model: Model, dataset: str, verbose: int=1):
-
+def test_masked_model(model: Model, dataset: str,
+                      verbose: int = 1):
+    model
     if verbose > 0:
         model.summary()
 
@@ -139,34 +140,9 @@ def test_masked_model(model: Model, dataset: str, verbose: int=1):
         raise NotImplementedError("ERROR: With masked output")
 
     _, test_iter = load_dataset_masked(dataset)
-    predictions = model.predict_generator(test_iter, len(test_iter), verbose=verbose)
+    predictions = model.predict_generator(test_iter, len(test_iter),
+                                          verbose=verbose)
     test_iter.reset()
+    binary_predictions = predictions.round(decimals=0, out=None)
 
-    count = 0
-    for img in predictions:
-        for height in img:
-           for pixel in height:
-               if pixel < .5:
-                   pixel = 0
-               elif pixel >= .5 and pixel <= 1:
-                   count += 1
-                   pixel = 1
-               else:
-                  print('ERROR **************************************************')
-
-    print(count)
-    pred_mask_pixels = []
-    error_pixels = []
-
-    for prediction in predictions:
-        for pred in prediction:
-            for x in pred:
-                if x <= .5:
-                    pred_mask_pixels.append(0)
-                elif x >= .5 and x <= 1:
-                    pred_mask_pixels.append(1)
-                else:
-                    error_pixels.append(x)
-    if len(error_pixels) != 0:
-        print('ERROR: test_masked_model in asf_cnn.py')
-    return pred_mask_pixels
+    return binary_predictions
