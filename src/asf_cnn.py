@@ -143,6 +143,6 @@ def test_masked_model(model: Model, dataset: str,
     predictions = model.predict_generator(test_iter, len(test_iter),
                                           verbose=verbose)
     test_iter.reset()
-    binary_predictions = predictions.round(decimals=0, out=None)
+    masked_predictions = predictions.round(decimals=0, out=None)
 
-    return binary_predictions
+    return masked_predictions
