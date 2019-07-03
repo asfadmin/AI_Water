@@ -3,33 +3,64 @@ Plots Neural Nets masked predictions
 """
 import os
 import re
-from typing import List
+from typing import Any
 
-import numpy as np
-from matplotlib import pyplot
-from matplotlib.widgets import Button
+from matplotlib import pyplot as plt
+from osgeo import gdal
 
-from .dataset.mask import load_dataset
 from .dataset.common import dataset_dir
+from .plots import close_button, maximize_plot
 
-def plot_predictions(mask_pixel_preds, dataset: str) -> None:
-    print('DELETE WHEN DONE plot_predictions **************************')
+
+def plot_predictions(predictions, dataset: str) -> None:
     MASK_TILE_REGEX = re.compile(r"(.*)_([0-9]+)_([0-9]+).mask.tif")
+    TEST_DIRECTORY = os.path.join(dataset_dir(dataset), 'test')
 
-    mask_img_names = []
-    tile_img_names = []
-    for img_name in os.listdir(dataset_dir(os.path.join(dataset, 'test'))):
+    list_sar_names = []
+    list_mask_names = []
+    for img_name in os.listdir(TEST_DIRECTORY):
+        # Saving the mask imgs and tile imgs to lists
         m = re.match(MASK_TILE_REGEX, img_name)
-
         if not m:
-            tile_img_names.append(img_name)
+            list_sar_names.append(img_name)
             continue
-        mask_img_names.append(img_name)
+        list_mask_names.append(img_name)
 
-    height = len(mask_pixel_preds)/512
+    list_sar_names.sort()
+    list_mask_names.sort()
 
-    print(f'Image: {tile_img_names[0]}')
-    for height in range(0, 512):
-        for width in range(0, 512):
-            print(mask_pixel_preds[width], end = '')
-        print('')
+    three_types_images = []
+    for index, img in enumerate(predictions):
+        # Plots prediction, mask, and rtc sar image.
+        img_dict = {'prediction': img, 'mask': list_mask_names[index],
+                    'sar': list_sar_names[index]}
+        three_types_images.append(img_dict)
+
+    done = False
+    for dict in three_types_images:
+        if done:
+            break
+        for index, img in enumerate(dict):
+            plt.subplot(1, 3, index+1)
+            if index == 0:
+                plt.title('prediction')
+                plt.imshow(dict[img].reshape(512, 512),
+                           cmap=plt.get_cmap('gist_gray'))
+            else:
+                plt.title(dict[img])
+                tif = gdal.Open(os.path.join(TEST_DIRECTORY, dict[img]))
+
+                try:
+                    tif_array = tif.ReadAsArray()
+                except AttributeError:
+                    continue
+
+                plt.imshow(tif_array.reshape(512, 512),
+                           cmap=plt.get_cmap('gist_gray'))
+
+        def close_plot(_: Any) -> None:
+            nonlocal done
+            done = True
+        _cbtn = close_button(close_plot)
+        maximize_plot()
+        plt.show()
