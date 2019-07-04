@@ -10,10 +10,10 @@ For more information see README.md
 import os
 from argparse import ArgumentParser, Namespace
 
-from src.asf_cnn import test_model, train_model, test_masked_model
+from src.asf_cnn import test_masked_model, test_model, train_model
 from src.dataset.common import dataset_type
 from src.model import (
-    create_model, load_model, model_type, path_from_model_name, ModelType
+    ModelType, create_model, load_model, model_type, path_from_model_name
 )
 from src.plots import plot_confusion_chart, plot_predictions
 from src.plots_masked import plot_predictions as plot_masked_predictions
@@ -53,8 +53,8 @@ def test_wrapper(args: Namespace) -> None:
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
 
-        mask_pixel_preds = test_masked_model(model, args.dataset)
-#        plot_masked_predictions(mask_pixel_preds, args.dataset)
+        predictions = test_masked_model(model, args.dataset)
+        plot_masked_predictions(predictions, args.dataset)
     else:
 
         details, confusion_matrix = test_model(model, args.dataset)
