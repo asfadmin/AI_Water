@@ -76,7 +76,7 @@ def test_model(model: Model, dataset: str,
 
     if model_type(model) != ModelType.BINARY:
         raise NotImplementedError(
-            "Model analysis is only supported for binary output"
+            "ERROR: With binary model"
         )
 
     _, test_iter, _, test_metadata = load_dataset_binary(
@@ -137,7 +137,7 @@ def test_masked_model(model: Model, dataset: str,
         model.summary()
 
     if model_type(model) != ModelType.MASKED:
-        raise NotImplementedError("ERROR: With masked output")
+        raise NotImplementedError("ERROR: With masked model")
 
     _, test_iter = load_dataset_masked(dataset)
     predictions = model.predict_generator(test_iter, len(test_iter),
