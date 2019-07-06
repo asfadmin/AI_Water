@@ -4,6 +4,7 @@ water mask within SAR imgaes.
 """
 
 
+from keras import losses
 from keras.layers import (
     Activation, BatchNormalization, Conv2D, Input, MaxPooling2D, UpSampling2D,
     concatenate
@@ -73,6 +74,7 @@ def create_model_masked(model_name: str) -> Model:
 
     model.__asf_model_name = model_name
 
-    model.compile(loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy'])
+    model.compile(loss=losses.mean_squared_error, optimizer=Adam(),
+                  metrics=['accuracy'])
 
     return model
