@@ -30,10 +30,8 @@ def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
     return x
 
 
-def create_model_masked(input_img, n_filters=16, dropout=0.1, batchnorm=True):
+def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
     """Function to define the UNET Model"""
-    print(type(input_img))
-    print(input_img)
 
     inputs = Input(shape=(512, 512, 1))
     # Contracting Path
@@ -84,6 +82,8 @@ def create_model_masked(input_img, n_filters=16, dropout=0.1, batchnorm=True):
 
     outputs = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(c9)
     model = Model(inputs=inputs, outputs=[outputs])
+
+    model.__asf_model_name = model_name
 
     model.compile(optimizer=Adam(), loss="binary_crossentropy",
                   metrics=["accuracy"])
