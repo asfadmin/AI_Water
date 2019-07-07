@@ -38,6 +38,7 @@ def plot_predictions(predictions, dataset: str) -> None:
 
     done = False
     for dict in three_types_images:
+        # Plots imgs from img_dict
         if done:
             break
         for index, img in enumerate(dict):
@@ -53,8 +54,9 @@ def plot_predictions(predictions, dataset: str) -> None:
                 try:
                     tif_array = tif.ReadAsArray()
                 except AttributeError:
-                    continue
+                    'ERROR: plots_masked.py'
 
+                tif_array = tif_array.clip(0, 1)
                 plt.imshow(tif_array.reshape(512, 512),
                            cmap=plt.get_cmap('gist_gray'))
 
