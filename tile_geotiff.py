@@ -68,10 +68,10 @@ def interactive_classifier(directory: str) -> None:
     if not check_dependencies(('gdal', 'matplotlib')):
         return
 
-#    try:
-#       with open(os.path.join(directory, 'labels.json'), 'r') as f:
-#           image_labels = json.load(f)
-#   except FileNotFoundError:
+    try:
+        with open(os.path.join(directory, 'labels.json'), 'r') as f:
+            image_labels = json.load(f)
+    except FileNotFoundError:
         image_labels = {}
 
     for file in os.listdir(directory):
