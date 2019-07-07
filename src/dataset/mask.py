@@ -80,7 +80,6 @@ def generate_from_metadata(
     for tile_name, mask_name in metadata:
         tile = gdal.Open(tile_name)
         if tile is None:
-            print('tile_name')
             continue
         tile_array = tile.ReadAsArray()
 
@@ -101,4 +100,3 @@ def generate_from_metadata(
             np.clip(x, min_, max_, out=x)
 
         yield (x.reshape(output_shape), y.reshape(output_shape))
-
