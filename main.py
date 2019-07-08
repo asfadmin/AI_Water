@@ -1,9 +1,13 @@
+#! /usr/bin/env python3
 """
-main.py can be ran in the terminal.
-To run a test type:
-    '$ python3 main.py test name_of_net name_of_dataset'
-To train a a network tpye:
-    '$ python3 main.py train awesome_net awesome_dataset --epochs 10'
+This file is only intended to be run from the command line. For calling model
+training or testing functions from python see `src/asf_cnn.py`.
+
+To train a model:
+    `$ python3 main.py train name_of_net name_of_dataset --epochs 10`
+To evaluate a model:
+    `$ python3 main.py test name_of_net name_of_dataset`
+
 For more information see README.md
 """
 
