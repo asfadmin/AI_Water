@@ -1,4 +1,4 @@
-# AI_Water
+# AI_Water ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidUtONGNXUzYvWDJod3V6MU9JMG95YlY3ZHUySXl2ZWtlQVd3V00xY3RwK3JMenFjM1ZuSHJpRzdEcjhKY1B5QmI0THZoTlI0ZGk4T0F0KzUydHVIRjVjPSIsIml2UGFyYW1ldGVyU3BlYyI6ImExM2llSGhpOE80OXhYczIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 Using Convolutional Neural Networks to generate water masks from SAR data.
 
 ## Installation
@@ -6,7 +6,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 Installing dependencies is straight forward with pipenv. First install the
 GDAL dev libraries:
 ```terminal
-$ sudo apt-get install libgdal1-dev
+$ sudo apt-get install libgdal-dev
 ```
 
 Then install the python packages:
