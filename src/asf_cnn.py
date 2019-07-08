@@ -10,7 +10,7 @@ from keras.models import Model
 
 from .dataset.binary import load_dataset as load_dataset_binary
 from .dataset.binary import make_label_conversions
-from .dataset.mask import load_dataset as load_dataset_masked
+from .dataset.masked import load_dataset as load_dataset_masked
 from .model import ModelType, model_type, save_model
 from .typing import History
 
