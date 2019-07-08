@@ -1,7 +1,6 @@
 """
-model.py has the classes/funtions that creates, saves, loads the model.
-It also has the functions that creates, saves, and loads a models history
-and it contains functions that deal with a models file path.
+Create, save, and load models and model histories. Includes helper functions for
+keeping model paths consistent.
 """
 import json
 import os
