@@ -2,16 +2,18 @@
 masked.py contains the architecture for creating a water mask within SAR imgaes.
 """
 
+from typing import Tuple
+
 from keras.layers import (
-    Activation, BatchNormalization, Conv2D, Input, MaxPooling2D, UpSampling2D,
-    concatenate
+    Activation, BatchNormalization, Conv2D, Input, Layer, MaxPooling2D,
+    UpSampling2D, concatenate
 )
 from keras.models import Model
 from keras.optimizers import Adam
+from tensorflow import Tensor
 
 
-# input_ type is <class 'tensorflow.python.framework.ops.Tensor'>
-def down(filters: int, input_):
+def down(filters: int, input_: Tensor) -> Tuple[Layer, Layer]:
     conv_down = Conv2D(filters, (3, 3), padding='same')(input_)
     conv_down = BatchNormalization(epsilon=1e-4)(conv_down)
     conv_down = Activation('relu')(conv_down)
@@ -22,8 +24,7 @@ def down(filters: int, input_):
     return conv_down_pool, conv_down_res
 
 
-# input_ type is <class 'tensorflow.python.framework.ops.Tensor'>
-def up(filters: int, input_, down):
+def up(filters: int, input_: Tensor, down: Layer) -> Layer:
     conv_up = UpSampling2D((2, 2))(input_)
     conv_up = concatenate([down, conv_up], axis=3)
     conv_up = Conv2D(filters, (3, 3), padding='same')(conv_up)
@@ -39,7 +40,7 @@ def up(filters: int, input_, down):
 
 
 def create_model_masked(model_name: str) -> Model:
-    """Creates a maksed model with the output (None, 512, 512, 1)"""
+    """ Creates a maksed model with the output (None, 512, 512, 1)"""
 
     inputs = Input(shape=(512, 512, 1))
 
