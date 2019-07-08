@@ -1,8 +1,6 @@
 """
-masked.py contains the architecture for creating a
-water mask within SAR imgaes.
+masked.py contains the architecture for creating a water mask within SAR imgaes.
 """
-
 
 from keras.layers import (
     Activation, BatchNormalization, Conv2D, Input, MaxPooling2D, UpSampling2D,
@@ -66,13 +64,14 @@ def create_model_masked(model_name: str) -> Model:
     up_0 = up(64, up_1, down_0_res)
     up_0a = up(24, up_0, down_0a_res)
 
-    classify = Conv2D(1, (1, 1), activation='sigmoid',
-                      name='last_layer')(up_0a)
+    classify = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(up_0a)
 
     model = Model(inputs=inputs, outputs=classify)
 
     model.__asf_model_name = model_name
 
-    model.compile(loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy'])
+    model.compile(
+        loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy']
+    )
 
     return model

@@ -2,8 +2,8 @@
 Tests to see if the output of the models architecture in masked_architecutre
 and binary_architecture are correct.
 """
-from src.model_architecture.binary_architecture import create_model_binary
-from src.model_architecture.masked_architecture import create_model_masked
+from src.model.architecture.binary import create_model_binary
+from src.model.architecture.masked import create_model_masked
 
 
 def model_final_layer(model):

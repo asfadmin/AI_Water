@@ -12,10 +12,10 @@ from typing import Optional, Tuple
 from keras.models import Model
 from keras.models import load_model as kload_model
 
-from .config import MODELS_DIR
-from .model_architecture.binary_architecture import create_model_binary
-from .model_architecture.masked_architecture import create_model_masked
-from .typing import History
+from ..config import MODELS_DIR
+from ..typing import History
+from .architecture.binary import create_model_binary
+from .architecture.masked import create_model_masked
 
 
 class ModelType(Enum):
