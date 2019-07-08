@@ -54,49 +54,49 @@ $ python3 tile_geotiff.py classify -h
 ```
 
 ## Preparing Tiled and Classified Data Set
-To run the Neural Net your data will first need to be prepared.
-(This example directory tree is a example of a binary output.
-A masked output would not have the labels.json file)
+To run the Neural Net your data will first need to be prepared. This example
+would have a binary output as it includes a labels.json file. A masked data set
+would not have the labels.json file.
 
-Within the same directory that main.py resides create a new folder
-called 'datasets'. Wrap all of your data and metadata into a folder
-and then move that folder into data set. Below is an example of a
-data set that is ready to be prepared for a binary output.
+Within the same directory that main.py resides create a new folder called
+'datasets'. Wrap all of your data and metadata into a folder and then move that
+folder into data set. Below is an example of a tiled data set that is ready to
+be restructured.
 
 ```
 AI_Water
-├── datasets
-    └── example_rtc       # Each dataset gets a directory
-        ├── labels.json   # Your .jsons file needs to be
-        ├── img           # named labels.json
-        ├── img
+└── datasets
+    └── example_rtc       # Each data set gets a directory
+        ├── labels.json   # Your .json file needs to be named labels.json
+        ├── img1.tif
+        └── img2.tif
 ```
 
-Once your data is in the correct spot move to the directory that
-datasets resides. Next run this command:
+Once your data is in the correct directory run the following command:
 
 ```terminal
 $ python3 tile_geotiff.py prepare datasets/example_rtc .3
 ```
 
-The .3 at the end is the holdout, the proportion of data that
-will be used for testing. At this point your data set is ready
-and the file should look like this:
+This will move the image tiles into the directory structure expected by the
+training script using a holdout of 30%.
 
-To get more information on preparing the data set run this
-command:
-
+To get more information on preparing the data set run:
 ```terminal
 $ python3 tile_geotiff.py prepare -h
 ```
 
+At this point your data set is ready and the directory should look like this:
+
 ```
 AI_Water
-├── datasets
-    └── example_rtc       # Each dataset gets a directory
+└── datasets
+    └── example_rtc
         ├── labels.json
         ├── test
+        │   └── img1.tif
         └── train
+            └── img2.tif
 ```
 
 ## Project Layout
@@ -106,7 +106,7 @@ The project is organized into directories as follows.
 ```
 AI_Water
 ├── datasets
-│   └── example_rtc       # Each dataset gets a directory
+│   └── example_rtc       # Each data set gets a directory
 │       ├── labels.json
 │       ├── test
 │       └── train
@@ -134,7 +134,7 @@ $ pipenv run tests
 ```
 
 ## Training
-1. Move your dataset (along with `labels.json`) to the dataset folder.
+1. Move your data set (along with `labels.json`) to the `dataset` folder.
 2. If you’re loading in weights run `main.py` with the `--continue` option.
 If you’re not loading them in and you're restarting the training of the CNN you
 will need to run `main.py` with the `--overwrite` option.
@@ -156,17 +156,17 @@ Train for an additional 20 epochs:
 $ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
 ```
 
-## Getting Information on a Model
-Viewing information on a model is possible. The summary, filters,
-and history of each model is saved to access the information later. 
-To get access to this information use info_model.py, example:
+## Getting Descriptive Information and Metrics
+You can view information about a model's performance with `model_info.py`. This
+includes a summary of model parameters, a visualization of convolutional
+filters, a graph of training history and more.
 
 View the models training history:
 ```terminal
 $ python3 model_info.py awesome_net history
 ```
 
-For help on running it type:
+For a list of available statistics run the help command:
 ```terminal
 $ python3 model_info.py -h
 ```
