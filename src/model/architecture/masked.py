@@ -1,5 +1,5 @@
 """
-masked.py contains the architecture for creating a water mask within SAR imgaes.
+    Contains the architecture for creating a water mask within SAR images.
 """
 
 from typing import Tuple
@@ -40,7 +40,7 @@ def up(filters: int, input_: Tensor, down: Layer) -> Layer:
 
 
 def create_model_masked(model_name: str) -> Model:
-    """ Creates a maksed model with the output (None, 512, 512, 1)"""
+    """ Creates a maksed model with the output (None, 512, 512, 1). """
 
     inputs = Input(shape=(512, 512, 1))
 

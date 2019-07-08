@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """
-This file is only intended to be run from the command line. For calling model
-training or testing functions from python see `src/asf_cnn.py`.
+    This file is only intended to be run from the command line. For calling
+model training or testing functions from python see `src/asf_cnn.py`.
 
 To train a model:
     `$ python3 main.py train name_of_net name_of_dataset --epochs 10`

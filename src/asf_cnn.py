@@ -1,5 +1,5 @@
 """
-asf_cnn.py contains the code that connects the Keras library with asf
+    asf_cnn.py contains the code that connects the Keras library with asf
 written code.
 """
 
@@ -30,7 +30,7 @@ def train_model(
         training_set, test_set = load_dataset_masked(dataset)
     else:
         print(
-            "Unknown model output shape. Expected either a binary"
+            "Unknown model output shape. Expected either a binary",
             "classification model or a 512x512 pixel mask."
         )
         return

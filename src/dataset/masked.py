@@ -1,6 +1,6 @@
 """
-mask.py contains the code for preparing a maseked data set,
-then loading the prepared data set for use.
+    masked.py contains the code for preparing a masked data set, and loading the
+prepared data set for use.
 """
 
 import os
@@ -46,8 +46,8 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
 
 def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
-    """Sets up masked metadata into two lists, one for training and one for
-    testing data. Returns both lists."""
+    """ Returns two lists of metadata. One for the training data and one for the
+    testing data. """
     train_metadata = []
     test_metadata = []
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
@@ -71,6 +71,7 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
 def generate_from_metadata(
     metadata: DatasetMetadata, clip_range: Optional[Tuple[float, float]] = None
 ):
+    """ Yield training images and masks from the given metadata. """
     output_shape = (512, 512, 1)
     for tile_name, mask_name in metadata:
 
