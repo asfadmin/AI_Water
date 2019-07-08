@@ -68,15 +68,14 @@ def train_model(
     save_model(model, 'latest')
 
 
-# Rename to test_binary_model
-def test_model(model: Model, dataset: str,
-               verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+def test_model_binary(model: Model, dataset: str,
+                      verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
     if verbose > 0:
         model.summary()
 
     if model_type(model) != ModelType.BINARY:
         raise NotImplementedError(
-            "ERROR: With binary model"
+            "Model analysis for the given dataset is only supported for binary output"
         )
 
     _, test_iter, _, test_metadata = load_dataset_binary(
@@ -130,19 +129,18 @@ def test_model(model: Model, dataset: str,
     return details, confusion_matrix
 
 
-def test_masked_model(model: Model, dataset: str,
+def test_model_masked(model: Model, dataset: str,
                       verbose: int = 1):
     model
     if verbose > 0:
         model.summary()
 
-    if model_type(model) != ModelType.MASKED:
-        raise NotImplementedError("ERROR: With masked model")
+    assert model_type(model) == ModelType.MASKED, "This function only works on masked models"
 
     _, test_iter = load_dataset_masked(dataset)
     predictions = model.predict_generator(test_iter, len(test_iter),
                                           verbose=verbose)
-    test_iter.reset()
+
     masked_predictions = predictions.round(decimals=0, out=None)
 
     return masked_predictions

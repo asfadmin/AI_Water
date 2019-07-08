@@ -10,7 +10,7 @@ For more information see README.md
 import os
 from argparse import ArgumentParser, Namespace
 
-from src.asf_cnn import test_masked_model, test_model, train_model
+from src.asf_cnn import test_model_binary, test_model_masked, train_model
 from src.dataset.common import dataset_type
 from src.model import (
     ModelType, create_model, load_model, model_type, path_from_model_name
@@ -53,11 +53,11 @@ def test_wrapper(args: Namespace) -> None:
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
 
-        predictions = test_masked_model(model, args.dataset)
+        predictions = test_model_masked(model, args.dataset)
         plot_masked_predictions(predictions, args.dataset)
     else:
 
-        details, confusion_matrix = test_model(model, args.dataset)
+        details, confusion_matrix = test_model_binary(model, args.dataset)
 
         model_dir = os.path.dirname(path_from_model_name(model_name))
         with open(os.path.join(model_dir, 'results.csv'), 'w') as f:
