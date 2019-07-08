@@ -109,7 +109,6 @@ def maximize_plot() -> None:
         mng.frame.Maximize(True)
     elif re.match('qt[0-9]*agg', backend_):
         mng.window.showMaximized()
-
     else:
         raise RuntimeError(f"Backend {backend} is not supported")
 

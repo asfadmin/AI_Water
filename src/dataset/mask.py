@@ -85,7 +85,6 @@ def generate_from_metadata(
 
         mask = gdal.Open(mask_name)
         if mask is None:
-            print(mask_name)
             continue
         mask_array = mask.ReadAsArray()
 
