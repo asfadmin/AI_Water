@@ -1,13 +1,9 @@
-#! /usr/bin/env python3
 """
-    This file is only intended to be run from the command line. For calling
-model training or testing functions from python see `src/asf_cnn.py`.
-
-To train a model:
-    `$ python3 main.py train name_of_net name_of_dataset --epochs 10`
-To evaluate a model:
-    `$ python3 main.py test name_of_net name_of_dataset`
-
+main.py can be ran in the terminal.
+To run a test type:
+    '$ python3 main.py test name_of_net name_of_dataset'
+To train a a network tpye:
+    '$ python3 main.py train awesome_net awesome_dataset --epochs 10'
 For more information see README.md
 """
 
@@ -48,7 +44,6 @@ def train_wrapper(args: Namespace) -> None:
 
 
 def test_wrapper(args: Namespace) -> None:
-
     model_name = args.model
     model = load_model(model_name)
 
@@ -56,9 +51,8 @@ def test_wrapper(args: Namespace) -> None:
         print("ERROR: This dataset is not compatible with your model")
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
-
-        predictions = test_model_masked(model, args.dataset)
-        plot_masked_predictions(predictions, args.dataset)
+        predictions, test_iter = test_model_masked(model, args.dataset)
+        plot_masked_predictions(predictions, test_iter, args.dataset)
     else:
 
         details, confusion_matrix = test_model_binary(model, args.dataset)
