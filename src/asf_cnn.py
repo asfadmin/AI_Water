@@ -30,7 +30,7 @@ def train_model(
         training_set, test_set = load_dataset_masked(dataset)
     else:
         print(
-            "Unknown model output shape. Expected either a binary"
+            "Unknown model output shape. Expected either a binary",
             "classification model or a 512x512 pixel mask."
         )
         return
@@ -70,13 +70,11 @@ def train_model(
 
 def test_model_binary(model: Model, dataset: str,
                       verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+
+    assert model_type(model) == ModelType.BINARY, "This function only works on binary models"
+
     if verbose > 0:
         model.summary()
-
-    if model_type(model) != ModelType.BINARY:
-        raise NotImplementedError(
-            "Model analysis for the given dataset is only supported for binary output"
-        )
 
     _, test_iter, _, test_metadata = load_dataset_binary(
         dataset, get_metadata=True
@@ -131,11 +129,12 @@ def test_model_binary(model: Model, dataset: str,
 
 def test_model_masked(model: Model, dataset: str,
                       verbose: int = 1):
+
+    assert model_type(model) == ModelType.MASKED, "This function only works on masked models"
+
     model
     if verbose > 0:
         model.summary()
-
-    assert model_type(model) == ModelType.MASKED, "This function only works on masked models"
 
     _, test_iter = load_dataset_masked(dataset)
     predictions = model.predict_generator(test_iter, len(test_iter),

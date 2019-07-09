@@ -62,45 +62,44 @@ def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
 
     c5 = conv2d_block(p4_6, n_filters=n_filters * 16, kernel_size=3,
                       batchnorm=batchnorm)
-
     # Expansive Path
-    u6 = Conv2DTranspose(n_filters * 8, (3, 3), strides=(2, 2),
-                         padding='same')(c5)
-    u6 = concatenate([u6, c4_6])
-    u6 = Dropout(dropout)(u6)
-    c6 = conv2d_block(u6, n_filters * 8, kernel_size=3, batchnorm=batchnorm)
-
     u7 = Conv2DTranspose(n_filters * 4, (3, 3), strides=(2, 2),
-                         padding='same')(c6)
-    u7 = concatenate([u7, c4_5])
+                         padding='same')(c5)
+    u7 = concatenate([u7, c4_6])
     u7 = Dropout(dropout)(u7)
     c7 = conv2d_block(u7, n_filters * 4, kernel_size=3, batchnorm=batchnorm)
 
     u8 = Conv2DTranspose(n_filters * 2, (3, 3), strides=(2, 2),
                          padding='same')(c7)
-    u8 = concatenate([u8, c4])
+    u8 = concatenate([u8, c4_5])
     u8 = Dropout(dropout)(u8)
     c8 = conv2d_block(u8, n_filters * 2, kernel_size=3, batchnorm=batchnorm)
 
     u9 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
                          padding='same')(c8)
-    u9 = concatenate([u9, c3])
+    u9 = concatenate([u9, c4])
     u9 = Dropout(dropout)(u9)
     c9 = conv2d_block(u9, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
 
     u10 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
                           padding='same')(c9)
-    u10 = concatenate([u10, c2])
+    u10 = concatenate([u10, c3])
     u10 = Dropout(dropout)(u10)
     c10 = conv2d_block(u10, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
 
     u11 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
                           padding='same')(c10)
-    u11 = concatenate([u11, c1])
+    u11 = concatenate([u11, c2])
     u11 = Dropout(dropout)(u11)
     c11 = conv2d_block(u11, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
 
-    outputs = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(c11)
+    u12 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
+                          padding='same')(c11)
+    u12 = concatenate([u12, c1])
+    u12 = Dropout(dropout)(u12)
+    c12 = conv2d_block(u12, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
+
+    outputs = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(c12)
     model = Model(inputs=inputs, outputs=[outputs])
 
     model.__asf_model_name = model_name

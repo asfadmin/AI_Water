@@ -157,7 +157,6 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
         if not m:
-            print('here')
             continue
 
         pre, num, num2, ext = m.groups()
