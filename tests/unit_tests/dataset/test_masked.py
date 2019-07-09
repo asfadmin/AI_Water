@@ -7,7 +7,7 @@ import numpy as np
 import py
 import pytest
 from src.dataset.common import dataset_type
-from src.dataset.mask import (
+from src.dataset.masked import (
     generate_from_metadata, load_dataset, make_metadata
 )
 from src.model import ModelType

@@ -1,5 +1,5 @@
 """
-asf_cnn.py contains the code that connects the Keras library with asf
+    asf_cnn.py contains the code that connects the Keras library with asf
 written code.
 """
 
@@ -10,7 +10,7 @@ from keras.models import Model
 
 from .dataset.binary import load_dataset as load_dataset_binary
 from .dataset.binary import make_label_conversions
-from .dataset.mask import load_dataset as load_dataset_masked
+from .dataset.masked import load_dataset as load_dataset_masked
 from .model import ModelType, model_type, save_model
 from .typing import History
 
@@ -30,7 +30,7 @@ def train_model(
         training_set, test_set = load_dataset_masked(dataset)
     else:
         print(
-            "Unknown model output shape. Expected either a binary"
+            "Unknown model output shape. Expected either a binary",
             "classification model or a 512x512 pixel mask."
         )
         return

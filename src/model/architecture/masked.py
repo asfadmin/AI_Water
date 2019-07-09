@@ -1,6 +1,5 @@
 """
-masked.py contains the architecture for creating a
-water mask within SAR imgaes.
+    Contains the architecture for creating a water mask within SAR images.
 """
 
 from keras.layers import Activation, BatchNormalization, Dropout, Input
@@ -31,7 +30,7 @@ def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
 
 
 def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
-    """Function to define the UNET Model"""
+    """ Function to define the UNET Model """
 
     inputs = Input(shape=(512, 512, 1))
 
@@ -106,6 +105,8 @@ def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
 
     model.__asf_model_name = model_name
 
-    model.compile(optimizer=Adam(), loss="binary_crossentropy",
-                  metrics=["accuracy"])
+    model.compile(
+        loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy']
+    )
+
     return model
