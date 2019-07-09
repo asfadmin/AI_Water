@@ -1,7 +1,6 @@
 """
-model.py has the classes/funtions that creates, saves, loads the model.
-It also has the functions that creates, saves, and loads a models history
-and it contains functions that deal with a models file path.
+    Create, save, and load models and model histories. Includes helper functions
+for keeping model paths consistent.
 """
 import json
 import os
@@ -12,10 +11,10 @@ from typing import Optional, Tuple
 from keras.models import Model
 from keras.models import load_model as kload_model
 
-from .config import MODELS_DIR
-from .model_architecture.binary_architecture import create_model_binary
-from .model_architecture.masked_architecture import create_model_masked
-from .typing import History
+from ..config import MODELS_DIR
+from ..typing import History
+from .architecture.binary import create_model_binary
+from .architecture.masked import create_model_masked
 
 
 class ModelType(Enum):
@@ -24,7 +23,7 @@ class ModelType(Enum):
 
 
 def create_model(model_name: str, model_type: ModelType) -> Model:
-    """Depending on the given data set, this function creates a model"""
+    """ Depending on the given data set, this function creates a model. """
     if model_type == ModelType.MASKED:
         model = create_model_masked(model_name)
     elif model_type == ModelType.BINARY:
@@ -66,8 +65,8 @@ def path_from_model_name_tag(name: str, tag: str) -> str:
 def save_model(
     model: Model, model_tag: str, history: Optional[History] = None
 ) -> None:
-    """Creates a .h5 file (HDF5) with the architecture, weights,
-    training configuration, and the state of the optimizer."""
+    """ Creates a .h5 file (HDF5) with the architecture, weights,
+    training configuration, and the state of the optimizer. """
 
     name, _ = name_tag_from_model_name(model.__asf_model_name)
     model_path = path_from_model_name_tag(name, model_tag)
@@ -83,8 +82,8 @@ def save_model(
 
 
 def load_model(model_name: str) -> Model:
-    """Loads and returns a model. Attaches the model name
-    and that models history."""
+    """ Loads and returns a model. Attaches the model name and that model's
+    history. """
     model_path = path_from_model_name(model_name)
     model_dir = os.path.dirname(model_path)
 

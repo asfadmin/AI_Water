@@ -1,19 +1,19 @@
 """
-masked.py contains the architecture for creating a
-water mask within SAR imgaes.
+    Contains the architecture for creating a water mask within SAR images.
 """
 
+from typing import Tuple
 
 from keras.layers import (
-    Activation, BatchNormalization, Conv2D, Input, MaxPooling2D, UpSampling2D,
-    concatenate
+    Activation, BatchNormalization, Conv2D, Input, Layer, MaxPooling2D,
+    UpSampling2D, concatenate
 )
 from keras.models import Model
 from keras.optimizers import Adam
+from tensorflow import Tensor
 
 
-# input_ type is <class 'tensorflow.python.framework.ops.Tensor'>
-def down(filters: int, input_):
+def down(filters: int, input_: Tensor) -> Tuple[Layer, Layer]:
     conv_down = Conv2D(filters, (3, 3), padding='same')(input_)
     conv_down = BatchNormalization(epsilon=1e-4)(conv_down)
     conv_down = Activation('relu')(conv_down)
@@ -24,8 +24,7 @@ def down(filters: int, input_):
     return conv_down_pool, conv_down_res
 
 
-# input_ type is <class 'tensorflow.python.framework.ops.Tensor'>
-def up(filters: int, input_, down):
+def up(filters: int, input_: Tensor, down: Layer) -> Layer:
     conv_up = UpSampling2D((2, 2))(input_)
     conv_up = concatenate([down, conv_up], axis=3)
     conv_up = Conv2D(filters, (3, 3), padding='same')(conv_up)
@@ -41,7 +40,7 @@ def up(filters: int, input_, down):
 
 
 def create_model_masked(model_name: str) -> Model:
-    """Creates a maksed model with the output (None, 512, 512, 1)"""
+    """ Creates a maksed model with the output (None, 512, 512, 1). """
 
     inputs = Input(shape=(512, 512, 1))
 
@@ -66,13 +65,14 @@ def create_model_masked(model_name: str) -> Model:
     up_0 = up(64, up_1, down_0_res)
     up_0a = up(24, up_0, down_0a_res)
 
-    classify = Conv2D(1, (1, 1), activation='sigmoid',
-                      name='last_layer')(up_0a)
+    classify = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(up_0a)
 
     model = Model(inputs=inputs, outputs=classify)
 
     model.__asf_model_name = model_name
 
-    model.compile(loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy'])
+    model.compile(
+        loss='mean_squared_error', optimizer=Adam(), metrics=['accuracy']
+    )
 
     return model

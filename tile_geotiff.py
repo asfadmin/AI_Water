@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 """
-Rohan Weeden
-Helper script for tiling a GeoTiff, creating image labels, and for preparing
+Author: Rohan Weeden
+
+    Helper script for tiling a GeoTiff, creating image labels, and for preparing
 data to be used in the network.
 
 
@@ -41,7 +42,7 @@ FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
-    """Takes a .tiff file and breaks it into smaller .tiff files"""
+    """ Takes a .tiff file and breaks it into smaller .tiff files. """
     img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
 
     if not check_dependencies(('gdal', )):
@@ -122,8 +123,7 @@ def _show_plot(tif_array, file, image_labels, close):
 
 
 def prepare_data(directory: str, holdout: float):
-    """Moves images to correct directory for binary data,
-     calls prepare_mask_data to prepare masked data."""
+    """ Moves images to the correct directory structure. """
     try:
         with open(os.path.join(directory, 'labels.json'), 'r') as f:
             image_labels = json.load(f)
@@ -151,8 +151,10 @@ def prepare_data(directory: str, holdout: float):
 
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
-    """Renames and moves mask and tile images"""
-    TILE_REGEX = re.compile(f"resized(.*)Tile_ulx_([0-9]+)_uly_([0-9]+)\\.({EXT})")
+    """ Renames and moves mask and tile images. """
+    TILE_REGEX = re.compile(
+        f"resized(.*)Tile_ulx_([0-9]+)_uly_([0-9]+)\\.({EXT})"
+    )
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
@@ -228,8 +230,7 @@ if __name__ == '__main__':
     # prepare_data
     parser_prepare = subparsers.add_parser(
         'prepare',
-        help=
-        'Prepare the data directory for use with `ImageGenerator.flow`'
+        help='Prepare the data directory for use with `ImageGenerator.flow`'
     )
     parser_prepare.add_argument("directory")
     parser_prepare.add_argument(

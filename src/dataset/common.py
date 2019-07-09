@@ -1,5 +1,5 @@
 """
-common.py contains frequently used functions
+    Contains functions that work regardless of dataset type.
 """
 
 import os
@@ -23,7 +23,7 @@ def valid_image(img: np.ndarray) -> bool:
 
 
 def dataset_type(dataset: str) -> ModelType:
-    """Sets the model type for the given dataset"""
+    """ Returns the model type for a given dataset. """
     if os.path.isfile(os.path.join(dataset_dir(dataset), 'labels.json')):
         return ModelType.BINARY
     return ModelType.MASKED
