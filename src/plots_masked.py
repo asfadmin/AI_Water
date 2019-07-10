@@ -28,6 +28,7 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
 
         plt.subplot(1, 3, 3)
         plt.title('img')
+        img = img.clip(0, 1)
         plt.imshow(img.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
 
         def close_plot(_: Any) -> None:
