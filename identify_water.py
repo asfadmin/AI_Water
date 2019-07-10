@@ -1,130 +1,217 @@
 import argparse
 import pathlib
+from contextlib import contextmanager
+from typing import Any, Callable, Iterator, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Button, RectangleSelector, Slider
 from osgeo import gdal
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('image_path', help='Path to the .SAFE file')
 
-    args = parser.parse_args()
+@contextmanager
+def gdal_open(file_name: Union[str, pathlib.Path]) -> Iterator[gdal.Dataset]:
+    file_name = str(file_name)
+    f = gdal.Open(file_name)
+    if not f:
+        raise FileNotFoundError(file_name)
+    yield f
 
-    measurement = pathlib.Path(args.image_path) / 'measurement'
-    vv = next(measurement.glob('*-vv-*.tiff'))
-    vh = next(measurement.glob('*-vh-*.tiff'))
 
-    # Read data
-    print("Reading files")
+class Application(object):
+    def __init__(self, bins: int, verbose: int):
+        self.bins = bins
+        self.verbose = verbose
 
-    tile_size = 5000
-    bins = 75
+    def run(self, vv_image_path: str, vh_image_path: str) -> None:
+        if self.verbose:
+            print("Reading files")
 
-    vv_image = gdal.Open(str(vv)
-                         ).ReadAsArray()[0:tile_size, 0:tile_size].clip(0, 512)
-    vh_image = gdal.Open(str(vh)
-                         ).ReadAsArray()[0:tile_size, 0:tile_size].clip(0, 512)
+        self.load_images(vv_image_path, vh_image_path)
+        self.clip_images()
 
-    vv_array = vv_image.flatten()
-    vh_array = vh_image.flatten()
+        if self.verbose:
+            print("Plotting")
 
-    # bins = 300
-    # max = max(np.max(vv_array), np.max(vh_array))
-    #
-    # # Make histogram
-    #
-    # print("Making indecies")
-    # zipped = np.dstack((vv_array, vh_array))[0]
-    #
-    # del vv_array
-    # del vh_array
-    #
-    # zipped *= (bins - 1)
-    # zipped = zipped // max
-    #
-    # print("counting bins")
-    # hist = np.apply_along_axis(
-    #     lambda x: np.bincount(x, minlength=bins), axis=1, arr=zipped
-    # )
+        self.show_images()
+        self.interactive_histogram()
 
-    selected = ()
+    def load_images(self, vv_image_path: str, vh_image_path: str) -> None:
+        with gdal_open(vv_image_path) as f:
+            self.vv_image = f.ReadAsArray()
+            vv_projection = f.GetProjection()
+            vv_geo_transform = f.GetGeoTransform()
 
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.title('VV')
-    plt.imshow(vv_image, cmap=plt.get_cmap('gist_gray'))
+        with gdal_open(vh_image_path) as f:
+            self.vh_image = f.ReadAsArray()
+            vh_projection = f.GetProjection()
+            vh_geo_transform = f.GetGeoTransform()
 
-    plt.subplot(1, 2, 2)
-    plt.title('VH')
-    plt.imshow(vh_image, cmap=plt.get_cmap('gist_gray'))
+        assert vv_projection == vh_projection, 'Images must have matching projections'
+        assert vv_geo_transform == vh_geo_transform, 'Images must have matching geo transforms'
 
-    fig, ax = plt.subplots()
+        self.projection = vv_projection
+        self.geo_transform = vv_geo_transform
 
-    plt.subplots_adjust(left=0.25, bottom=0.25)
+    def clip_images(self) -> None:
+        self.vv_array = self.vv_image.flatten()
+        self.vh_array = self.vh_image.flatten()
 
-    sbin = Slider(
-        plt.axes([0.25, 0.15, 0.65, 0.03]),
-        'Bins',
-        1,
-        500,
-        valstep=1,
-        valinit=bins
-    )
+        vv_mean = np.mean(self.vv_array)
+        vv_stdev = np.std(self.vv_array)
+        vh_mean = np.mean(self.vh_array)
+        vh_stdev = np.std(self.vh_array)
 
-    def update_hist(val):
-        plt.hist2d(vv_array, vh_array, bins=val, cmap=plt.cm.jet)
-        fig.canvas.draw_idle()
+        self.vv_image.clip(0, vv_mean + 2 * vv_stdev, out=self.vv_image)
+        self.vh_image.clip(0, vh_mean + 2 * vh_stdev, out=self.vh_image)
 
-    sbin.on_changed(update_hist)
+        self.vv_array = self.vv_image.flatten()
+        self.vh_array = self.vh_image.flatten()
 
-    button = Button(
-        plt.axes([0.8, 0.025, 0.1, 0.04]), 'Mask', hovercolor='0.975'
-    )
-
-    def show_mask(event):
-        if not selected:
-            return
-
-        (vv_min, vh_min), (vv_max, vh_max) = selected
-        mask = np.zeros(vv_image.shape)
-        indecies = np.where(
-            np.logical_and(
-                np.logical_and(vv_image >= vv_min, vv_image < vv_max),
-                np.logical_and(vh_image >= vh_min, vh_image < vh_max)
-            )
-        )
-        mask[indecies] = 1
-
+    def show_images(self) -> None:
         plt.figure()
-        plt.imshow(mask)
+        images = ((self.vv_image, 'VV'), (self.vh_image, 'VH'))
+        for i, (img, title) in enumerate(images):
+            plt.subplot(1, len(images), i + 1)
+            plt.title(title)
+            plt.imshow(img, cmap=plt.cm.gist_gray)
+
+    def interactive_histogram(self) -> None:
+        # Filter out no data values
+        self.vv_array = self.vv_array[self.vv_array != 0]
+        self.vh_array = self.vh_array[self.vh_array != 0]
+
+        self.selected = ()
+
+        fig, ax = plt.subplots()
+        plt.subplots_adjust(left=0.25, bottom=0.25)
+
+        sbin = Slider(
+            plt.axes([0.25, 0.15, 0.65, 0.03]),
+            'Bins',
+            1,
+            200,
+            valstep=1,
+            valinit=self.bins
+        )
+        sbin.on_changed(
+            lambda val: plt.
+            hist2d(self.vv_array, self.vh_array, bins=val, cmap=plt.cm.jet)
+        )
+
+        button = Button(
+            plt.axes([0.8, 0.025, 0.1, 0.04]), 'Mask', hovercolor='0.975'
+        )
+
+        self.mask_number = 0
+
+        def mask_clicked(event) -> None:
+            if not self.selected:
+                return
+
+            (vv_min, vh_min), (vv_max, vh_max) = self.selected
+            mask = create_mask(
+                self.vv_image, self.vh_image, vv_min, vv_max, vh_min, vh_max
+            )
+            self.show_mask(mask)
+            self.mask_number += 1
+
+        button.on_clicked(mask_clicked)
+        _close_button = close_button()
+
+        hist_ax = plt.axes()
+        plt.xlabel('VV')
+        plt.ylabel('VH')
+        plt.hist2d(
+            self.vv_array, self.vh_array, bins=self.bins, cmap=plt.cm.jet
+        )
+
+        def line_select_callback(eclick, erelease):
+            x1, y1 = eclick.xdata, eclick.ydata
+            x2, y2 = erelease.xdata, erelease.ydata
+
+            self.selected = ((x1, y1), (x2, y2))
+
+        rs = RectangleSelector(
+            hist_ax,
+            line_select_callback,
+            drawtype='box',
+            useblit=False,
+            button=[1],
+            minspanx=5,
+            minspany=5,
+            spancoords='pixels',
+            interactive=True
+        )
+        plt.colorbar()
         plt.show()
 
-    button.on_clicked(show_mask)
+    def show_mask(self, mask: np.ndarray):
+        plt.figure()
+        plt.imshow(mask)
+        button = Button(plt.axes([0.8, 0.025, 0.1, 0.04]), 'Save GeoTiff')
+        button.on_clicked(
+            lambda _: write_mask_to_file(
+                mask, f'mask-{self.mask_number}.tif', self.projection, self.
+                geo_transform
+            )
+        )
+        plt.show()
 
-    hist_ax = plt.axes()
-    plt.xlabel('VV')
-    plt.ylabel('VH')
-    plt.hist2d(vv_array, vh_array, bins=bins, cmap=plt.cm.jet)
 
-    def line_select_callback(eclick, erelease):
-        global selected
-        x1, y1 = eclick.xdata, eclick.ydata
-        x2, y2 = erelease.xdata, erelease.ydata
+def close_button(callback: Optional[Callable[[Any], None]] = None) -> object:
+    """ Create a 'close' button on the plot. Make sure to save this to a value.
+    """
+    button = Button(plt.axes([0.05, 0.05, 0.1, 0.075]), 'Close')
 
-        selected = ((x1, y1), (x2, y2))
+    def click_handler(event: Any) -> None:
+        if callback:
+            callback(event)
+        plt.close('all')
 
-    rs = RectangleSelector(
-        hist_ax,
-        line_select_callback,
-        drawtype='box',
-        useblit=False,
-        button=[1],
-        minspanx=5,
-        minspany=5,
-        spancoords='pixels',
-        interactive=True
+    button.on_clicked(click_handler)
+    # Need to return the button to prevent it from being garbage collected
+    return button
+
+
+def create_mask(
+    vv_image: np.ndarray, vh_image: np.ndarray, vv_min: float, vv_max: float,
+    vh_min: float, vh_max: float
+) -> np.ndarray:
+    mask = np.zeros(vv_image.shape)
+    indecies = np.where(
+        np.logical_and(
+            np.logical_and(vv_image >= vv_min, vv_image < vv_max),
+            np.logical_and(vh_image >= vh_min, vh_image < vh_max)
+        )
     )
-    plt.colorbar()
-    plt.show()
+    mask[indecies] = 1
+
+    return mask
+
+
+def write_mask_to_file(
+    mask: np.ndarray, file_name: str, projection: str, geo_transform: str
+) -> None:
+    (width, height) = mask.shape
+    out_image = gdal.GetDriverByName('GTiff').Create(
+        file_name, height, width, bands=1
+    )
+    out_image.SetProjection(projection)
+    out_image.SetGeoTransform(geo_transform)
+    out_image.GetRasterBand(1).WriteArray(mask)
+    out_image.FlushCache()
+
+
+def main(vv_image_path: str, vh_image_path: str) -> None:
+    app = Application(bins=75, verbose=1)
+    app.run(vv_image_path, vh_image_path)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('vv_image_path', help='Path to the VV file')
+    parser.add_argument('vh_image_path', help='Path to the VH file')
+
+    args = parser.parse_args()
+    main(args.vv_image_path, args.vh_image_path)
