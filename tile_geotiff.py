@@ -149,7 +149,7 @@ def prepare_data(directory: str, holdout: float):
 def prepare_mask_data(directory: str, holdout: float) -> None:
     """ Renames and moves mask and tile images. """
     TILE_REGEX = re.compile(
-        f"resized(.*)Tile_ulx_([0-9]+)_uly_([0-9]+)\\.({EXT})"
+        f"Image_(.*)_([0-9]+).({EXT})"
     )
 
     for file in os.listdir(directory):
@@ -157,14 +157,17 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
         if not m:
             continue
 
-        pre, num, num2, ext = m.groups()
-        name_pre = f"{pre}_{num2}_{num}"
+        pre, num, ext = m.groups()
+        name_pre = f"{num}"
         new_tile_name = f"{name_pre}.tile.{ext}".lower()
-        mask_name = f"resizedMASK{pre}Tile_ulx_{num}_uly_{num2}.{ext}"
+        mask_name = f"Mask__{pre}_{num}.{ext}"
         new_mask_name = f"{name_pre}.mask.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
-            print(f"Tile: {file} is missing a mask {mask_name}!")
+            # print(f"Tile: {file} is missing a mask {mask_name}!")
+            print(file)
+            print(mask_name)
+            print('')
             continue
 
         test_or_train = 'train' if random.random() > holdout else 'test'
