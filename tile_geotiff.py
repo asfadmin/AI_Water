@@ -164,10 +164,7 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
         new_mask_name = f"{name_pre}.mask.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
-            # print(f"Tile: {file} is missing a mask {mask_name}!")
-            print(file)
-            print(mask_name)
-            print('')
+            print(f"Tile: {file} is missing a mask {mask_name}!")
             continue
 
         test_or_train = 'train' if random.random() > holdout else 'test'
