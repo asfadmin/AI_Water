@@ -132,7 +132,6 @@ def test_model_masked(model: Model, dataset: str,
 
     assert model_type(model) == ModelType.MASKED, "This function only works on masked models"
 
-    model
     if verbose > 0:
         model.summary()
 
