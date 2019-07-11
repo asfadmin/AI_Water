@@ -52,7 +52,7 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
     testing data. """
     train_metadata = []
     test_metadata = []
-
+    # TODO: Update to support 2 Channels
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
@@ -76,7 +76,9 @@ def generate_from_metadata(
     metadata: DatasetMetadata, clip_range: Optional[Tuple[float, float]] = None
 ):
     """ Yield training images and masks from the given metadata. """
+    # TODO: Change output_shape to (512, 512, 2)
     output_shape = (512, 512, 1)
+    # TODO: Add vv_tile_name and vh_tile_name
     for tile_name, mask_name in metadata:
         tile = gdal.Open(tile_name)
         if tile is None:
@@ -97,5 +99,6 @@ def generate_from_metadata(
         if clip_range:
             min_, max_ = clip_range
             np.clip(x, min_, max_, out=x)
-
+        print(f'generate_from_metadata: {type(x)}***************************')
+        print(f'generate_from_metadata: {x.shape}***************************')
         yield (x.reshape(output_shape), y.reshape(output_shape))

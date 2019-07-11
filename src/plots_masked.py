@@ -14,6 +14,7 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
     """ Plots the Neural Nets predictions, the mask images and sar images """
 
     done = False
+    # TODO: Update to display VV and VH images
     for pred, (img, mask) in zip(predictions, test_iter):
         # Plots imgs from img_dict
         if done:
