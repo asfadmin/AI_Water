@@ -2,72 +2,105 @@
     Contains the architecture for creating a water mask within SAR images.
 """
 
-from typing import Tuple
-
-from keras.layers import (
-    Activation, BatchNormalization, Conv2D, Input, Layer, MaxPooling2D,
-    UpSampling2D, concatenate
-)
+from keras.layers import Activation, BatchNormalization, Dropout, Input
+from keras.layers.convolutional import Conv2D, Conv2DTranspose
+from keras.layers.merge import concatenate
+from keras.layers.pooling import MaxPooling2D
 from keras.models import Model
 from keras.optimizers import Adam
-from tensorflow import Tensor
 
 
-def down(filters: int, input_: Tensor) -> Tuple[Layer, Layer]:
-    conv_down = Conv2D(filters, (3, 3), padding='same')(input_)
-    conv_down = BatchNormalization(epsilon=1e-4)(conv_down)
-    conv_down = Activation('relu')(conv_down)
-    conv_down = Conv2D(filters, (3, 3), padding='same')(conv_down)
-    conv_down = BatchNormalization(epsilon=1e-4)(conv_down)
-    conv_down_res = Activation('relu')(conv_down)
-    conv_down_pool = MaxPooling2D((2, 2), strides=(2, 2))(conv_down)
-    return conv_down_pool, conv_down_res
+def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
+    """Function to add 2 convolutional layers with the parameters
+    passed to it"""
+    # first layer
+    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size),
+               kernel_initializer='he_normal', padding='same')(input_tensor)
+    if batchnorm:
+        x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    # second layer
+    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size),
+               kernel_initializer='he_normal', padding='same')(input_tensor)
+    if batchnorm:
+        x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+
+    return x
 
 
-def up(filters: int, input_: Tensor, down: Layer) -> Layer:
-    conv_up = UpSampling2D((2, 2))(input_)
-    conv_up = concatenate([down, conv_up], axis=3)
-    conv_up = Conv2D(filters, (3, 3), padding='same')(conv_up)
-    conv_up = BatchNormalization(epsilon=1e-4)(conv_up)
-    conv_up = Activation('relu')(conv_up)
-    conv_up = Conv2D(filters, (3, 3), padding='same')(conv_up)
-    conv_up = BatchNormalization(epsilon=1e-4)(conv_up)
-    conv_up = Activation('relu')(conv_up)
-    conv_up = Conv2D(filters, (3, 3), padding='same')(conv_up)
-    conv_up = BatchNormalization(epsilon=1e-4)(conv_up)
-    conv_up = Activation('relu')(conv_up)
-    return conv_up
-
-
-def create_model_masked(model_name: str) -> Model:
-    """ Creates a maksed model with the output (None, 512, 512, 1). """
+def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
+    """ Function to define the UNET Model """
 
     inputs = Input(shape=(512, 512, 1))
 
-    down_0a, down_0a_res = down(24, inputs)
-    down_0, down_0_res = down(64, down_0a)
-    down_1, down_1_res = down(128, down_0)
-    down_2, down_2_res = down(256, down_1)
-    down_3, down_3_res = down(512, down_2)
-    down_4, down_4_res = down(768, down_3)
+    c1 = conv2d_block(inputs, n_filters * 1, kernel_size=3,
+                      batchnorm=batchnorm)
+    p1 = MaxPooling2D((2, 2))(c1)
+    p1 = Dropout(dropout)(p1)
 
-    center = Conv2D(768, (3, 3), padding='same')(down_4)
-    center = BatchNormalization(epsilon=1e-4)(center)
-    center = Activation('relu')(center)
-    center = Conv2D(768, (3, 3), padding='same')(center)
-    center = BatchNormalization(epsilon=1e-4)(center)
-    center = Activation('relu')(center)
+    c2 = conv2d_block(p1, n_filters * 2, kernel_size=3, batchnorm=batchnorm)
+    p2 = MaxPooling2D((2, 2))(c2)
+    p2 = Dropout(dropout)(p2)
 
-    up_4 = up(768, center, down_4_res)
-    up_3 = up(512, up_4, down_3_res)
-    up_2 = up(256, up_3, down_2_res)
-    up_1 = up(128, up_2, down_1_res)
-    up_0 = up(64, up_1, down_0_res)
-    up_0a = up(24, up_0, down_0a_res)
+    c3 = conv2d_block(p2, n_filters * 4, kernel_size=3, batchnorm=batchnorm)
+    p3 = MaxPooling2D((2, 2))(c3)
+    p3 = Dropout(dropout)(p3)
 
-    classify = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(up_0a)
+    c4 = conv2d_block(p3, n_filters * 8, kernel_size=3, batchnorm=batchnorm)
+    p4 = MaxPooling2D((2, 2))(c4)
+    p4 = Dropout(dropout)(p4)
 
-    model = Model(inputs=inputs, outputs=classify)
+    c4_5 = conv2d_block(p4, n_filters * 8, kernel_size=3, batchnorm=batchnorm)
+    p4_5 = MaxPooling2D((2, 2))(c4_5)
+    p4_5 = Dropout(dropout)(p4_5)
+
+    c4_6 = conv2d_block(p4_5, n_filters * 8, kernel_size=3,
+                        batchnorm=batchnorm)
+    p4_6 = MaxPooling2D((2, 2))(c4_6)
+    p4_6 = Dropout(dropout)(p4_6)
+
+    c5 = conv2d_block(p4_6, n_filters=n_filters * 16, kernel_size=3,
+                      batchnorm=batchnorm)
+    # Expansive Path
+    u7 = Conv2DTranspose(n_filters * 4, (3, 3), strides=(2, 2),
+                         padding='same')(c5)
+    u7 = concatenate([u7, c4_6])
+    u7 = Dropout(dropout)(u7)
+    c7 = conv2d_block(u7, n_filters * 4, kernel_size=3, batchnorm=batchnorm)
+
+    u8 = Conv2DTranspose(n_filters * 2, (3, 3), strides=(2, 2),
+                         padding='same')(c7)
+    u8 = concatenate([u8, c4_5])
+    u8 = Dropout(dropout)(u8)
+    c8 = conv2d_block(u8, n_filters * 2, kernel_size=3, batchnorm=batchnorm)
+
+    u9 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
+                         padding='same')(c8)
+    u9 = concatenate([u9, c4])
+    u9 = Dropout(dropout)(u9)
+    c9 = conv2d_block(u9, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
+
+    u10 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
+                          padding='same')(c9)
+    u10 = concatenate([u10, c3])
+    u10 = Dropout(dropout)(u10)
+    c10 = conv2d_block(u10, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
+
+    u11 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
+                          padding='same')(c10)
+    u11 = concatenate([u11, c2])
+    u11 = Dropout(dropout)(u11)
+    c11 = conv2d_block(u11, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
+
+    u12 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
+                          padding='same')(c11)
+    u12 = concatenate([u12, c1])
+    u12 = Dropout(dropout)(u12)
+    c12 = conv2d_block(u12, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
+
+    outputs = Conv2D(1, (1, 1), activation='sigmoid', name='last_layer')(c12)
+    model = Model(inputs=inputs, outputs=[outputs])
 
     model.__asf_model_name = model_name
 

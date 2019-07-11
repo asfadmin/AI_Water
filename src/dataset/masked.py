@@ -18,6 +18,7 @@ TILE_REGEX = re.compile(r"(.*)\.tile\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
+
     train_gen = ImageDataGenerator(rescale=10)
     test_gen = ImageDataGenerator(rescale=10)
 
@@ -31,6 +32,7 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
     x_test = []
     y_test = []
+
     for img, mask in generate_from_metadata(test_metadata, clip_range=(0, 2)):
         x_test.append(img)
         y_test.append(mask)
@@ -50,6 +52,7 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
     testing data. """
     train_metadata = []
     test_metadata = []
+
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
@@ -65,6 +68,7 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
                 train_metadata.append(data)
             elif folder == 'test':
                 test_metadata.append(data)
+
     return train_metadata, test_metadata
 
 
@@ -74,7 +78,6 @@ def generate_from_metadata(
     """ Yield training images and masks from the given metadata. """
     output_shape = (512, 512, 1)
     for tile_name, mask_name in metadata:
-
         tile = gdal.Open(tile_name)
         if tile is None:
             continue

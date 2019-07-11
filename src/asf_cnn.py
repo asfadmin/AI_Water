@@ -1,5 +1,5 @@
 """
-    asf_cnn.py contains the code that connects the Keras library with asf
+asf_cnn.py contains the code that connects the Keras library with asf
 written code.
 """
 
@@ -68,15 +68,13 @@ def train_model(
     save_model(model, 'latest')
 
 
-def test_model(model: Model, dataset: str,
-               verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+def test_model_binary(model: Model, dataset: str,
+                      verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+
+    assert model_type(model) == ModelType.BINARY, "This function only works on binary models"
+
     if verbose > 0:
         model.summary()
-
-    if model_type(model) != ModelType.BINARY:
-        raise NotImplementedError(
-            "Model analysis is only supported for binary output"
-        )
 
     _, test_iter, _, test_metadata = load_dataset_binary(
         dataset, get_metadata=True
@@ -127,3 +125,20 @@ def test_model(model: Model, dataset: str,
     confusion_matrix = totals_matrix / len(predictions)
 
     return details, confusion_matrix
+
+
+def test_model_masked(model: Model, dataset: str,
+                      verbose: int = 1):
+
+    assert model_type(model) == ModelType.MASKED, "This function only works on masked models"
+
+    if verbose > 0:
+        model.summary()
+
+    _, test_iter = load_dataset_masked(dataset)
+    predictions = model.predict_generator(test_iter, len(test_iter),
+                                          verbose=verbose)
+    test_iter.reset()
+    masked_predictions = predictions.round(decimals=0, out=None)
+
+    return masked_predictions, test_iter
