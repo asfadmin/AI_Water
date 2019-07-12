@@ -57,10 +57,10 @@ class Application(object):
         self.vv_array = self.vv_image.flatten()
         self.vh_array = self.vh_image.flatten()
 
-        vv_mean = np.mean(self.vv_array)
-        vv_stdev = np.std(self.vv_array)
-        vh_mean = np.mean(self.vh_array)
-        vh_stdev = np.std(self.vh_array)
+        vv_mean = self.vv_array.mean()
+        vv_stdev = self.vv_array.std()
+        vh_mean = self.vh_array.mean()
+        vh_stdev = self.vh_array.std()
 
         self.vv_image.clip(0, vv_mean + 2 * vv_stdev, out=self.vv_image)
         self.vh_image.clip(0, vh_mean + 2 * vh_stdev, out=self.vh_image)
@@ -126,7 +126,7 @@ class Application(object):
             self.vv_array, self.vh_array, bins=self.bins, cmap=plt.cm.jet
         )
 
-        def line_select_callback(eclick, erelease):
+        def line_select_callback(eclick, erelease) -> None:
             x1, y1 = eclick.xdata, eclick.ydata
             x2, y2 = erelease.xdata, erelease.ydata
 
@@ -146,7 +146,7 @@ class Application(object):
         plt.colorbar()
         plt.show()
 
-    def show_mask(self, mask: np.ndarray):
+    def show_mask(self, mask: np.ndarray) -> None:
         plt.figure()
         plt.imshow(mask)
         button = Button(plt.axes([0.8, 0.025, 0.1, 0.04]), 'Save GeoTiff')
