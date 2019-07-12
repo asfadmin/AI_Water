@@ -14,23 +14,23 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
     """ Plots the Neural Nets predictions, the mask images and sar images """
 
     done = False
-    # TODO: Update to display VV and VH images
     for pred, (img, mask) in zip(predictions, test_iter):
         # Plots imgs from img_dict
         if done:
             break
-        plt.subplot(1, 3, 1)
+        plt.subplot(1, 2, 1)
         plt.title('prediction')
         plt.imshow(pred.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
 
-        plt.subplot(1, 3, 2)
+        plt.subplot(1, 2, 2)
         plt.title('mask')
         plt.imshow(mask.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
 
-        plt.subplot(1, 3, 3)
-        plt.title('img')
-        img = img.clip(0, 1)
-        plt.imshow(img.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
+        # TODO: Get vh and vv image to compare
+        # plt.subplot(1, 3, 3)
+        # plt.title('img')
+        # img = img.clip(0, 1)
+        # # plt.imshow(img(512,512), cmap=plt.get_cmap('gist_gray'))
 
         def close_plot(_: Any) -> None:
             nonlocal done
