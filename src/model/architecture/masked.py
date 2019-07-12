@@ -31,8 +31,7 @@ def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
 
 def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
     """ Function to define the UNET Model """
-    # TODO: Update input shape to (512, 512, 1)
-    inputs = Input(shape=(512, 512, 1))
+    inputs = Input(shape=(512, 512, 2))
 
     c1 = conv2d_block(inputs, n_filters * 1, kernel_size=3,
                       batchnorm=batchnorm)
