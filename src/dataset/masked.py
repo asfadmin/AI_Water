@@ -14,7 +14,7 @@ from osgeo import gdal
 from ..typing import DatasetMetadata
 from .common import dataset_dir, valid_image
 
-TILE_REGEX = re.compile(r"(.*)\.tile\.(vv|vh).(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.tile\.(vh)\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -73,7 +73,6 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
                 train_metadata.append(data)
             elif folder == 'test':
                 test_metadata.append(data)
-
     return train_metadata, test_metadata
 
 
@@ -87,8 +86,9 @@ def generate_from_metadata(
         tile_vh_gdal = gdal.Open(tile_vh)
         tile_vv_gdal = gdal.Open(tile_vv)
 
-        if tile_vh_gdal or tile_vv_gdal is None:
-            continue
+        # TODO: Update this with Rohans code
+        # if tile_vh_gdal or tile_vv_gdal is None:
+        #     continue
 
         tile_vh_array = tile_vh_gdal.ReadAsArray()
         tile_vv_array = tile_vv_gdal.ReadAsArray()
