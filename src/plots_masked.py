@@ -30,6 +30,7 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
         plt.subplot(1, 4, 3)
         plt.title('vh img')
         img = img.clip(0, 1)
+<<<<<<< HEAD
         plt.imshow(img[0, :, :, 0].reshape(512, 512),
                    cmap=plt.get_cmap('gist_gray'))
 
@@ -38,6 +39,16 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
         img = img.clip(0, 1)
         plt.imshow(img[0, :, :, 1].reshape(512, 512),
                    cmap=plt.get_cmap('gist_gray'))
+=======
+        print(img.shape)
+        plt.imshow(img[0, :, :, 0].reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
+
+        plt.subplot(1, 4, 4)
+        plt.title('vv img')
+        # img = img.clip(0, 1)
+        print(img.shape)
+        plt.imshow(img[0, :, :, 1].reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
+>>>>>>> a42d5dabbcdf2f1f0ff78e96254bfda41c447958
 
         def close_plot(_: Any) -> None:
             nonlocal done
