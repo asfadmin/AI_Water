@@ -6,6 +6,7 @@ import mock
 import numpy as np
 import py
 import pytest
+
 from src.dataset.common import dataset_type
 from src.dataset.masked import (
     generate_from_metadata, load_dataset, make_metadata
@@ -30,8 +31,9 @@ def dataset_masked(tmpdir: py.path.local):
 
 @pytest.fixture
 def metadata_masked() -> DatasetMetadata:
-    return [("test_1.tile.tif", "test_1.mask.tif"),
-            ("test_2.tile.tif", "test_2.mask.tif")]
+    return [("test_1.tile.vh.tif", "test_1.tile.vv.tif", "test_1.mask.tif"),
+            ("test_2.tile.vh.tif", "test_2.tile.vv.tif", "test_2.mask.tif")
+            ]
 
 
 def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
@@ -42,21 +44,25 @@ def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
 
     assert train_metadata == [
         (
-            abspath("train", "test_3.tile.tif"),
+            abspath("train", "test_3.tile.vh.tif"),
+            abspath("train", "test_3.tile.vv.tif"),
             abspath("train", "test_3.mask.tif"),
         ),
         (
-            abspath("train", "test_4.tile.tif"),
+            abspath("train", "test_4.tile.vh.tif"),
+            abspath("train", "test_4.tile.vv.tif"),
             abspath("train", "test_4.mask.tif"),
         ),
     ]
     assert test_metadata == [
         (
-            abspath("test", "test_1.tile.tif"),
+            abspath("test", "test_1.tile.vh.tif"),
+            abspath("test", "test_1.tile.vv.tif"),
             abspath("test", "test_1.mask.tif"),
         ),
         (
-            abspath("test", "test_2.tile.tif"),
+            abspath("test", "test_2.tile.vh.tif"),
+            abspath("test", "test_2.tile.vv.tif"),
             abspath("test", "test_2.mask.tif"),
         ),
     ]
@@ -77,7 +83,7 @@ def test_generate_from_metadata(metadata_masked: DatasetMetadata):
     imgs = list(map(lambda x: x[0], data))
     masks = list(map(lambda x: x[1], data))
     for img in imgs:
-        assert (img == np.ones((512, 512, 1))).all()
+        assert (img == np.ones((512, 512, 2))).all()
 
     for mask in masks:
         assert (mask == np.ones((512, 512, 1))).all()
@@ -91,7 +97,7 @@ def test_generate_from_metadata_clip_range(metadata_masked: DatasetMetadata):
     imgs = list(map(lambda x: x[0], data))
     masks = list(map(lambda x: x[1], data))
     for img in imgs:
-        assert (img == np.ones((512, 512, 1)) / 2.0).all()
+        assert (img == np.ones((512, 512, 2)) / 2.0).all()
 
     for mask in masks:
         assert (mask == np.ones((512, 512, 1))).all()
