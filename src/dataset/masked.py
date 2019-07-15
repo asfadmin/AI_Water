@@ -12,7 +12,7 @@ from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
 
 from ..typing import DatasetMetadata
-from .common import dataset_dir, valid_image
+from .common import dataset_dir, gdal_open, valid_image
 
 TILE_REGEX = re.compile(r"(.*)\.tile\.(vh)\.(tiff|tif|TIFF|TIF)")
 
@@ -83,15 +83,12 @@ def generate_from_metadata(
     output_shape = (512, 512, 2)
     mask_output_shape = (512, 512, 1)
     for tile_vh, tile_vv, mask_name in metadata:
-        tile_vh_gdal = gdal.Open(tile_vh)
-        tile_vv_gdal = gdal.Open(tile_vv)
 
-        # TODO: Update this with Rohans code
-        # if tile_vh_gdal or tile_vv_gdal is None:
-        #     continue
+        with gdal_open(tile_vh) as tile_vh_gdal:
+            tile_vh_array = tile_vh_gdal.ReadAsArray()
+        with gdal_open(tile_vv) as tile_vv_gdal:
+            tile_vv_array = tile_vv_gdal.ReadAsArray()
 
-        tile_vh_array = tile_vh_gdal.ReadAsArray()
-        tile_vv_array = tile_vv_gdal.ReadAsArray()
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
 
         mask = gdal.Open(mask_name)
