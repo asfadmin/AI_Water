@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from keras.models import Model
+from keras.preprocessing.image import Iterator
 
 from .dataset.binary import load_dataset as load_dataset_binary
 from .dataset.binary import make_label_conversions
@@ -68,10 +69,12 @@ def train_model(
     save_model(model, 'latest')
 
 
-def test_model_binary(model: Model, dataset: str,
-                      verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+def test_model_binary(model: Model, dataset: str, verbose: int = 1
+                      ) -> Tuple[Dict[str, List[Any]], np.ndarray]:
 
-    assert model_type(model) == ModelType.BINARY, "This function only works on binary models"
+    assert model_type(
+        model
+    ) == ModelType.BINARY, "This function only works on binary models"
 
     if verbose > 0:
         model.summary()
@@ -128,16 +131,19 @@ def test_model_binary(model: Model, dataset: str,
 
 
 def test_model_masked(model: Model, dataset: str,
-                      verbose: int = 1):
+                      verbose: int = 1) -> Tuple[np.ndarray, Iterator]:
 
-    assert model_type(model) == ModelType.MASKED, "This function only works on masked models"
+    assert model_type(
+        model
+    ) == ModelType.MASKED, "This function only works on masked models"
 
     if verbose > 0:
         model.summary()
 
     _, test_iter = load_dataset_masked(dataset)
-    predictions = model.predict_generator(test_iter, len(test_iter),
-                                          verbose=verbose)
+    predictions = model.predict_generator(
+        test_iter, len(test_iter), verbose=verbose
+    )
     test_iter.reset()
     masked_predictions = predictions.round(decimals=0, out=None)
 

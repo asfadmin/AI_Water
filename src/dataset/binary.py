@@ -5,14 +5,27 @@ the prepared data set for use.
 
 import json
 import os
-from typing import Dict, Optional, Set, Tuple, Union
+from typing import Dict, Generator, Optional, Set, Tuple, Union, overload
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
+from typing_extensions import Literal
 
 from ..typing import DatasetMetadata
 from .common import dataset_dir, valid_image
+
+
+@overload
+def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
+    ...
+
+
+@overload
+def load_dataset(
+    dataset: str, get_metadata: Literal[True]
+) -> Tuple[Iterator, Iterator, DatasetMetadata, DatasetMetadata]:
+    ...
 
 
 def load_dataset(
@@ -109,7 +122,7 @@ def generate_from_metadata(
     metadata: DatasetMetadata,
     label_to_num: Dict[str, int],
     clip_range: Optional[Tuple[float, float]] = None
-):
+) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Converts images into an array, clips the value of the pixels into a
     specific range and reshapes the array to the correct format. """
     for file_name, label in metadata:

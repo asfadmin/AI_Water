@@ -1,25 +1,48 @@
 from typing import Any, Optional, Tuple, Union
 
+from typing_extensions import Literal
+
+ArrayLike = Union['ndarray', object]
+Casting = Literal['no', 'equiv', 'safe', 'same_kind', 'unsafe']
 DataType = Union[type, str]
 Index = Union[int, slice, object, 'ndarray']
-ArrayLike = Union['ndarray', object]
+Order = Literal['K', 'A', 'C', 'F']
+Shape = Tuple[int, ...]
 
 
 class ndarray(object):
     def __init__(
         self,
-        shape: Tuple[int, ...],
+        shape: Shape,
         dtype: DataType = float,
         buffer: Any = None,
         offset: int = 0,
-        strides: Optional[Tuple[int, ...]] = None,
+        strides: Optional[Shape] = None,
         order: Optional[str] = None
     ) -> None:
-        self.shape: Tuple[int, ...]
+        self.shape: Shape
+        ...
+
+    def any(
+        self: ArrayLike,
+        axis: Optional[Union[int, Tuple[int, ...]]] = None,
+        out: Optional['ndarray'] = None,
+        keepdims: bool = False
+    ) -> bool:
+        ...
+
+    def astype(
+        self,
+        dtype: DataType,
+        order: Order = 'K',
+        casting: Casting = 'unsafe',
+        subok: bool = True,
+        copy: bool = True
+    ) -> 'ndarray':
         ...
 
     def clip(
-        self,
+        self: ArrayLike,
         min: Optional[float] = None,
         max: Optional[float] = None,
         out: Optional['ndarray'] = None
@@ -30,15 +53,20 @@ class ndarray(object):
         ...
 
     def mean(
-        self,
+        self: ArrayLike,
         axis: Optional[int] = None,
         dtype: Optional[DataType] = None,
         out: Optional['ndarray'] = None
     ) -> float:
         ...
 
+    def reshape(
+        self: ArrayLike, newshape: Shape, order: Order = 'C'
+    ) -> 'ndarray':
+        ...
+
     def std(
-        self,
+        self: ArrayLike,
         axis: Optional[int] = None,
         dtype: Optional[DataType] = None,
         out: Optional['ndarray'] = None,
@@ -53,6 +81,9 @@ class ndarray(object):
         ...
 
     def __setitem__(self, idx: Index, item: Any) -> None:
+        ...
+
+    def __contains__(self, other: Any) -> 'ndarray':
         ...
 
     def __lt__(self, other: Any) -> 'ndarray':    # type: ignore
@@ -72,6 +103,42 @@ class ndarray(object):
 
     def __gt__(self, other: Any) -> 'ndarray':    # type: ignore
         ...
+
+    def __add__(self, other: Any) -> 'ndarray':    # type: ignore
+        ...
+
+    def __truediv__(self, other: Any) -> 'ndarray':    # type: ignore
+        ...
+
+    def __iadd__(self, other: Any) -> 'ndarray':    # type: ignore
+        ...
+
+    def __itruediv__(self, other: Any) -> 'ndarray':    # type: ignore
+        ...
+
+
+def array(
+    object: ArrayLike,
+    dtype: Optional[DataType] = None,
+    copy: bool = True,
+    order: Order = 'K',
+    subok: bool = False,
+    ndmin: int = 0
+) -> ndarray:
+    ...
+
+
+def isnan(
+    x: ArrayLike,
+    out: Optional[Union[ndarray, Tuple[ndarray, None]]] = None,
+    *,
+    where: ArrayLike = True,
+    casting: Casting = 'same_kind',
+    order: Order = 'K',
+    dtype: Optional[DataType] = None,
+    subok: bool = True
+) -> Union[ndarray, bool]:
+    ...
 
 
 def logical_and(
@@ -96,5 +163,8 @@ def zeros(shape: Tuple[int, ...]) -> ndarray:
     ...
 
 
+any = ndarray.any
+clip = ndarray.clip
 mean = ndarray.mean
+reshape = ndarray.reshape
 std = ndarray.std
