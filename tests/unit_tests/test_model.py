@@ -31,7 +31,7 @@ def model_name(tmpdir: py.path.local):
 @pytest.fixture
 def fake_model() -> Model:
     model = Sequential([
-        Flatten(input_shape=(512, 512)),
+        Flatten(input_shape=(512, 512, 2)),
         Dense(1, activation='sigmoid')
     ])
     model.compile('adam', loss='binary_crossentropy')

@@ -15,4 +15,4 @@ def test_architecture():
     assert model_final_layer(model) == (None, 1)
 
     model = create_model_masked("masked_test")
-    assert model_final_layer(model) == (None, 512, 512, 2)
+    assert model_final_layer(model) == (None, 512, 512, 1)
