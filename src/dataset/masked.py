@@ -14,7 +14,7 @@ from osgeo import gdal
 from ..typing import DatasetMetadata
 from .common import dataset_dir, gdal_open, valid_image
 
-TILE_REGEX = re.compile(r"(.*)\.tile\.(vh)\.(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -59,7 +59,7 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
             if not m:
                 continue
 
-            pre, _, ext = m.groups()
+            pre, ext = m.groups()
             mask = f"{pre}.mask.{ext}"
             vh_name = f"{pre}.tile.vh.{ext}"
             vv_name = f"{pre}.tile.vv.{ext}"
@@ -84,20 +84,17 @@ def generate_from_metadata(
     mask_output_shape = (512, 512, 1)
     for tile_vh, tile_vv, mask_name in metadata:
 
-        with gdal_open(tile_vh) as tile_vh_gdal:
-            tile_vh_array = tile_vh_gdal.ReadAsArray()
-        with gdal_open(tile_vv) as tile_vv_gdal:
-            tile_vv_array = tile_vv_gdal.ReadAsArray()
+        with gdal_open(tile_vh) as f:
+            tile_vh_array = f.ReadAsArray()
+        with gdal_open(tile_vv) as f:
+            tile_vv_array = f.ReadAsArray()
 
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
-
-        mask = gdal.Open(mask_name)
-        if mask is None:
-            continue
-        mask_array = mask.ReadAsArray()
-
         if not valid_image(tile_array):
             continue
+
+        with gdal_open(mask_name) as f:
+            mask_array = f.ReadAsArray()
 
         x = np.array(tile_array).astype('float32')
         y = np.array(mask_array).astype('float32')
