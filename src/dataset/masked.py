@@ -10,7 +10,7 @@ from typing import Generator, Optional, Tuple
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 
-from ..typing import DatasetMetadata
+from ..typing import MaskedDatasetMetadata
 from .common import dataset_dir, gdal_open, valid_image
 
 TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
@@ -45,7 +45,8 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
     return train_iter, test_iter
 
 
-def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
+def make_metadata(dataset: str
+                  ) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
     """ Returns two lists of metadata. One for the training data and one for the
     testing data. """
     train_metadata = []
@@ -76,7 +77,8 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
 
 
 def generate_from_metadata(
-    metadata: DatasetMetadata, clip_range: Optional[Tuple[float, float]] = None
+    metadata: MaskedDatasetMetadata,
+    clip_range: Optional[Tuple[float, float]] = None
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
     output_shape = (512, 512, 2)

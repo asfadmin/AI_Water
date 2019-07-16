@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Sequence, Tuple, Union
 
 from typing_extensions import Literal
 
@@ -159,6 +159,18 @@ def logical_and(
     ...
 
 
+def ones(
+    shape: Tuple[int, ...], dtype: DataType = float, order: Order = 'C'
+) -> ndarray:
+    ...
+
+
+def stack(
+    arrays: Sequence[ArrayLike], axis: int = 0, out: Optional[ndarray] = None
+) -> ndarray:
+    ...
+
+
 def where(
     condition: Union[ndarray, bool],
     x: Optional[ArrayLike] = None,
@@ -167,9 +179,13 @@ def where(
     ...
 
 
-def zeros(shape: Tuple[int, ...]) -> ndarray:
+def zeros(
+    shape: Tuple[int, ...], dtype: DataType = float, order: Order = 'C'
+) -> ndarray:
     ...
 
+
+nan: float
 
 any = ndarray.any
 around = ndarray.round
