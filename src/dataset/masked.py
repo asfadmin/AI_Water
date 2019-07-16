@@ -1,6 +1,6 @@
 """
-    masked.py contains the code for preparing a masked data set, and loading the
-prepared data set for use.
+    masked.py contains the code for preparing a masked data set, and loading
+the prepared data set for use.
 """
 
 import os
@@ -12,9 +12,9 @@ from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
 
 from ..typing import DatasetMetadata
-from .common import dataset_dir, valid_image
+from .common import dataset_dir, gdal_open, valid_image
 
-TILE_REGEX = re.compile(r"(.*)\.tile\.(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -61,14 +61,18 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
 
             pre, ext = m.groups()
             mask = f"{pre}.mask.{ext}"
+            vh_name = f"{pre}.tile.vh.{ext}"
+            vv_name = f"{pre}.tile.vv.{ext}"
 
-            data = (os.path.join(dirpath, name), os.path.join(dirpath, mask))
+            data = (os.path.join(dirpath, vh_name),
+                    os.path.join(dirpath, vv_name),
+                    os.path.join(dirpath, mask))
             folder = os.path.basename(dirpath)
+
             if folder == 'train':
                 train_metadata.append(data)
             elif folder == 'test':
                 test_metadata.append(data)
-
     return train_metadata, test_metadata
 
 
@@ -76,20 +80,21 @@ def generate_from_metadata(
     metadata: DatasetMetadata, clip_range: Optional[Tuple[float, float]] = None
 ):
     """ Yield training images and masks from the given metadata. """
-    output_shape = (512, 512, 1)
-    for tile_name, mask_name in metadata:
-        tile = gdal.Open(tile_name)
-        if tile is None:
-            continue
-        tile_array = tile.ReadAsArray()
+    output_shape = (512, 512, 2)
+    mask_output_shape = (512, 512, 1)
+    for tile_vh, tile_vv, mask_name in metadata:
 
-        mask = gdal.Open(mask_name)
-        if mask is None:
-            continue
-        mask_array = mask.ReadAsArray()
+        with gdal_open(tile_vh) as f:
+            tile_vh_array = f.ReadAsArray()
+        with gdal_open(tile_vv) as f:
+            tile_vv_array = f.ReadAsArray()
 
+        tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
         if not valid_image(tile_array):
             continue
+
+        with gdal_open(mask_name) as f:
+            mask_array = f.ReadAsArray()
 
         x = np.array(tile_array).astype('float32')
         y = np.array(mask_array).astype('float32')
@@ -97,5 +102,4 @@ def generate_from_metadata(
         if clip_range:
             min_, max_ = clip_range
             np.clip(x, min_, max_, out=x)
-
-        yield (x.reshape(output_shape), y.reshape(output_shape))
+        yield (x.reshape(output_shape), y.reshape(mask_output_shape))
