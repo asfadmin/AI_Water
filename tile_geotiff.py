@@ -157,7 +157,7 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
 
         pre, num, ext = m.groups()
         new_vh_name = f"{pre}_{num}.tile.vh.{ext}".lower()
-        mask_name = f"Mask__{pre}VV_{num}.{ext}"
+        mask_name = f"Mask_{pre}Mask_{num}.{ext}"
         new_mask_name = f"{pre}_{num}.mask.{ext}".lower()
         vv_name = f"Image_{pre}VV_{num}.{ext}"
         new_vv_name = f"{pre}_{num}.tile.vv.{ext}".lower()
