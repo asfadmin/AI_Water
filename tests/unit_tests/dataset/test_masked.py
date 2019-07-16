@@ -32,8 +32,7 @@ def dataset_masked(tmpdir: py.path.local):
 @pytest.fixture
 def metadata_masked() -> DatasetMetadata:
     return [("test_1.tile.vh.tif", "test_1.tile.vv.tif", "test_1.mask.tif"),
-            ("test_2.tile.vh.tif", "test_2.tile.vv.tif", "test_2.mask.tif")
-            ]
+            ("test_2.tile.vh.tif", "test_2.tile.vv.tif", "test_2.mask.tif")]
 
 
 def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
