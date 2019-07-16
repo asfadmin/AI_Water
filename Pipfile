@@ -10,6 +10,7 @@ verify_ssl = true
 pytest = "*"
 hypothesis = "*"
 pytest-cov = "*"
+mock = "*"
 
 [packages]
 tensorflow = "*"
