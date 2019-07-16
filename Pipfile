@@ -17,6 +17,7 @@ matplotlib = "*"
 pygdal = "==2.2.3.3"
 scipy = "*"
 keras = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.6"

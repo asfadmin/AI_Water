@@ -2,8 +2,7 @@
     Contains the architecture for creating a water mask within SAR images.
 """
 
-from keras import Tensor
-from keras.layers import Activation, BatchNormalization, Dropout, Input
+from keras.layers import Activation, BatchNormalization, Dropout, Input, Layer
 from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.layers.pooling import MaxPooling2D
@@ -12,11 +11,11 @@ from keras.optimizers import Adam
 
 
 def conv2d_block(
-    input_tensor: Tensor,
+    input_tensor: Input,
     n_filters: int,
     kernel_size: int = 3,
     batchnorm: bool = True
-):
+) -> Layer:
     """Function to add 2 convolutional layers with the parameters
     passed to it"""
     # first layer
@@ -48,7 +47,7 @@ def create_model_masked(
     n_filters: int = 16,
     dropout: float = 0.1,
     batchnorm: bool = True
-):
+) -> Model:
     """ Function to define the UNET Model """
 
     inputs = Input(shape=(512, 512, 1))

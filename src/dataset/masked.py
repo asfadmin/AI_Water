@@ -5,7 +5,7 @@ prepared data set for use.
 
 import os
 import re
-from typing import Optional, Tuple
+from typing import Generator, Optional, Tuple
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
@@ -74,7 +74,7 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
 
 def generate_from_metadata(
     metadata: DatasetMetadata, clip_range: Optional[Tuple[float, float]] = None
-):
+) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
     output_shape = (512, 512, 1)
     for tile_name, mask_name in metadata:

@@ -65,6 +65,11 @@ class ndarray(object):
     ) -> 'ndarray':
         ...
 
+    def round(
+        self: ArrayLike, decimals: int = 0, out: Optional['ndarray'] = None
+    ) -> 'ndarray':
+        ...
+
     def std(
         self: ArrayLike,
         axis: Optional[int] = None,
@@ -81,6 +86,9 @@ class ndarray(object):
         ...
 
     def __setitem__(self, idx: Index, item: Any) -> None:
+        ...
+
+    def __iter__(self) -> Any:
         ...
 
     def __contains__(self, other: Any) -> 'ndarray':
@@ -164,6 +172,7 @@ def zeros(shape: Tuple[int, ...]) -> ndarray:
 
 
 any = ndarray.any
+around = ndarray.round
 clip = ndarray.clip
 mean = ndarray.mean
 reshape = ndarray.reshape
