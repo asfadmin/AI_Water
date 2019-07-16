@@ -148,9 +148,7 @@ def prepare_data(directory: str, holdout: float):
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
     """ Renames and moves mask and tile images. """
-    TILE_REGEX = re.compile(
-        f"Image_(.*)_([0-9]+).({EXT})"
-    )
+    TILE_REGEX = re.compile(f"Image_(.*)VH_([0-9]+)\\.({EXT})")
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
@@ -158,13 +156,18 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
             continue
 
         pre, num, ext = m.groups()
-        name_pre = f"{num}"
-        new_tile_name = f"{name_pre}.tile.{ext}".lower()
-        mask_name = f"Mask__{pre}_{num}.{ext}"
-        new_mask_name = f"{name_pre}.mask.{ext}".lower()
+        new_vh_name = f"{pre}_{num}.tile.vh.{ext}".lower()
+        mask_name = f"Mask__{pre}VV_{num}.{ext}"
+        new_mask_name = f"{pre}_{num}.mask.{ext}".lower()
+        vv_name = f"Image_{pre}VV_{num}.{ext}"
+        new_vv_name = f"{pre}_{num}.tile.vv.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
             print(f"Tile: {file} is missing a mask {mask_name}!")
+            continue
+
+        if not os.path.isfile(os.path.join(directory, vv_name)):
+            print(f"Tile: {file} is missing {vv_name}!")
             continue
 
         test_or_train = 'train' if random.random() > holdout else 'test'
@@ -174,7 +177,11 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
             os.makedirs(folder)
 
         os.rename(
-            os.path.join(directory, file), os.path.join(folder, new_tile_name)
+            os.path.join(directory, file), os.path.join(folder, new_vh_name)
+        )
+        os.rename(
+            os.path.join(directory, vv_name),
+            os.path.join(folder, new_vv_name)
         )
         os.rename(
             os.path.join(directory, mask_name),
@@ -192,6 +199,19 @@ def check_dependencies(deps: Tuple[str, ...]) -> bool:
             )
             return False
     return True
+
+
+def move_imgs(directory: str) -> None:
+    """ Moves all images within each sub directory into one directory """
+    f_path = os.path.join(config.DATASETS_DIR, args.directory)
+    for root, directories, files in os.walk(f_path, topdown=False):
+        for imgs in files:
+            os.rename(
+                os.path.join(root, imgs),
+                os.path.join(f_path, imgs)
+            )
+        for name in directories:
+            os.rmdir(os.path.join(root, name))
 
 
 if __name__ == '__main__':
@@ -237,6 +257,18 @@ if __name__ == '__main__':
         prepare_data(args.directory, args.holdout)
 
     parser_prepare.set_defaults(func=prepare_data_wrapper)
+
+    # Moves images into one directory
+    parser_move = subparsers.add_parser(
+        'move',
+        help='Moves all images within each sub directory into one directory'
+    )
+    parser_move.add_argument("directory")
+
+    def move_imgs_wrapper(args):
+        move_imgs(args.directory, args.name)
+
+    parser_move.set_defaults(func=move_imgs)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):

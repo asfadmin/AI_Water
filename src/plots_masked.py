@@ -18,18 +18,25 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
         # Plots imgs from img_dict
         if done:
             break
-        plt.subplot(1, 3, 1)
+        plt.subplot(1, 4, 1)
         plt.title('prediction')
         plt.imshow(pred.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
 
-        plt.subplot(1, 3, 2)
+        plt.subplot(1, 4, 2)
         plt.title('mask')
         plt.imshow(mask.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
 
-        plt.subplot(1, 3, 3)
-        plt.title('img')
+        plt.subplot(1, 4, 3)
+        plt.title('vh img')
         img = img.clip(0, 1)
-        plt.imshow(img.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
+        plt.imshow(img[0, :, :, 0].reshape(512, 512),
+                   cmap=plt.get_cmap('gist_gray'))
+
+        plt.subplot(1, 4, 4)
+        plt.title('vv img')
+        img = img.clip(0, 1)
+        plt.imshow(img[0, :, :, 1].reshape(512, 512),
+                   cmap=plt.get_cmap('gist_gray'))
 
         def close_plot(_: Any) -> None:
             nonlocal done

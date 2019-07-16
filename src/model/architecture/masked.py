@@ -49,8 +49,7 @@ def create_model_masked(
     batchnorm: bool = True
 ) -> Model:
     """ Function to define the UNET Model """
-
-    inputs = Input(shape=(512, 512, 1))
+    inputs = Input(shape=(512, 512, 2))
 
     c1 = conv2d_block(inputs, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
     p1 = MaxPooling2D((2, 2))(c1)
