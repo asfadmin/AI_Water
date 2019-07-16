@@ -16,8 +16,8 @@ def conv2d_block(
     kernel_size: int = 3,
     batchnorm: bool = True
 ) -> Layer:
-    """Function to add 2 convolutional layers with the parameters
-    passed to it"""
+    """ Function to add 2 convolutional layers with the parameters
+    passed to it """
     # first layer
     x = Conv2D(
         filters=n_filters,

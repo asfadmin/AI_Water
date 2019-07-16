@@ -9,7 +9,6 @@ from typing import Generator, Optional, Tuple
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
-from osgeo import gdal
 
 from ..typing import DatasetMetadata
 from .common import dataset_dir, gdal_open, valid_image
@@ -18,7 +17,6 @@ TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
-
     train_gen = ImageDataGenerator(rescale=10)
     test_gen = ImageDataGenerator(rescale=10)
 
@@ -64,9 +62,10 @@ def make_metadata(dataset: str) -> Tuple[DatasetMetadata, DatasetMetadata]:
             vh_name = f"{pre}.tile.vh.{ext}"
             vv_name = f"{pre}.tile.vv.{ext}"
 
-            data = (os.path.join(dirpath, vh_name),
-                    os.path.join(dirpath, vv_name),
-                    os.path.join(dirpath, mask))
+            data = (
+                os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
+                os.path.join(dirpath, mask)
+            )
             folder = os.path.basename(dirpath)
 
             if folder == 'train':
