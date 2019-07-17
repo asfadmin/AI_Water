@@ -1,0 +1,6 @@
+class Optimizer(object):
+    ...
+
+
+class Adam(Optimizer):
+    ...
