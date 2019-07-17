@@ -5,20 +5,33 @@ the prepared data set for use.
 
 import json
 import os
-from typing import Dict, Optional, Set, Tuple, Union
+from typing import Dict, Generator, Optional, Set, Tuple, Union, overload
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
+from typing_extensions import Literal
 
-from ..typing import DatasetMetadata
+from ..typing import BinaryDatasetMetadata
 from .common import dataset_dir, valid_image
 
 
+@overload
+def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
+    ...
+
+
+@overload
 def load_dataset(
-    dataset: str, get_metadata: bool = False
-) -> Union[Tuple[Iterator, Iterator],
-           Tuple[Iterator, Iterator, DatasetMetadata, DatasetMetadata]]:
+    dataset: str, get_metadata: Literal[True]
+) -> Tuple[Iterator, Iterator, BinaryDatasetMetadata, BinaryDatasetMetadata]:
+    ...
+
+
+def load_dataset(dataset: str, get_metadata: bool = False) -> Union[
+    Tuple[Iterator, Iterator],
+    Tuple[Iterator, Iterator, BinaryDatasetMetadata, BinaryDatasetMetadata]
+]:
     """ Creates two iterator yielding tuples for training and testing data.
     If `get_metadata = true`, it will also return two list
     (train_metadata and test_metadata) with the values being 'water' or
@@ -64,7 +77,7 @@ def load_dataset(
 
 
 def make_metadata(dataset: str, classes: Optional[Set[str]] = None
-                  ) -> Tuple[DatasetMetadata, DatasetMetadata]:
+                  ) -> Tuple[BinaryDatasetMetadata, BinaryDatasetMetadata]:
     """ Creates metadata marking images as 'water' or 'not_water'. """
     labels = load_labels(dataset)
     train_metadata = []
@@ -106,10 +119,10 @@ def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
 
 
 def generate_from_metadata(
-    metadata: DatasetMetadata,
+    metadata: BinaryDatasetMetadata,
     label_to_num: Dict[str, int],
     clip_range: Optional[Tuple[float, float]] = None
-):
+) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Converts images into an array, clips the value of the pixels into a
     specific range and reshapes the array to the correct format. """
     for file_name, label in metadata:

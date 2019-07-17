@@ -38,9 +38,13 @@ def plot_predictions(predictions, test_iter: Iterator, dataset: str) -> None:
         plt.imshow(img[0, :, :, 1].reshape(512, 512),
                    cmap=plt.get_cmap('gist_gray'))
 
+        plt.imshow(img[0, :, :, 0].reshape(512, 512),
+                   cmap=plt.get_cmap('gist_gray'))
+
         def close_plot(_: Any) -> None:
             nonlocal done
             done = True
+
         _cbtn = close_button(close_plot)
         maximize_plot()
         plt.show()
