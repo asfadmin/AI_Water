@@ -18,9 +18,13 @@ import os
 import random
 import re
 from argparse import ArgumentParser
-from typing import Tuple
+from typing import Any, Tuple
+
+from matplotlib.widgets import Button
 
 import src.config as config
+from src.dataset.common import gdal_open, valid_image
+from src.plots import close_button, maximize_plot
 
 try:
     from matplotlib import pyplot
@@ -205,13 +209,110 @@ def move_imgs(directory: str) -> None:
     """ Moves all images within each sub directory into one directory """
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
     for root, directories, files in os.walk(f_path, topdown=False):
-        for imgs in files:
+        for img in files:
             os.rename(
-                os.path.join(root, imgs),
-                os.path.join(f_path, imgs)
+                os.path.join(root, img),
+                os.path.join(f_path, img)
             )
         for name in directories:
             os.rmdir(os.path.join(root, name))
+
+
+def groom_imgs(directory: str) -> None:
+    VH_REGEX = re.compile(f"(.*)\\.tile\\.vh\\.tif")
+    f_path = os.path.join(config.DATASETS_DIR, args.directory)
+
+    done = False
+    count = 0
+    for root, directories, files in os.walk(f_path):
+        for vh in files:
+            if done:
+                break
+            m = re.match(VH_REGEX, vh)
+            if not m:
+                continue
+            pre = m.group(1)
+            mask = f"{pre}.mask.tif"
+            vv = f"{pre}.tile.vv.tif"
+
+            with gdal_open(os.path.join(root, mask)) as f:
+                mask_array = f.ReadAsArray()
+
+            with gdal_open(os.path.join(root, vh)) as f:
+                vh_array = f.ReadAsArray()
+            if not valid_image(vh_array):
+                continue
+
+            with gdal_open(os.path.join(root, vv)) as f:
+                vv_array = f.ReadAsArray()
+            if not valid_image(vv_array):
+                continue
+
+            count += 1
+            pyplot.subplot(1, 3, 1)
+            pyplot.title(f'mask')
+            pyplot.xlabel(f'On {count} of {int(len(files)/3)}')
+            pyplot.imshow(
+                mask_array, cmap=pyplot.get_cmap('gist_gray')
+            )
+
+            pyplot.subplot(1, 3, 2)
+            pyplot.title('vh')
+            pyplot.xlabel(f'Remaining images: {int(len(files)/3)-count+1}')
+            vh_array = vh_array.clip(0, 1)
+            pyplot.imshow(
+                vh_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+            )
+
+            pyplot.subplot(1, 3, 3)
+            pyplot.title('vv')
+            vv_array = vv_array.clip(0, 1)
+            pyplot.imshow(
+                vv_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+            )
+
+            def close_plot(_: Any) -> None:
+                nonlocal done
+                done = True
+
+            _cbtn = close_button(close_plot)
+            kbtn = keep_button()
+            _dbtn = delete_button(
+                os.path.join(root, mask),
+                os.path.join(root, vh),
+                os.path.join(root, vv)
+            )
+            maximize_plot()
+            pyplot.show()
+
+
+def delete_button(mask_img: str, vh_img: str, vv_img: str) -> object:
+    """ Create a 'delete' button on the plot. Make sure to save this to a value.
+    """
+    button = Button(pyplot.axes([.175, 0.05, 0.1, 0.075]), 'Delete')
+
+    def click_handler(event: Any) -> None:
+        os.remove(mask_img)
+        os.remove(vh_img)
+        os.remove(vv_img)
+        pyplot.close()
+
+    button.on_clicked(click_handler)
+    # Returns to prevent the button from being garbage collected
+    return button
+
+
+def keep_button() -> object:
+    """ Create a 'keep' button on the plot. Make sure to save this to a value.
+    """
+    button = Button(pyplot.axes([.3, 0.05, 0.1, 0.075]), 'Keep')
+
+    def click_handler(event: Any) -> None:
+        pyplot.close()
+
+    button.on_clicked(click_handler)
+    # Returns to prevent the button from being garbage collected
+    return button
 
 
 if __name__ == '__main__':
@@ -269,6 +370,18 @@ if __name__ == '__main__':
         move_imgs(args.directory, args.name)
 
     parser_move.set_defaults(func=move_imgs)
+
+    # Groom images
+    parser_groom = subparsers.add_parser(
+        'groom',
+        help='Allows the user to delete all images that contain inaccurate water masks'
+    )
+    parser_groom.add_argument("directory")
+
+    def grom_imgs_wrapper(args):
+        groom_imgs(args.directory)
+
+    parser_groom.set_defaults(func=groom_imgs)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
