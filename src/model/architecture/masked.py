@@ -11,8 +11,8 @@ from keras.optimizers import Adam
 
 
 def conv2d_block(input_tensor, num_filters, kernel_size=3, batchnorm=True):
-    """Function to add 2 convolutional layers with the parameters
-    passed to it"""
+    """ Function to add 2 convolutional layers with the parameters
+    passed to it """
     # first layer
     x = Conv2D(filters=num_filters, kernel_size=(kernel_size, kernel_size),
                kernel_initializer='he_normal', padding='same')(input_tensor)
