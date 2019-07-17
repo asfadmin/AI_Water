@@ -2,7 +2,7 @@
     Contains the architecture for creating a water mask within SAR images.
 """
 
-from keras.layers import Activation, BatchNormalization, Dropout, Input
+from keras.layers import Activation, BatchNormalization, Dropout, Input, Layer
 from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.layers.pooling import MaxPooling2D
@@ -10,18 +10,31 @@ from keras.models import Model
 from keras.optimizers import Adam
 
 
-def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
-    """Function to add 2 convolutional layers with the parameters
-    passed to it"""
+def conv2d_block(
+    input_tensor: Input,
+    n_filters: int,
+    kernel_size: int = 3,
+    batchnorm: bool = True
+) -> Layer:
+    """ Function to add 2 convolutional layers with the parameters
+    passed to it """
     # first layer
-    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size),
-               kernel_initializer='he_normal', padding='same')(input_tensor)
+    x = Conv2D(
+        filters=n_filters,
+        kernel_size=(kernel_size, kernel_size),
+        kernel_initializer='he_normal',
+        padding='same'
+    )(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation('relu')(x)
     # second layer
-    x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size),
-               kernel_initializer='he_normal', padding='same')(input_tensor)
+    x = Conv2D(
+        filters=n_filters,
+        kernel_size=(kernel_size, kernel_size),
+        kernel_initializer='he_normal',
+        padding='same'
+    )(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation('relu')(x)
@@ -29,12 +42,16 @@ def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
     return x
 
 
-def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
+def create_model_masked(
+    model_name: str,
+    n_filters: int = 16,
+    dropout: float = 0.1,
+    batchnorm: bool = True
+) -> Model:
     """ Function to define the UNET Model """
     inputs = Input(shape=(512, 512, 2))
 
-    c1 = conv2d_block(inputs, n_filters * 1, kernel_size=3,
-                      batchnorm=batchnorm)
+    c1 = conv2d_block(inputs, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
     p1 = MaxPooling2D((2, 2))(c1)
     p1 = Dropout(dropout)(p1)
 
@@ -54,13 +71,13 @@ def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
     p4_5 = MaxPooling2D((2, 2))(c4_5)
     p4_5 = Dropout(dropout)(p4_5)
 
-    c4_6 = conv2d_block(p4_5, n_filters * 8, kernel_size=3,
-                        batchnorm=batchnorm)
+    c4_6 = conv2d_block(p4_5, n_filters * 8, kernel_size=3, batchnorm=batchnorm)
     p4_6 = MaxPooling2D((2, 2))(c4_6)
     p4_6 = Dropout(dropout)(p4_6)
 
-    c5 = conv2d_block(p4_6, n_filters=n_filters * 16, kernel_size=3,
-                      batchnorm=batchnorm)
+    c5 = conv2d_block(
+        p4_6, n_filters=n_filters * 16, kernel_size=3, batchnorm=batchnorm
+    )
     # Expansive Path
     u7 = Conv2DTranspose(n_filters * 4, (3, 3), strides=(2, 2),
                          padding='same')(c5)
@@ -80,20 +97,23 @@ def create_model_masked(model_name, n_filters=16, dropout=0.1, batchnorm=True):
     u9 = Dropout(dropout)(u9)
     c9 = conv2d_block(u9, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
 
-    u10 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
-                          padding='same')(c9)
+    u10 = Conv2DTranspose(
+        n_filters * 1, (3, 3), strides=(2, 2), padding='same'
+    )(c9)
     u10 = concatenate([u10, c3])
     u10 = Dropout(dropout)(u10)
     c10 = conv2d_block(u10, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
 
-    u11 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
-                          padding='same')(c10)
+    u11 = Conv2DTranspose(
+        n_filters * 1, (3, 3), strides=(2, 2), padding='same'
+    )(c10)
     u11 = concatenate([u11, c2])
     u11 = Dropout(dropout)(u11)
     c11 = conv2d_block(u11, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
 
-    u12 = Conv2DTranspose(n_filters * 1, (3, 3), strides=(2, 2),
-                          padding='same')(c11)
+    u12 = Conv2DTranspose(
+        n_filters * 1, (3, 3), strides=(2, 2), padding='same'
+    )(c11)
     u12 = concatenate([u12, c1])
     u12 = Dropout(dropout)(u12)
     c12 = conv2d_block(u12, n_filters * 1, kernel_size=3, batchnorm=batchnorm)
