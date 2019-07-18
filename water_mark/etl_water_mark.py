@@ -11,7 +11,7 @@
 #
 # This program sets up the current directory for water_mark to be run by
 # creating an input directory, and filling it with VV and  VH sar tifs
-# downloaded from asf hype.
+# downloaded from asf HyP3.
 #
 ###############################################################################
 #
@@ -20,7 +20,7 @@
 # - water_mark:
 #   - water_mark.py
 #   - etl_water_mark.py
-#   - download-all-<nums>.py (python script from asf hyp3)
+#   - download-all-<nums>.py (python script from asf HyP3)
 #   - identify_water.py
 #   - inputs: (input directory made automatically)
 #
@@ -60,25 +60,27 @@ def make_input_dir():
 
 
 def extract_SAR_to_temp_dir():
-    if os.path.exists('hyp3Downloads'):
-        shutil.rmtree('hyp3Downloads')
-    os.mkdir('hyp3Downloads')
-    for each in os.listdir():
+    h3 = 'HyP3Downloads'
+    if os.path.exists(h3):
+        shutil.rmtree(h3)
+    os.mkdir(h3)
+    for f in os.listdir():
         if each.endswith('.zip'):
-            zf = zipfile.ZipFile(each, 'r')
-            zf.extractall('hyp3Downloads')
+            zf = zipfile.ZipFile(f, 'r')
+            zf.extractall(h3)
             zf.close()
     return
 
 
 def extract_VV_VH_to_inputs():
-    for sar in os.listdir(os.path.join(os.getcwd(),'hyp3Downloads'):
+    h3 = 'HyP3Downloads'
+    for sar in os.listdir(os.path.join(os.getcwd(), h3):
         for f in os.listdir(sar):
             if f.endswith('VH.tif'):
-                shutil.copy(os.path.join(os.getcwd(),'hyp3Downloads', sar,  f),
+                shutil.copy(os.path.join(os.getcwd(),h3, sar,  f),
                             os.path.join(os.getcwd(),'inputs'))
             if f.endswith('VV.tif'):
-                shutil.copy(os.path.join(os.getcwd(),'hyp3Downloads', sar,  f),
+                shutil.copy(os.path.join(os.getcwd(),h3 , sar,  f),
                             os.path.join(os.getcwd(),'inputs'))
     return
 
