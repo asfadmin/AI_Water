@@ -1,0 +1,6 @@
+{
+  "test_file_1": "water",
+  "test_file_2": "not_water",
+  "test_file_3": "invalid",
+  "test_file_4": "skip"
+}
