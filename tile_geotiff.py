@@ -223,7 +223,6 @@ def groom_imgs(directory: str) -> None:
     VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
     g_path = os.path.join(config.DATASETS_DIR, f'{args.directory}Groomed')
-    dlt_deck = deque([], maxlen=4)
 
     done = False
     count = 0
@@ -299,26 +298,23 @@ def groom_imgs(directory: str) -> None:
 
             _cbtn = close_button(close_plot)
             _kpbtn = keep_button(g_path, l_imgs)
-            _dbtn, dlt_deck = delete_button(l_imgs, dlt_deck)
-            _prebtn, dlt_deck = kplast_button(g_path, dlt_deck)
+            _dbtn = delete_button(l_imgs)
             maximize_plot()
             pyplot.show()
 
 
-def delete_button(imgs: list, dlt_deck: deque) -> object:
+def delete_button(imgs: list) -> object:
     """ Create a 'delete' button on the plot. Make sure to save this to a value.
     """
-    dlt_deck.append(imgs)
     button = Button(pyplot.axes([.175, 0.05, 0.1, 0.075]), 'Delete')
 
     def click_handler(event: Any) -> None:
-        if len(dlt_deck) == 4:
-            delete_imgs(dlt_deck.popleft())
+        delete_imgs(imgs)
         pyplot.close()
 
     button.on_clicked(click_handler)
     # Returns to prevent the button from being garbage collected
-    return button, dlt_deck
+    return button
 
 
 def delete_imgs(imgs: list) -> None:
@@ -360,18 +356,6 @@ def move_kept_imgs(folder: str, g_path: str, imgs: list) -> None:
             imgs[i],
             os.path.join(g_path, os.path.join(folder, imgs[i+3]))
         )
-
-
-def kplast_button(g_path: str, deck: deque) -> object:
-
-    button = Button(pyplot.axes([.425, 0.05, 0.1, 0.075]), 'Keep Last')
-    imgs = deck.pop()
-
-    def click_handler(event: Any) -> None:
-        move_kept_imgs('train', g_path, imgs)
-
-    button.on_clicked(click_handler)
-    return button, deck
 
 
 if __name__ == '__main__':
