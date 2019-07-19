@@ -2,7 +2,7 @@
     Contains the architecture for creating a water mask within SAR images.
 """
 
-from keras.layers import Activation, BatchNormalization, Dropout, Input
+from keras.layers import Activation, BatchNormalization, Dropout, Input, Layer
 from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.merge import concatenate
 from keras.layers.pooling import MaxPooling2D
@@ -10,18 +10,31 @@ from keras.models import Model
 from keras.optimizers import Adam
 
 
-def conv2d_block(input_tensor, num_filters, kernel_size=3, batchnorm=True):
+def conv2d_block(
+    input_tensor,
+    num_filters,
+    kernel_size=3,
+    batchnorm=True
+) -> Layer:
     """ Function to add 2 convolutional layers with the parameters
     passed to it """
     # first layer
-    x = Conv2D(filters=num_filters, kernel_size=(kernel_size, kernel_size),
-               kernel_initializer='he_normal', padding='same')(input_tensor)
+    x = Conv2D(
+        filters=num_filters,
+        kernel_size=(kernel_size, kernel_size),
+        kernel_initializer='he_normal',
+        padding='same'
+    )(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation('relu')(x)
     # second layer
-    x = Conv2D(filters=num_filters, kernel_size=(kernel_size, kernel_size),
-               kernel_initializer='he_normal', padding='same')(input_tensor)
+    x = Conv2D(
+        filters=num_filters,
+        kernel_size=(kernel_size, kernel_size),
+        kernel_initializer='he_normal',
+        padding='same'
+    )(input_tensor)
     if batchnorm:
         x = BatchNormalization()(x)
     x = Activation('relu')(x)
