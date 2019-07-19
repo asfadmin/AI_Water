@@ -21,8 +21,8 @@ def dataset_dir(dataset: str) -> str:
 def valid_image(img: np.ndarray) -> bool:
     if np.any(np.isnan(img)):
         return False
-    # if 0 in img:
-    #     return False
+    if 0 in img:
+        return False
     return True
 
 
