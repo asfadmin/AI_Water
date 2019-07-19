@@ -18,6 +18,7 @@ import os
 import random
 import re
 from argparse import ArgumentParser
+from collections import deque
 from typing import Any, Tuple
 
 from matplotlib.widgets import Button
@@ -28,7 +29,7 @@ from src.plots import close_button, maximize_plot
 
 try:
     from matplotlib import pyplot
-    from matplotlib.widgets import Button, RadioButtons
+    from matplotlib.widgets import RadioButtons
 except ImportError:
     pass
 
@@ -219,11 +220,14 @@ def move_imgs(directory: str) -> None:
 
 
 def groom_imgs(directory: str) -> None:
-    VH_REGEX = re.compile(f"(.*)\\.tile\\.vh\\.tif")
+    VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
+    g_path = os.path.join(config.DATASETS_DIR, f'{args.directory}Groomed')
+    dlt_deck = deque([], maxlen=4)
 
     done = False
     count = 0
+    update_count = 0
     for root, directories, files in os.walk(f_path):
         for vh in files:
             if done:
@@ -231,34 +235,52 @@ def groom_imgs(directory: str) -> None:
             m = re.match(VH_REGEX, vh)
             if not m:
                 continue
+
             pre = m.group(1)
             mask = f"{pre}.mask.tif"
             vv = f"{pre}.tile.vv.tif"
 
-            with gdal_open(os.path.join(root, mask)) as f:
-                mask_array = f.ReadAsArray()
+            # Contains full path and the name for each image
+            l_imgs = [
+                os.path.join(root, mask),
+                os.path.join(root, vh),
+                os.path.join(root, vv),
+                mask,
+                vh,
+                vv
+            ]
+            num_imgs = int(len(files)/3)
 
             with gdal_open(os.path.join(root, vh)) as f:
                 vh_array = f.ReadAsArray()
             if not valid_image(vh_array):
+                update_count += 1
+                delete_imgs(l_imgs)
                 continue
 
             with gdal_open(os.path.join(root, vv)) as f:
                 vv_array = f.ReadAsArray()
             if not valid_image(vv_array):
+                update_count += 1
+                delete_imgs(l_imgs)
                 continue
+
+            with gdal_open(os.path.join(root, mask)) as f:
+                mask_array = f.ReadAsArray()
 
             count += 1
             pyplot.subplot(1, 3, 1)
             pyplot.title(f'mask')
-            pyplot.xlabel(f'On {count} of {int(len(files)/3)}')
+            pyplot.xlabel(f'On {count} of {num_imgs-update_count}')
             pyplot.imshow(
                 mask_array, cmap=pyplot.get_cmap('gist_gray')
             )
 
             pyplot.subplot(1, 3, 2)
             pyplot.title('vh')
-            pyplot.xlabel(f'Remaining images: {int(len(files)/3)-count+1}')
+            pyplot.xlabel(
+                f'Remaining images: {num_imgs-count+1-update_count}'
+            )
             vh_array = vh_array.clip(0, 1)
             pyplot.imshow(
                 vh_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
@@ -276,43 +298,80 @@ def groom_imgs(directory: str) -> None:
                 done = True
 
             _cbtn = close_button(close_plot)
-            kbtn = keep_button()
-            _dbtn = delete_button(
-                os.path.join(root, mask),
-                os.path.join(root, vh),
-                os.path.join(root, vv)
-            )
+            _kpbtn = keep_button(g_path, l_imgs)
+            _dbtn, dlt_deck = delete_button(l_imgs, dlt_deck)
+            _prebtn, dlt_deck = kplast_button(g_path, dlt_deck)
             maximize_plot()
             pyplot.show()
 
 
-def delete_button(mask_img: str, vh_img: str, vv_img: str) -> object:
+def delete_button(imgs: list, dlt_deck: deque) -> object:
     """ Create a 'delete' button on the plot. Make sure to save this to a value.
     """
+    dlt_deck.append(imgs)
     button = Button(pyplot.axes([.175, 0.05, 0.1, 0.075]), 'Delete')
 
     def click_handler(event: Any) -> None:
-        os.remove(mask_img)
-        os.remove(vh_img)
-        os.remove(vv_img)
+        if len(dlt_deck) == 4:
+            delete_imgs(dlt_deck.popleft())
         pyplot.close()
 
     button.on_clicked(click_handler)
     # Returns to prevent the button from being garbage collected
-    return button
+    return button, dlt_deck
 
 
-def keep_button() -> object:
+def delete_imgs(imgs: list) -> None:
+    """ Deletes vv, vh, and mask images. """
+    os.remove(imgs[0])
+    os.remove(imgs[1])
+    os.remove(imgs[2])
+
+
+def keep_button(g_path: str, imgs: list) -> object:
     """ Create a 'keep' button on the plot. Make sure to save this to a value.
     """
+    TEST_REGEX = re.compile(r"(.*)test(.*)")
+    if not os.path.isdir(g_path):
+        os.mkdir(g_path)
+        os.mkdir(os.path.join(g_path, 'test'))
+        os.mkdir(os.path.join(g_path, 'train'))
+
     button = Button(pyplot.axes([.3, 0.05, 0.1, 0.075]), 'Keep')
 
     def click_handler(event: Any) -> None:
-        pyplot.close()
+        m = re.match(TEST_REGEX, imgs[0])
+        if not m:
+            move_kept_imgs('train', g_path, imgs)
+            pyplot.close()
+        else:
+            move_kept_imgs('test', g_path, imgs)
+            pyplot.close()
 
     button.on_clicked(click_handler)
     # Returns to prevent the button from being garbage collected
     return button
+
+
+def move_kept_imgs(folder: str, g_path: str, imgs: list) -> None:
+    """ Moves imgs with a good mask to a new folder. """
+    for i in range(0, 3):
+        os.rename(
+            imgs[i],
+            os.path.join(g_path, os.path.join(folder, imgs[i+3]))
+        )
+
+
+def kplast_button(g_path: str, deck: deque) -> object:
+
+    button = Button(pyplot.axes([.425, 0.05, 0.1, 0.075]), 'Keep Last')
+    imgs = deck.pop()
+
+    def click_handler(event: Any) -> None:
+        move_kept_imgs('train', g_path, imgs)
+
+    button.on_clicked(click_handler)
+    return button, deck
 
 
 if __name__ == '__main__':
