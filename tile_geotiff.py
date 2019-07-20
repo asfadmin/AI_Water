@@ -269,10 +269,10 @@ def groom_imgs(directory: str) -> None:
 
             count += 1
             pyplot.subplot(1, 3, 1)
-            pyplot.title(f'mask')
+            pyplot.title('mask: Water = Black    Land = White')
             pyplot.xlabel(f'On {count} of {num_imgs-update_count}')
             pyplot.imshow(
-                mask_array, cmap=pyplot.get_cmap('gist_gray')
+                mask_array, cmap=pyplot.get_cmap('gist_yarg')
             )
 
             pyplot.subplot(1, 3, 2)
@@ -280,14 +280,23 @@ def groom_imgs(directory: str) -> None:
             pyplot.xlabel(
                 f'Remaining images: {num_imgs-count+1-update_count}'
             )
-            vh_array = vh_array.clip(0, 1)
+            flt = vh_array.flatten()
+            mean = flt.mean()
+            std = flt.std()
+            vh_array = vh_array.clip(0, mean + 3 * std)
+            print(mean + 2 * std)
             pyplot.imshow(
                 vh_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
             )
 
             pyplot.subplot(1, 3, 3)
             pyplot.title('vv')
-            vv_array = vv_array.clip(0, 1)
+
+            flt = vh_array.flatten()
+            mean = flt.mean()
+            std = flt.std()
+            vv_array = vv_array.clip(0, mean + 20 * std)
+            print(mean + 2 * std)
             pyplot.imshow(
                 vv_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
             )
