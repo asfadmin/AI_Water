@@ -42,7 +42,6 @@ def write_mask_to_file(
 def interactive_editor(mask_path: str) -> None:
     with gdal_open(mask_path) as f:
         mask = f.ReadAsArray()
-        f = f
 
     selection = ()
     previous_values = None
