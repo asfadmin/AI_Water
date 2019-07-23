@@ -28,13 +28,10 @@
 #   - download-all-<nums>.py (from asf hyp3)
 #   - identify_water.py
 #   - inputs:
-#       - downloadWaterData.py
-#       - gdal_reclassify.py
-#       - worldMask:
 #       - sar.tif (1+)
-#       - syntheticTriainingData<date>: (output directory made automatically)
-#           - sar: (1+)
-#               - Original and tiled: VV, VH, and Mask images.
+#   - syntheticTriainingData<date>: (output directory made automatically)
+#       - sar: (1+)
+#           - Original and tiled VV, VH, and Mask images.
 ###############################################################################
 
 import argparse
@@ -43,9 +40,10 @@ import shutil
 from osgeo import gdal
 from identify_water import main as idw_main
 from datetime import date
+from typing import Tuple, Dict, List
 
 
-def make_database():
+def make_database() -> Dict[str, Tuple[str, str]]:
     dataList = []
     for f in os.listdir(os.path.join(os.getcwd(), 'inputs')):
         if f.endswith('.tif'):
@@ -57,41 +55,39 @@ def make_database():
         sar = sar[:-7]
         vv = dataList[info+1]
         vh = dataList[info]
-        data[sar] = [vv, vh]
+        data[sar] = (vv, vh)
     return data
 
 
-def make_output_dir(outDir, dataDict):
+def make_output_dir(outDir, dataDict) -> None:
     if os.path.exists(outDir):
         shutil.rmtree(outDir)
     os.mkdir(outDir)
     for sar in dataDict:
         os.mkdir(os.path.join(os.getcwd(), outDir, sar))
-    return
 
 
-def copy_vv_vh_to_inputs(outDir, dataDict):
+def copy_vv_vh_to_inputs(outDir, dataDict) -> None:
     inputsPath = os.path.join(os.getcwd(), 'inputs')
     for sar, vvvhband in dataDict.items():
         shutil.copy(os.path.join(inputsPath, vvvhband[0]),
                     os.path.join(os.getcwd(), outDir, sar))
         shutil.copy(os.path.join(inputsPath, vvvhband[1]),
                     os.path.join(os.getcwd(), outDir, sar))
-    return
 
 
-def make_masks(outDir, dataDict):
+def make_masks(outDir, dataDict) -> None:
     for sar, vvvhband in dataDict.items():
         inputPath = os.path.join(os.getcwd(), 'inputs')
         renamePath = os.path.join(os.getcwd(), outDir, sar)
         idw_main(os.path.join(inputPath, vvvhband[0]),
                  os.path.join(inputPath, vvvhband[1]))
         # rename 'mask-0.tif' -> 'Mask_<sar>.tif'
-        os.rename(renamePath + 'mask-0.tif', renamePath + sar + '.tif')
-    return
+        os.rename(os.path.join(renamePath, 'mask-0.tif'),
+                  os.path.join(renamePath, 'Mask_'+sar+'.tif'))
 
 
-def tile_vv_vh_mask(outDir, mxmTileSize):
+def tile_vv_vh_mask(outDir, mxmTileSize) -> None:
     for sar in os.listdir(os.path.join(os.getcwd(), outDir)):
         for tifName in os.listdir(os.path.join(os.getcwd(), outDir, sar)):
             if tifName.endswith('VV.tif'):
@@ -100,11 +96,10 @@ def tile_vv_vh_mask(outDir, mxmTileSize):
                 tile(outDir, tifName, sar, mxmTileSize, False)
             elif tifName.beginswith('Mask'):
                 tile(outDir, tifName, sar, mxmTileSize, True)
-    return
 
 
-def tile(outDir, tifName, sar, mxmTileSize, isMask):
-    label = ''
+def tile(outDir, tifName, sar, mxmgdalTileSize, isMask) -> None:
+    label = 'temp'
     if isMask:
         label = 'Mask_'
     else:
@@ -116,13 +111,12 @@ def tile(outDir, tifName, sar, mxmTileSize, isMask):
     for x in range(0, xSize, xStep):
         for y in range(0, ySize, yStep):
             # fileName = '<Image|Mask>_<sar>_<0-9+>.tif'
-            fileName = label + tifName[:-4] + '_' + str(count) + '.tif'
+            fileName = f"{label}_{tifName[:-4]}_{count}.tif"
             gdal.Translate(os.path.join(os.getcwd(), outDir, sar, fileName),
                            tifName,
                            srcWin=[x, y, xStep, yStep],
                            format="GTiff")
             count += 1
-    return
 
 
 def main():
@@ -135,13 +129,13 @@ def main():
     args = parser.parse_args()
     mxmTileSize = args.s
 
-    synData = 'syntheticTriainingData'+date.isoformat(date.today())  # outDir
+    outDir = 'syntheticTriainingData'+date.isoformat(date.today())  # outDir
     data = make_database()
 
-    make_output_dir(synData, data)
-    copy_vv_vh_to_inputs(synData, data)
-    make_masks(synData, data)
-    tile_vv_vh_mask(synData, mxmTileSize)
+    make_output_dir(outDir, data)
+    copy_vv_vh_to_inputs(outDir, data)
+    make_masks(outDir, data)
+    tile_vv_vh_mask(outDir, mxmTileSize)
 
 
 if __name__ == '__main__':
