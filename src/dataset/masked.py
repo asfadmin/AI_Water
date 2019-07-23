@@ -10,8 +10,9 @@ from typing import Generator, Optional, Tuple
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 
+from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
-from .common import dataset_dir, gdal_open, valid_image
+from .common import dataset_dir, valid_image
 
 TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
 

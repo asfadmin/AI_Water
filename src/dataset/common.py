@@ -3,12 +3,8 @@
 """
 
 import os
-import pathlib
-from contextlib import contextmanager
-from typing import Iterator, Union
 
 import numpy as np
-from osgeo import gdal
 
 from ..config import DATASETS_DIR
 from ..model import ModelType
@@ -31,12 +27,3 @@ def dataset_type(dataset: str) -> ModelType:
     if os.path.isfile(os.path.join(dataset_dir(dataset), 'labels.json')):
         return ModelType.BINARY
     return ModelType.MASKED
-
-
-@contextmanager
-def gdal_open(file_name: Union[str, pathlib.Path]) -> Iterator[gdal.Dataset]:
-    file_name = str(file_name)
-    f = gdal.Open(file_name)
-    if not f:
-        raise FileNotFoundError(file_name)
-    yield f
