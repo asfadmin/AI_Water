@@ -43,8 +43,11 @@ def conv2d_block(
 
 
 def create_model_masked(
-    model_name, num_filters=16, dropout=0.1, batchnorm=True
-):
+    model_name,
+    num_filters=16,
+    dropout=0.1,
+    batchnorm=True
+) -> Model:
     """ Function to define the UNET Model """
     inputs = Input(shape=(512, 512, 2))
 
