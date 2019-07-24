@@ -93,9 +93,9 @@ def make_masks(outDir, dataDict) -> None:
 def tile(outDir, tifName, sar, mxmTileSize, isMask) -> None:
     label = 'temp'
     if isMask:
-        label = 'Mask_'
+        label = 'Mask'
     else:
-        label = 'Image_'
+        label = 'Image'
     tif = os.path.join(outDir, sar, tifName)
     tifData = gdal.Open(tif)
     xStep, yStep = mxmTileSize, mxmTileSize
