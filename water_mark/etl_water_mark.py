@@ -14,18 +14,19 @@
 # downloaded from asf HyP3.
 #
 ###############################################################################
-#
 # Python3
 # Windows admin powershell or Linux
+# '-vrt True' to make vrt
 # - water_mark:
+#   - inputs: (input directory made automatically)
 #   - water_mark.py
 #   - etl_water_mark.py
 #   - download-all-<nums>.py (python script from asf HyP3)
-#   - identify_water.py
-#   - inputs: (input directory made automatically)
-#
+#   - gdal_reclassify.py   (needed for vrt)
+#   - downloadWaterData.py (needed for vrt)
 ################################################################################
 
+import argparse
 import platform
 import os
 import shutil
@@ -55,8 +56,38 @@ def get_SAR_from_HyP3() -> None:
 
 
 def make_input_dir() -> None:
-    if not os.path.exists('inputs'):
-        os.mkdir('inputs')
+    inputsPath = os.path.join(os.getcwd(), 'inputs')
+    if not os.path.exists(inputsPath):
+        os.mkdir(inputsPath)
+        if os.path.exists(os.path.join(os.getcwd(), 'gdal_reclassify.py')):
+            shutil.move(os.path.join(os.getcwd(), 'gdal_reclassify.py'),
+                        inputsPath)
+        if os.path.exists(os.path.join(os.getcwd(), 'downloadWaterData.py')):
+            shutil.move(os.path.join(os.getcwd(), 'downloadWaterData.py'),
+                        inputsPath)
+
+
+def make_vrt() -> None:
+    inputsPath = os.path.join(os.getcwd(), 'inputs')
+    worldMaskPath = os.path.join(inputsPath, 'worldMask')
+    if os.path.exists(worldMaskPath):
+        shutil.rmtree(worldMaskPath)
+    os.mkdir(worldMaskPath)
+    windowsMode, linuxMode = determine_OS()
+    python = 'python'
+    if linuxMode:
+        python = 'python3'
+    scriptPath = os.path.join(inputsPath, 'downloadWaterData.py')
+    subprocess.call(f"{python} {scriptPath} -d '{worldMaskPath}' occurrence",
+                    shell=True)
+    with open(os.path.join(worldMaskPath, 'worldMask.txt'), 'w') as f:
+        for ff in os.listdir(worldMaskPath):
+            f.write(ff+'\n')
+    subprocess.call(f"gdalbuildvrt -input_file_list \
+                    {os.path.join(worldMaskPath, 'worldMask.txt')} \
+                    {os.path.join(worldMaskPath, 'worldMask.vrt')}",
+                    shell=True)
+    os.remove(os.path.join(worldMaskPath, 'worldMask.txt'))
 
 
 def extract_SAR_to_temp_dir() -> None:
@@ -93,8 +124,15 @@ def clean_up() -> None:
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-vrt', type=bool, default=False)
+    args = parser.parse_args()
+    vrt = args.vrt
+
     get_SAR_from_HyP3()
     make_input_dir()
+    if(vrt):
+        make_vrt()
     extract_SAR_to_temp_dir()
     extract_VV_VH_to_inputs()
     clean_up()

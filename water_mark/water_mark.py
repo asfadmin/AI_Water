@@ -22,21 +22,25 @@
 ###############################################################################
 # Python3
 # Windows admin powershell or Linux
+# '-waterMask True' to use european water mask
+#
 # - water_mark:
-#   - water_mark.py
-#   - set_up_water_mark.py
-#   - download-all-<nums>.py (from asf hyp3)
-#   - identify_water.py
 #   - inputs:
 #       - sar.tif (1+)
+#       - identify_water.py  (neede for waterMask)
+#       - gdal_reclassify.py (needed for waterMAsk)
 #   - syntheticTriainingData<date>: (output directory made automatically)
 #       - sar: (1+)
 #           - Original and tiled VV, VH, and Mask images.
+#   - water_mark.py
+#   - etl_water_mark.py
+#   - download-all-<nums>.py (from asf hyp3)
 ###############################################################################
 
 import argparse
 import os
 import shutil
+import sys
 from osgeo import gdal
 from identify_water import main as idw_main
 from datetime import date
@@ -65,6 +69,129 @@ def make_output_dir(outDir, dataDict) -> None:
     os.mkdir(outDir)
     for sar in dataDict:
         os.mkdir(os.path.join(os.getcwd(), outDir, sar))
+
+
+def cut_worldMask_to_sar() -> None:
+    inputsPath = os.path.join(os.getcwd(), 'inputs')
+    for f in os.listdir(inputsPath):
+        if '.tif' in f:
+            cutSize = os.path.join(inputsPath, f)
+            cutSizeShp = cutSize[:-4]+'.shp'  # change extension
+            input = os.path.join(inputsPath, 'worldMask',
+                                 'worldMask.vrt')
+            output = os.path.join(inputsPath, f[:-4]+'_Mask.tif')
+            subprocess.call(f"gdaltindex {cutSizeShp} {cutSize}",
+                            shell=True)
+            subprocess.call(f"gdalwarp -cutline {cutSizeShp} -crop_to_cutline \
+                            {input} {output}",
+                            shell=True)
+            # delete junk
+            for f in os.listdir(inputsPath):
+                if ('.shp') in f:
+                    os.remove(os.path.join(inputsPath, f))
+                if ('.shx') in f:
+                    os.remove(os.path.join(inputsPath, f))
+                if ('.prj') in f:
+                    os.remove(os.path.join(inputsPath, f))
+                if ('.dbf') in f:
+                    os.remove(os.path.join(inputsPath, f))
+
+
+def move_sar_mask_to_outDir(outDir) -> None:
+    for sar in os.listdir(outDir):
+        inputsPath = os.path.join(os.getcwd(), 'inputs')
+        image = os.path.join(inputsPath, sar + '.tif')
+        mask = os.path.join(inputsPath, sar + '_Mask.tif')
+        program = os.path.join(inputsPath, 'gdal_reclassify.py')
+        copyLocation = os.path.join(outDir, sar)
+        shutil.copy(image, copyLocation)
+        os.rename(os.path.join(outDir, sar, sar+'.tif'),
+                               os.path.join(outDir, sar, sar+'_Image.tif'))
+        shutil.copy(mask, copyLocation)
+        shutil.copy(program, copyLocation)
+        os.remove(mask)
+
+
+def cut_sar_to_tiles(outDir, mxmTileSize) -> None:
+    for sar in os.listdir(outDir):
+        image = os.path.join(outDir, sar,  sar + '_Image.tif')
+        imageData = gdal.Open(image)
+        xStep, yStep = mxmTileSize, mxmTileSize
+        xSize, ySize = imageData.RasterXSize, imageData.RasterYSize
+        count = 0
+        for x in range(0, xSize, xStep):
+            for y in range(0, ySize, yStep):
+                # fileName = 'Image_<sar>_<0-9+>.tif'
+                fileName = f"Image_{sar}_'{count}.tif"
+                gdal.Translate(os.path.join(outDir, sar, fileName),
+                               image,
+                               srcWin=[x, y, xStep, yStep],
+                               format="GTiff")
+
+
+def clip_mask_to_sar(outDir) -> None:
+    for sar in os.listdir(outDir):
+        for tile in sar:
+            cutSize = tile
+            cutSizeShp = cutSize[:-4]+'.shp'  # change ext
+            input = os.path.join(os.getcwd(), sar)
+            output = 'Mask_'+tile[5:]
+            subprocess.call(f"gdaltindex {cutSizeShp} {cutSize}",
+                            shell=True)
+            subprocess.call(f"gdalwarp -cutline {cutSizeShp} -crop_to_cutline \
+                            {input} {output}",
+                            shell=True)
+            # delete junk
+            for f in os.listdir(os.path.join(outDir, sar)):
+                if ('.shp') in f:
+                    os.remove(os.path.join(outDir, sar, f))
+                if ('.shx') in f:
+                    os.remove(os.path.join(outDir, sar, f))
+                if ('.prj') in f:
+                    os.remove(os.path.join(outDir, sar, f))
+                if ('.dbf') in f:
+                    os.remove(os.path.join(outDir, sar, f))
+
+
+def trim_masks(outDir, mxmTileSize) -> None:
+    for sar in os.listdir(outDir):
+        for f in os.listdir(outDir):
+            if f == sar+'Image.tif':
+                pass
+            elif f == sar+'Mask.tif':
+                pass
+            elif f.endswith('.py'):
+                pass
+            else:
+                resizedImage = 'RS'+f
+                subprocess.call(f"gdal_translate -outsize {mxmTileSize} \
+                                {mxmTileSize} {f} {resizedImage}",
+                                shell=True)
+                os.remove(os.path.join(outDir, f))
+                os.rename(resizedImage, resizedImage[2:])  # remove 'RS'
+
+
+def reclassify_mask(outDir) -> None:
+    for sar in os.listdir(outDir):
+        for f in os.listdir(outDir):
+            if 'Mask' in f:
+                python = 'python'
+                windowsMode, linuxMode = determine_OS()
+                if LinuxMode:
+                    python = 'python3'
+                subprocess.call(f"{python} gdal_reclassify.py {f}  Binary_{f} \
+                                -c \"<=45, <=100\" -r \"0, 1\" -d 0 -n true -p \
+                                \"COMPRESS=LZW\"",
+                                shell=True)
+                os.remove(f)
+                oldName = os.path.join(outDir, 'Binary_'+f)
+                newName = os.path.join(outDir, f)
+                os.rename(oldName, newName)
+
+
+def clean_up(outDir) -> None:
+    for sar in os.listdir(outDir):
+        os.remove(os.path.join(outDir, sar, 'gdal_reclassify.py'))
 
 
 def copy_vv_vh_to_inputs(outDir, dataDict) -> None:
@@ -130,13 +257,24 @@ def main():
     # cmd line argumnet parser for tile size
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', type=int, default=512)
+    parser.add_argument('-worldMask, type=bool, default=False')
     args = parser.parse_args()
     mxmTileSize = args.s
+    worldMask = args.worldMask
 
     outDir = 'syntheticTriainingData'+date.isoformat(date.today())  # outDir
     data = make_database()
 
     make_output_dir(outDir, data)
+    if worldMask:
+        cut_worldMask_to_sar()
+        move_sar_mask_to_outDir()
+        cut_sar_to_tiles()
+        clip_mask_to_sar()
+        trim_masks()
+        reclassify_mask()
+        clean_up()
+        sys.exit()
     copy_vv_vh_to_inputs(outDir, data)
     make_masks(outDir, data)
     tile_vv_vh_mask(outDir, mxmTileSize)
