@@ -93,7 +93,7 @@ def make_masks(outDir, dataDict) -> None:
 def tile(outDir, tifName, sar, mxmTileSize, isMask) -> None:
     label = 'temp'
     if isMask:
-        label = 'Mask'
+        label = ''
     else:
         label = 'Image'
     tif = os.path.join(outDir, sar, tifName)
