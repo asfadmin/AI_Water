@@ -332,7 +332,7 @@ def delete_imgs(imgs: list) -> None:
     os.remove(imgs[2])
 
 
-def keep_button(g_path: str, imgs: list) -> object:
+def keep_button(g_path: str, imgs: list) -> Button:
     """ Create a 'keep' button on the plot. Make sure to save this to a value.
     """
     TEST_REGEX = re.compile(r"(.*)test(.*)")
