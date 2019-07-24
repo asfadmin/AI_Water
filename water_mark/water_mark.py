@@ -77,34 +77,27 @@ def copy_vv_vh_to_inputs(outDir, dataDict) -> None:
 
 
 def make_masks(outDir, dataDict) -> None:
+    count = 1
     for sar, vvvhband in dataDict.items():
         inputPath = os.path.join(os.getcwd(), 'inputs')
         renamePath = os.path.join(os.getcwd(), outDir, sar)
+        print(f"{count}")
         idw_main(os.path.join(inputPath, vvvhband[0]),
                  os.path.join(inputPath, vvvhband[1]))
+        count += 1
         # rename 'mask-0.tif' -> 'Mask_<sar>.tif'
-        os.rename(os.path.join(renamePath, 'mask-0.tif'),
+        os.rename('mask-0.tif',
                   os.path.join(renamePath, 'Mask_'+sar+'.tif'))
 
 
-def tile_vv_vh_mask(outDir, mxmTileSize) -> None:
-    for sar in os.listdir(os.path.join(os.getcwd(), outDir)):
-        for tifName in os.listdir(os.path.join(os.getcwd(), outDir, sar)):
-            if tifName.endswith('VV.tif'):
-                tile(outDir, tifName, sar, mxmTileSize, False)
-            elif tifName.endswith('VH.tif'):
-                tile(outDir, tifName, sar, mxmTileSize, False)
-            elif tifName.beginswith('Mask'):
-                tile(outDir, tifName, sar, mxmTileSize, True)
-
-
-def tile(outDir, tifName, sar, mxmgdalTileSize, isMask) -> None:
+def tile(outDir, tifName, sar, mxmTileSize, isMask) -> None:
     label = 'temp'
     if isMask:
         label = 'Mask_'
     else:
         label = 'Image_'
-    tifData = gdal.Open(os.path.join(os.getcwd(), outDir, sar, tifName))
+    tif = os.path.join(outDir, sar, tifName)
+    tifData = gdal.Open(tif)
     xStep, yStep = mxmTileSize, mxmTileSize
     xSize, ySize = tifData.RasterXSize, tifData.RasterYSize
     count = 0
@@ -112,11 +105,22 @@ def tile(outDir, tifName, sar, mxmgdalTileSize, isMask) -> None:
         for y in range(0, ySize, yStep):
             # fileName = '<Image|Mask>_<sar>_<0-9+>.tif'
             fileName = f"{label}_{tifName[:-4]}_{count}.tif"
-            gdal.Translate(os.path.join(os.getcwd(), outDir, sar, fileName),
-                           tifName,
+            gdal.Translate(os.path.join(outDir, sar, fileName),
+                           tif,
                            srcWin=[x, y, xStep, yStep],
                            format="GTiff")
             count += 1
+
+
+def tile_vv_vh_mask(outDir, mxmTileSize) -> None:
+    for sar in os.listdir(os.path.join(outDir)):
+        for tifName in os.listdir(os.path.join(outDir, sar)):
+            if tifName.endswith('VV.tif'):
+                tile(outDir, tifName, sar, mxmTileSize, False)
+            elif tifName.endswith('VH.tif'):
+                tile(outDir, tifName, sar, mxmTileSize, False)
+            elif tifName.startswith('Mask'):
+                tile(outDir, tifName, sar, mxmTileSize, True)
 
 
 def main():

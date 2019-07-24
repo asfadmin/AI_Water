@@ -50,7 +50,7 @@ def get_SAR_from_HyP3() -> None:
     for fileName in os.listdir():
         if 'download' in fileName:
             scriptToRun = fileName
-    subprocess.call(f"{python} {scriptToRun}"",
+    subprocess.call(f"{python} {scriptToRun}",
                     shell=True)
 
 
@@ -60,7 +60,7 @@ def make_input_dir() -> None:
 
 
 def extract_SAR_to_temp_dir() -> None:
-    h3 = 'HyP3Downloads'
+    h3 = os.path.join(os.getcwd(), 'HyP3Downloads')
     if os.path.exists(h3):
         shutil.rmtree(h3)
     os.mkdir(h3)
@@ -72,15 +72,15 @@ def extract_SAR_to_temp_dir() -> None:
 
 
 def extract_VV_VH_to_inputs() -> None:
-    h3 = 'HyP3Downloads'
-    for sar in os.listdir(os.path.join(os.getcwd(), h3):
-        for f in os.listdir(sar):
+    h3 = os.path.join(os.getcwd(), 'HyP3Downloads')
+    for sar in os.listdir(h3):
+        for f in os.listdir(os.path.join(h3, sar)):
+            copyInput = os.path.join(h3, sar,  f)
+            copyOutput = os.path.join(os.getcwd(), 'inputs')
             if f.endswith('VH.tif'):
-                shutil.copy(os.path.join(os.getcwd(),h3, sar,  f),
-                            os.path.join(os.getcwd(),'inputs'))
+                shutil.copy(copyInput, copyOutput)
             if f.endswith('VV.tif'):
-                shutil.copy(os.path.join(os.getcwd(),h3 , sar,  f),
-                            os.path.join(os.getcwd(),'inputs'))
+                shutil.copy(copyInput, copyOutput)
 
 
 def clean_up() -> None:
@@ -89,7 +89,7 @@ def clean_up() -> None:
         if f.endswith('.zip'):
             os.remove(f)
     # Delete temp dir
-    shutil.rmtree('hyp3Downloads')
+    shutil.rmtree('HyP3Downloads')
 
 
 def main():
