@@ -13,6 +13,7 @@ from osgeo import gdal
 # Key bindings
 KEY_FILL_0 = '0'
 KEY_FILL_1 = '1'
+KEY_UNDO = 'u'
 KEY_SAVE = 'w'
 
 
@@ -41,9 +42,10 @@ def write_mask_to_file(
 def interactive_editor(mask_path: str) -> None:
     with gdal_open(mask_path) as f:
         mask = f.ReadAsArray()
-        f = f
 
     selection = ()
+    previous_values = None
+    previous_selection = ()
 
     fig, ax = plt.subplots()
     im = plt.imshow(mask)
@@ -51,8 +53,9 @@ def interactive_editor(mask_path: str) -> None:
         0,
         1.1, (
             f"Press '{KEY_FILL_0}' to fill zeros, "
-            f"'{KEY_FILL_1}' to fill ones and "
-            f"'{KEY_SAVE}' to save the mask"
+            f"'{KEY_FILL_1}' to fill ones, "
+            f"'{KEY_UNDO}' to undo the last fill and "
+            f"'{KEY_SAVE}' to save the mask "
         ),
         transform=ax.transAxes
     )
@@ -65,23 +68,37 @@ def interactive_editor(mask_path: str) -> None:
         selection = (x1, y1, x2, y2)
 
     def key_pressed(event) -> None:
+        nonlocal previous_values
+        nonlocal previous_selection
         if not selection:
+            return
+
+        # Keys that don't care about the selection data
+        if event.key == KEY_SAVE:
+            write_mask_to_file(f, mask_path, mask)
+            saved_text.set_visible(True)
+            fig.canvas.draw()
+            return
+        elif event.key == KEY_UNDO:
+            if previous_values is not None:
+                x1, y1, x2, y2 = previous_selection
+                mask[y1:y2, x1:x2] = previous_values
+                im.set_data(mask)
+                fig.canvas.draw()
             return
 
         saved_text.set_visible(False)
         x1, y1, x2, y2 = list(map(int, selection))
+        previous_values = np.array(mask[y1:y2, x1:x2])
+        previous_selection = (x1, y1, x2, y2)
+
         if event.key == KEY_FILL_0:
             mask[y1:y2, x1:x2] = 0
-            im.set_data(mask)
-            fig.canvas.draw()
         elif event.key == KEY_FILL_1:
             mask[y1:y2, x1:x2] = 1
-            im.set_data(mask)
-            fig.canvas.draw()
-        elif event.key == KEY_SAVE:
-            write_mask_to_file(f, mask_path, mask)
-            saved_text.set_visible(True)
-            fig.canvas.draw()
+
+        im.set_data(mask)
+        fig.canvas.draw()
 
     selector = RectangleSelector(
         ax, selector_handler, drawtype='box', interactive=True
