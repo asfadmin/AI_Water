@@ -18,7 +18,7 @@ import os
 import random
 import re
 from argparse import ArgumentParser
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 from matplotlib.widgets import Button
 
@@ -240,14 +240,11 @@ def groom_imgs(directory: str) -> None:
 
             # Contains full path and the name for each image
             l_imgs = [
-                os.path.join(root, mask),
-                os.path.join(root, vh),
-                os.path.join(root, vv),
-                mask,
-                vh,
-                vv
+                (mask, os.path.join(root, mask)),
+                (vh, os.path.join(root, vh)),
+                (vv, os.path.join(root, vv))
             ]
-            num_imgs = int(len(files)/3)
+            num_imgs = int(len(files) / 3)
 
             with gdal_open(os.path.join(root, vh)) as f:
                 vh_array = f.ReadAsArray()
@@ -283,7 +280,6 @@ def groom_imgs(directory: str) -> None:
             mean = flt.mean()
             std = flt.std()
             vh_array = vh_array.clip(0, mean + 3 * std)
-            print(mean + 2 * std)
             pyplot.imshow(
                 vh_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
             )
@@ -295,7 +291,6 @@ def groom_imgs(directory: str) -> None:
             mean = flt.mean()
             std = flt.std()
             vv_array = vv_array.clip(0, mean + 20 * std)
-            print(mean + 2 * std)
             pyplot.imshow(
                 vv_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
             )
@@ -311,7 +306,7 @@ def groom_imgs(directory: str) -> None:
             pyplot.show()
 
 
-def delete_button(imgs: list) -> object:
+def delete_button(imgs: List[str]) -> Button:
     """ Create a 'delete' button on the plot. Make sure to save this to a value.
     """
     button = Button(pyplot.axes([.175, 0.05, 0.1, 0.075]), 'Delete')
@@ -325,14 +320,13 @@ def delete_button(imgs: list) -> object:
     return button
 
 
-def delete_imgs(imgs: list) -> None:
-    """ Deletes vv, vh, and mask images. """
-    os.remove(imgs[0])
-    os.remove(imgs[1])
-    os.remove(imgs[2])
+def delete_imgs(imgs: List[str]) -> None:
+    """ Deletes mask, vh, and vv images. """
+    for i in range(3):
+        os.remove(imgs[i][1])
 
 
-def keep_button(g_path: str, imgs: list) -> object:
+def keep_button(g_path: str, imgs: List[str]) -> object:
     """ Create a 'keep' button on the plot. Make sure to save this to a value.
     """
     TEST_REGEX = re.compile(r"(.*)test(.*)")
@@ -344,7 +338,7 @@ def keep_button(g_path: str, imgs: list) -> object:
     button = Button(pyplot.axes([.3, 0.05, 0.1, 0.075]), 'Keep')
 
     def click_handler(event: Any) -> None:
-        m = re.match(TEST_REGEX, imgs[0])
+        m = re.match(TEST_REGEX, imgs[0][1])
         if not m:
             move_kept_imgs('train', g_path, imgs)
             pyplot.close()
@@ -357,12 +351,12 @@ def keep_button(g_path: str, imgs: list) -> object:
     return button
 
 
-def move_kept_imgs(folder: str, g_path: str, imgs: list) -> None:
+def move_kept_imgs(folder: str, g_path: str, imgs: List[str]) -> None:
     """ Moves imgs with a good mask to a new folder. """
-    for i in range(0, 3):
+    for i in range(3):
         os.rename(
-            imgs[i],
-            os.path.join(g_path, os.path.join(folder, imgs[i+3]))
+            imgs[i][1],
+            os.path.join(g_path, os.path.join(folder, imgs[i][0]))
         )
 
 
