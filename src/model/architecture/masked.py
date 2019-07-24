@@ -11,10 +11,10 @@ from keras.optimizers import Adam
 
 
 def conv2d_block(
-    input_tensor,
-    num_filters,
-    kernel_size=3,
-    batchnorm=True
+    input_tensor: Input,
+    num_filters: int,
+    kernel_size: int = 3,
+    batchnorm: bool = True
 ) -> Layer:
     """ Function to add 2 convolutional layers with the parameters
     passed to it """
@@ -43,10 +43,10 @@ def conv2d_block(
 
 
 def create_model_masked(
-    model_name,
-    num_filters=16,
-    dropout=0.1,
-    batchnorm=True
+    model_name: str,
+    num_filters: int = 16,
+    dropout: float = 0.1,
+    batchnorm: bool = True
 ) -> Model:
     """ Function to define the UNET Model """
     inputs = Input(shape=(512, 512, 2))
