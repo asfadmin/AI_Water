@@ -18,7 +18,6 @@ import os
 import random
 import re
 from argparse import ArgumentParser
-from collections import deque
 from typing import Any, Tuple
 
 from matplotlib.widgets import Button
