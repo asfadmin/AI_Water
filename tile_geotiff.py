@@ -20,23 +20,26 @@ import re
 from argparse import ArgumentParser
 from typing import Any, List, Tuple
 
-from matplotlib.widgets import Button
-
 import src.config as config
-from src.dataset.common import valid_image
-from src.gdal_wrapper import gdal_open
-from src.plots import close_button, maximize_plot
 
 try:
     from matplotlib import pyplot
-    from matplotlib.widgets import RadioButtons
+    from matplotlib.widgets import RadioButtons, Button
+    from src.plots import close_button, maximize_plot
+except ImportError:
+    Button = None
+
+try:
+    import gdal
+    from src.gdal_wrapper import gdal_open
 except ImportError:
     pass
 
 try:
-    import gdal
+    import numpy as np
+    from numpy import ndarray
 except ImportError:
-    pass
+    ndarray = None
 
 EXT = "tiff|tif|TIFF|TIF"
 FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
@@ -194,18 +197,6 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
         )
 
 
-def check_dependencies(deps: Tuple[str, ...]) -> bool:
-    global_vars = globals()
-    for dep in deps:
-        if dep not in global_vars:
-            print(
-                f"This function requires {dep}. "
-                "Please install it in the current shell and try again."
-            )
-            return False
-    return True
-
-
 def move_imgs(directory: str) -> None:
     """ Moves all images within each sub directory into one directory """
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
@@ -220,6 +211,8 @@ def move_imgs(directory: str) -> None:
 
 
 def groom_imgs(directory: str) -> None:
+    if not check_dependencies(('gdal', 'matplotlib', 'np')):
+        return
     VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
     g_path = os.path.join(config.DATASETS_DIR, f'{args.directory}Groomed')
@@ -359,6 +352,26 @@ def move_kept_imgs(folder: str, g_path: str, imgs: List[str]) -> None:
             imgs[i][1],
             os.path.join(g_path, os.path.join(folder, imgs[i][0]))
         )
+
+
+def valid_image(img: ndarray) -> bool:
+    if np.any(np.isnan(img)):
+        return False
+    if 0 in img:
+        return False
+    return True
+
+
+def check_dependencies(deps: Tuple[str, ...]) -> bool:
+    global_vars = globals()
+    for dep in deps:
+        if dep not in global_vars:
+            print(
+                f"This function requires {dep}. "
+                "Please install it in the current shell and try again."
+            )
+            return False
+    return True
 
 
 if __name__ == '__main__':
