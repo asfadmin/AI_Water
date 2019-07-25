@@ -1,0 +1,26 @@
+Water Bit Mask Generation via Fully Convolutional Network at the Alaska Satellite Facility
+
+    Summer 2019 Student interns at the Alaska Satellite Facility (ASF) have developed software, writen in Python 3, capable of generating high quality water bit masks using a Fully Convolutional Network (FCN).  This project is composed of two halves; the triainging data generator and the FCN.  
+
+    The training data generator "water_mark" uses the ASF HyP3 sytem to radiometric terrain correct (RTC) a collection of dual-pol (VV, VH) SAR images, applies a statistical algorithm to each VV, VH pair to generate a "lower quality" water bit mask, tile and label the images and mask into 512x512 pixel tiles, then "groom" the data by removing bad image mask triplets and editing masks where appropriate.  Currently (07/25/2019), Apx. 40 sar ganuals have been processed resulting in Apx. 20 GB of high quality training Data.  This training data was then uploaded to an Amazon Web Services (AWS) S3 bucket. 
+    
+    The FCN is built with Keras, an open-source neural-network library running on top of TensorFlow.  The FCN uses the Unet Architecture for semantic segmentaion allowing each pixel to be labeled.  Currently running on an AWS EC2 instance BECAUSE...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
