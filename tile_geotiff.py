@@ -23,7 +23,8 @@ from typing import Any, List, Tuple
 from matplotlib.widgets import Button
 
 import src.config as config
-from src.dataset.common import gdal_open, valid_image
+from src.dataset.common import valid_image
+from src.gdal_wrapper import gdal_open
 from src.plots import close_button, maximize_plot
 
 try:
