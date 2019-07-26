@@ -10,12 +10,13 @@ For more information see README.md
 import os
 from argparse import ArgumentParser, Namespace
 
-from src.asf_cnn import test_model, train_model
+from src.asf_cnn import test_model_binary, test_model_masked, train_model
 from src.dataset.common import dataset_type
 from src.model import (
-    create_model, load_model, model_type, path_from_model_name
+    ModelType, create_model, load_model, model_type, path_from_model_name
 )
 from src.plots import plot_confusion_chart, plot_predictions
+from src.plots_masked import plot_predictions as plot_masked_predictions
 from src.reports import write_dict_to_csv
 
 
@@ -38,7 +39,7 @@ def train_wrapper(args: Namespace) -> None:
     if model_type(model) != data_type:
         print("ERROR: This dataset is not compatible with your model")
         return
-        
+
     train_model(model, history, args.dataset, args.epochs)
 
 
@@ -49,15 +50,19 @@ def test_wrapper(args: Namespace) -> None:
     if model_type(model) != dataset_type(args.dataset):
         print("ERROR: This dataset is not compatible with your model")
         return
+    if dataset_type(args.dataset) == ModelType.MASKED:
+        predictions, test_iter = test_model_masked(model, args.dataset)
+        plot_masked_predictions(predictions, test_iter, args.dataset)
+    else:
 
-    details, confusion_matrix = test_model(model, args.dataset)
+        details, confusion_matrix = test_model_binary(model, args.dataset)
 
-    model_dir = os.path.dirname(path_from_model_name(model_name))
-    with open(os.path.join(model_dir, 'results.csv'), 'w') as f:
-        write_dict_to_csv(details, f)
+        model_dir = os.path.dirname(path_from_model_name(model_name))
+        with open(os.path.join(model_dir, 'results.csv'), 'w') as f:
+            write_dict_to_csv(details, f)
 
-    plot_confusion_chart(confusion_matrix)
-    plot_predictions(details['Percent'], args.dataset)
+        plot_confusion_chart(confusion_matrix)
+        plot_predictions(details['Percent'], args.dataset)
 
 
 if __name__ == '__main__':

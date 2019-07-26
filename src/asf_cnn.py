@@ -7,10 +7,11 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from keras.models import Model
+from keras.preprocessing.image import Iterator
 
 from .dataset.binary import load_dataset as load_dataset_binary
 from .dataset.binary import make_label_conversions
-from .dataset.mask import load_dataset as load_dataset_masked
+from .dataset.masked import load_dataset as load_dataset_masked
 from .model import ModelType, model_type, save_model
 from .typing import History
 
@@ -30,7 +31,7 @@ def train_model(
         training_set, test_set = load_dataset_masked(dataset)
     else:
         print(
-            "Unknown model output shape. Expected either a binary"
+            "Unknown model output shape. Expected either a binary",
             "classification model or a 512x512 pixel mask."
         )
         return
@@ -68,15 +69,15 @@ def train_model(
     save_model(model, 'latest')
 
 
-def test_model(model: Model, dataset: str,
-               verbose: int = 1) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+def test_model_binary(model: Model, dataset: str, verbose: int = 1
+                      ) -> Tuple[Dict[str, List[Any]], np.ndarray]:
+
+    assert model_type(
+        model
+    ) == ModelType.BINARY, "This function only works on binary models"
+
     if verbose > 0:
         model.summary()
-
-    if model_type(model) != ModelType.BINARY:
-        raise NotImplementedError(
-            "Model analysis is only supported for binary output"
-        )
 
     _, test_iter, _, test_metadata = load_dataset_binary(
         dataset, get_metadata=True
@@ -127,3 +128,23 @@ def test_model(model: Model, dataset: str,
     confusion_matrix = totals_matrix / len(predictions)
 
     return details, confusion_matrix
+
+
+def test_model_masked(model: Model, dataset: str,
+                      verbose: int = 1) -> Tuple[np.ndarray, Iterator]:
+
+    assert model_type(
+        model
+    ) == ModelType.MASKED, "This function only works on masked models"
+
+    if verbose > 0:
+        model.summary()
+
+    _, test_iter = load_dataset_masked(dataset)
+    predictions = model.predict_generator(
+        test_iter, len(test_iter), verbose=verbose
+    )
+    test_iter.reset()
+    masked_predictions = predictions.round(decimals=0, out=None)
+
+    return masked_predictions, test_iter

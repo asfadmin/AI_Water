@@ -114,7 +114,8 @@ def maximize_plot() -> None:
 
 
 def close_button(callback: Optional[Callable[[Any], None]] = None) -> object:
-    "Create a 'close' button on the plot. Make sure to save this to a value."
+    """ Create a 'close' button on the plot. Make sure to save this to a value.
+    """
     button = Button(pyplot.axes([0.05, 0.05, 0.1, 0.075]), 'Close')
 
     def click_handler(event: Any) -> None:

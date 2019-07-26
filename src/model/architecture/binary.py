@@ -1,6 +1,5 @@
 """
-binary.py containts the architecture used to detect water within
-a SAR image.
+    Contains the architecture used to detect water within SAR images.
 """
 
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
@@ -8,6 +7,7 @@ from keras.models import Model, Sequential
 
 
 def create_model_binary(model_name: str) -> Model:
+    """ Creates a binary model with the output = (None, 1). """
     model = Sequential([
         Conv2D(
             64, (3, 3),

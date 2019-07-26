@@ -13,7 +13,7 @@ from src.dataset.binary import (
 )
 from src.dataset.common import dataset_type
 from src.model import ModelType
-from src.typing import DatasetMetadata
+from src.typing import BinaryDatasetMetadata
 from tests.strategies import classes
 
 from .conftest import mock_gdal_open
@@ -32,7 +32,7 @@ def dataset_binary(tmpdir: py.path.local):
 
 
 @pytest.fixture
-def metadata_binary() -> DatasetMetadata:
+def metadata_binary() -> BinaryDatasetMetadata:
     return [("test_file_1", "water"), ("test_file_2", "not_water")]
 
 
@@ -87,8 +87,8 @@ def test_make_metadata(dataset_binary: str, tmpdir: py.path.local):
 
 
 def filter_classes(
-    metadata_binary: DatasetMetadata, classes: Set[str]
-) -> DatasetMetadata:
+    metadata_binary: BinaryDatasetMetadata, classes: Set[str]
+) -> BinaryDatasetMetadata:
     return list(filter(lambda x: x[1] in classes, metadata_binary))
 
 
@@ -113,7 +113,7 @@ def test_make_metadata_with_classes(
     ], classes)
 
 
-def generate_data(metadata: DatasetMetadata, img: np.ndarray):
+def generate_data(metadata: BinaryDatasetMetadata, img: np.ndarray):
     with mock_gdal_open(img):
         generator = generate_from_metadata(
             metadata, label_to_num={
@@ -125,7 +125,7 @@ def generate_data(metadata: DatasetMetadata, img: np.ndarray):
         return list(generator)
 
 
-def test_generate_from_metadata(metadata_binary: DatasetMetadata):
+def test_generate_from_metadata(metadata_binary: BinaryDatasetMetadata):
     data = generate_data(metadata_binary, np.ones((512, 512)))
 
     imgs = list(map(lambda x: x[0], data))
@@ -136,11 +136,15 @@ def test_generate_from_metadata(metadata_binary: DatasetMetadata):
     assert labels == [1, 0]
 
 
-def test_generate_from_metadata_with_zeros(metadata_binary: DatasetMetadata):
+def test_generate_from_metadata_with_zeros(
+    metadata_binary: BinaryDatasetMetadata
+):
     assert generate_data(metadata_binary, np.zeros((512, 512))) == []
 
 
-def test_generate_from_metadata_with_nans(metadata_binary: DatasetMetadata):
+def test_generate_from_metadata_with_nans(
+    metadata_binary: BinaryDatasetMetadata
+):
     assert generate_data(metadata_binary, np.zeros((512, 512)) + np.nan) == []
 
 

@@ -1,29 +1,42 @@
 """
-binary.py contains the code for preparing a binary data set,
-then loading the prepared data set for use.
+    binary.py contains the code for preparing a binary data set, then loading
+the prepared data set for use.
 """
 
 import json
 import os
-from typing import Dict, Optional, Set, Tuple, Union
+from typing import Dict, Generator, Optional, Set, Tuple, Union, overload
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
+from typing_extensions import Literal
 
-from ..typing import DatasetMetadata
+from ..typing import BinaryDatasetMetadata
 from .common import dataset_dir, valid_image
 
 
-def load_dataset(
-    dataset: str, get_metadata: bool = False
-) -> Union[Tuple[Iterator, Iterator],
-           Tuple[Iterator, Iterator, DatasetMetadata, DatasetMetadata]]:
+@overload
+def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
+    ...
 
-    """Creates two iterator yielding tuples for training and testing data.
-    If ‘get_metadata = true’, it’ll also return two list
-    (train_metadata and test_metadata) with the values being ‘water’ or
-    ‘not_water’."""
+
+@overload
+def load_dataset(
+    dataset: str, get_metadata: Literal[True]
+) -> Tuple[Iterator, Iterator, BinaryDatasetMetadata, BinaryDatasetMetadata]:
+    ...
+
+
+def load_dataset(dataset: str, get_metadata: bool = False) -> Union[
+    Tuple[Iterator, Iterator],
+    Tuple[Iterator, Iterator, BinaryDatasetMetadata, BinaryDatasetMetadata]
+]:
+    """ Creates two iterator yielding tuples for training and testing data.
+    If `get_metadata = true`, it will also return two list
+    (train_metadata and test_metadata) with the values being 'water' or
+    'not_water'.
+    """
     classes = {'water', 'not_water'}
 
     train_gen = ImageDataGenerator(
@@ -64,8 +77,8 @@ def load_dataset(
 
 
 def make_metadata(dataset: str, classes: Optional[Set[str]] = None
-                  ) -> Tuple[DatasetMetadata, DatasetMetadata]:
-    """Metadata being if the images 'water' or 'not_water'"""
+                  ) -> Tuple[BinaryDatasetMetadata, BinaryDatasetMetadata]:
+    """ Creates metadata marking images as 'water' or 'not_water'. """
     labels = load_labels(dataset)
     train_metadata = []
     test_metadata = []
@@ -89,8 +102,8 @@ def make_metadata(dataset: str, classes: Optional[Set[str]] = None
 
 def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
                            ) -> Tuple[Dict[str, int], Dict[int, str]]:
-    """Creates two separate dictionaries. One the key is binary and the other
-     the value is binary."""
+    """ Creates two separate dictionaries. One the key is binary and the other
+    the value is binary. """
     labels = load_labels(dataset)
     categories = sorted(
         list(filter(lambda x: classes and x in classes, set(labels.values())))
@@ -106,11 +119,11 @@ def make_label_conversions(dataset: str, classes: Optional[Set[str]] = None
 
 
 def generate_from_metadata(
-    metadata: DatasetMetadata,
+    metadata: BinaryDatasetMetadata,
     label_to_num: Dict[str, int],
     clip_range: Optional[Tuple[float, float]] = None
-):
-    """Converts images into an array, clips the value of the pixels into a
+) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
+    """ Converts images into an array, clips the value of the pixels into a
     specific range and reshapes the array to the correct format. """
     for file_name, label in metadata:
         tif = gdal.Open(file_name)

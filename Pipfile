@@ -10,6 +10,7 @@ verify_ssl = true
 pytest = "*"
 hypothesis = "*"
 pytest-cov = "*"
+mock = "*"
 
 [packages]
 tensorflow = "*"
@@ -17,6 +18,7 @@ matplotlib = "*"
 pygdal = "==2.2.3.3"
 scipy = "*"
 keras = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.6"
