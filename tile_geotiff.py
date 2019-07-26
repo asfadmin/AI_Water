@@ -22,12 +22,14 @@ from typing import Any, List, Tuple
 
 import src.config as config
 
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
     from src.plots import close_button, maximize_plot
 except ImportError:
     Button = None
+
 
 try:
     import gdal
@@ -211,8 +213,8 @@ def move_imgs(directory: str) -> None:
 
 
 def groom_imgs(directory: str) -> None:
-    if not check_dependencies(('gdal', 'matplotlib', 'np')):
-        return
+    # if not check_dependencies(('gdal', 'matplotlib', 'np')):
+    #     return
     VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
     g_path = os.path.join(config.DATASETS_DIR, f'{args.directory}Groomed')
@@ -261,6 +263,7 @@ def groom_imgs(directory: str) -> None:
             pyplot.subplot(1, 3, 1)
             pyplot.title('mask: Water = Black    Land = White')
             pyplot.xlabel(f'On {count} of {num_imgs-update_count}')
+            pyplot.ylabel(mask)
             pyplot.imshow(
                 mask_array, cmap=pyplot.get_cmap('gist_yarg')
             )
