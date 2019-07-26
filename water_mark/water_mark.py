@@ -276,8 +276,6 @@ def tile_vv_vh_mask(outDir, mxmTileSize):
 
 
 def main(**flags):
-    size = None
-    worldMask = None
     if not flags:
         parser = argparse.ArgumentParser()
         parser.add_argument('-size', type=int, default=512)
@@ -287,7 +285,7 @@ def main(**flags):
         worldMask = args.worldMask
     else:
         mxmTileSize = flags.get('mxmTileSize')
-        worldMask = flagss.get('worldMask')
+        worldMask = flags.get('worldMask')
 
     outDir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
