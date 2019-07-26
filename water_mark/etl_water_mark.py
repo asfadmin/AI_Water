@@ -43,15 +43,15 @@ def detect_windows_OS() -> bool:
 
 
 def get_SAR_from_HyP3():
-    windowsMode = detect_windows_OS()
+    windows_mode = detect_windows_OS()
     python = 'python'
-    if not windowsMode:
+    if not windows_mode:
         python = 'python3'
-    scriptToRun = 'temp'
-    for fileName in os.listdir():
-        if 'download' in fileName:
-            scriptToRun = fileName
-    subprocess.call(f"{python} {scriptToRun}",
+    script_to_run = 'temp'
+    for file_name in os.listdir():
+        if 'download' in file_name:
+            script_to_run = file_name
+    subprocess.call(f"{python} {script_to_run}",
                     shell=True)
 
 
@@ -65,31 +65,31 @@ def make_inputs_dir():
 
 
 def make_vrt():
-    worldMaskPath = os.path.join('inputs', 'worldMask')
-    if os.path.exists(worldMaskPath):
-        shutil.rmtree(worldMaskPath)
-    os.mkdir(worldMaskPath)
-    windowsMode = detect_windows_OS()
+    world_mask_path = os.path.join('inputs', 'worldMask')
+    if os.path.exists(world_mask_path):
+        shutil.rmtree(world_mask_path)
+    os.mkdir(world_mask_path)
+    windows_mode = detect_windows_OS()
     python = 'python'
-    if not windowsMode:
+    if not windows_mode:
         python = 'python3'
     scriptPath = os.path.join('inputs', 'downloadWaterData.py')
-    subprocess.call(f"{python} {scriptPath} -d '{worldMaskPath}' occurrence",
+    subprocess.call(f"{python} {scriptPath} -d '{world_mask_path}' occurrence",
                     shell=True)
-    with open(os.path.join(worldMaskPath, 'worldMask.txt'), 'w') as f:
-        for ff in os.listdir(worldMaskPath):
+    with open(os.path.join(world_mask_path, 'worldMask.txt'), 'w') as f:
+        for ff in os.listdir(world_mask_path):
             f.write(ff+'\n')
     subprocess.call(
         f"gdalbuildvrt -input_file_list \
-        {os.path.join(worldMaskPath, 'worldMask.txt')} \
-        {os.path.join(worldMaskPath, 'worldMask.vrt')}",
+        {os.path.join(world_mask_path, 'worldMask.txt')} \
+        {os.path.join(world_mask_path, 'worldMask.vrt')}",
         shell=True
     )
-    os.remove(os.path.join(worldMaskPath, 'worldMask.txt'))
+    os.remove(os.path.join(world_mask_path, 'worldMask.txt'))
 
 
 def extract_SAR_to_temp_dir():
-    h3 = 'HyP3Downloads'
+    h3 = 'HyP3_downloads'
     if os.path.exists(h3):
         shutil.rmtree(h3)
     os.mkdir(h3)
@@ -101,14 +101,14 @@ def extract_SAR_to_temp_dir():
 
 
 def extract_VV_VH_to_inputs():
-    h3 = 'HyP3Downloads'
+    h3 = 'HyP3_downloads'
     for sar in os.listdir(h3):
         for f in os.listdir(os.path.join(h3, sar)):
-            copyInput = os.path.join(h3, sar,  f)
+            input_file = os.path.join(h3, sar,  f)
             if f.endswith('VH.tif'):
-                shutil.copy(copyInput, 'inputs')
+                shutil.copy(input_file, 'inputs')
             if f.endswith('VV.tif'):
-                shutil.copy(copyInput, 'inputs')
+                shutil.copy(input_file, 'inputs')
 
 
 def clean_up():
@@ -117,7 +117,7 @@ def clean_up():
         if f.endswith('.zip'):
             os.remove(f)
     # Delete temp dir
-    shutil.rmtree('HyP3Downloads')
+    shutil.rmtree('HyP3_downloads')
 
 
 def main(**flag):
