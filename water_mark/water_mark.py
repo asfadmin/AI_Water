@@ -22,8 +22,10 @@
 ###############################################################################
 # Python3
 # Windows admin powershell or Linux
-# '-waterMask'  to use european water mask
-# '-size <int>' to set mxmTileSize
+# cmd line arguments
+#   '-waterMask' '-size=<int>' to set mxmTileSize
+# import function w/ arguments
+#   'main(waterMask=True, size=<int>)' # NOTE 512 IS NOT DEFAULT HERE
 #
 # - water_mark:
 #   - inputs:

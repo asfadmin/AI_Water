@@ -120,8 +120,7 @@ def clean_up():
     shutil.rmtree('HyP3Downloads')
 
 
-def main(**flag):  # main(vrt=True)
-    vrt = None
+def main(**flag):
     if not flag:
         parser = argparse.ArgumentParser()
         parser.add_argument('-vrt', action='store_true')
