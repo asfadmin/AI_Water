@@ -46,7 +46,7 @@ from identify_water import main as idw_main
 from datetime import date
 from typing import Tuple, Dict, List
 
-from etl_water_mark import windows_OS
+from etl_water_mark import detect_windows_OS
 from gdal_reclassify import processDataset
 
 
@@ -182,7 +182,7 @@ def reclassify_mask(outDir):
         for f in os.listdir(os.path.join(outDir, sar)):
             if 'Mask' in f:
                 python = 'python'
-                windowsMode = windows_OS()
+                windowsMode = detect_windows_OS()
                 if not windowsMode:
                     python = 'python3'
                 inputFile = f

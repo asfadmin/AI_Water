@@ -35,7 +35,7 @@ import zipfile
 from typing import Tuple
 
 
-def windows_OS() -> bool:
+def detect_windows_OS() -> bool:
     if platform.system() == 'Windows':
         return True
     else:
@@ -43,7 +43,7 @@ def windows_OS() -> bool:
 
 
 def get_SAR_from_HyP3():
-    windowsMode = windows_OS()
+    windowsMode = detect_windows_OS()
     python = 'python'
     if not windowsMode:
         python = 'python3'
@@ -69,7 +69,7 @@ def make_vrt():
     if os.path.exists(worldMaskPath):
         shutil.rmtree(worldMaskPath)
     os.mkdir(worldMaskPath)
-    windowsMode = windows_OS()
+    windowsMode = detect_windows_OS()
     python = 'python'
     if not windowsMode:
         python = 'python3'
