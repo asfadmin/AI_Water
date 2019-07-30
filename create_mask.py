@@ -12,7 +12,7 @@ from osgeo import gdal
 
 
 def main(
-    model_path: str, vv_path: str, vh_path: str, outfile: str, verbose: int
+    model_path: str, vv_path: str, vh_path: str, outfile: str, verbose: int = 0
 ):
     if not os.path.isfile(model_path):
         raise FileNotFoundError(f"Model '{model_path}' does not exist!")
