@@ -70,7 +70,7 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
 
 
 def interactive_classifier(directory: str) -> None:
-    if not check_dependencies(('gdal', 'matplotlib')):
+    if not check_dependencies(('gdal', 'pyplot')):
         return
 
     try:
@@ -211,7 +211,7 @@ def move_imgs(directory: str) -> None:
 
 
 def groom_imgs(directory: str) -> None:
-    if not check_dependencies(('gdal', 'matplotlib', 'np')):
+    if not check_dependencies(('gdal', 'pyplot', 'np')):
         return
     VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
@@ -261,6 +261,7 @@ def groom_imgs(directory: str) -> None:
             pyplot.subplot(1, 3, 1)
             pyplot.title('mask: Water = Black    Land = White')
             pyplot.xlabel(f'On {count} of {num_imgs-update_count}')
+            pyplot.ylabel(mask)
             pyplot.imshow(
                 mask_array, cmap=pyplot.get_cmap('gist_yarg')
             )
@@ -364,6 +365,7 @@ def valid_image(img: ndarray) -> bool:
 
 def check_dependencies(deps: Tuple[str, ...]) -> bool:
     global_vars = globals()
+
     for dep in deps:
         if dep not in global_vars:
             print(
