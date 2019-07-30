@@ -20,13 +20,8 @@ NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
 ## Tiling .tiff Images
-<<<<<<< HEAD
-To tile your tiff file create a folder in the same directory as
-main.py and name it prep_tile. Store the tiff file within this
-=======
 To tile your tiff image create a folder in the same directory as
 main.py and name it prep_tiles. Store the tiff file within this
->>>>>>> ccffef816aaa47dbe0c8c8e49d18049b08327a13
 folder, like below:
 ```
 AI_Water
@@ -58,17 +53,10 @@ to get more help run the command:
 $ python3 tile_geotiff.py classify -h
 ```
 
-<<<<<<< HEAD
-## Preparing Tiled and Classified data set
-To run the Neural Net your data will first need to be prepared.
-(This example directory tree is a example of a binary output.
-A masked output would not have the labels.json file)
-=======
 ## Preparing Tiled and Classified Data Set
 To run the Neural Net your data will first need to be prepared. This example
 would have a binary output as it includes a labels.json file. A masked data set
 would not have the labels.json file.
->>>>>>> ccffef816aaa47dbe0c8c8e49d18049b08327a13
 
 Within the same directory that main.py resides create a new folder called
 'datasets'. Wrap all of your data and metadata into a folder and then move that
@@ -78,9 +66,9 @@ be restructured.
 ```
 AI_Water
 └── datasets
-    └── example_rtc       # Each data set gets a directory
-        ├── labels.json   # Your .json file needs to be named labels.json
-        ├── img1.tif
+    └── example_rtc       # Each data set gets a directory
+        ├── labels.json   # Your .json file needs to be named labels.json
+        ├── img1.tif
         └── img2.tif
 ```
 
@@ -103,11 +91,11 @@ At this point your data set is ready and the directory should look like this:
 ```
 AI_Water
 └── datasets
-    └── example_rtc
-        ├── labels.json
-        ├── test
+    └── example_rtc
+        ├── labels.json
+        ├── test
         │   └── img1.tif
-        └── train
+        └── train
             └── img2.tif
 ```
 
@@ -118,19 +106,19 @@ The project is organized into directories as follows.
 ```
 AI_Water
 ├── datasets
-│   └── example_rtc       # Each data set gets a directory
-│       ├── labels.json
-│       ├── test
-│       └── train
+│   └── example_rtc       # Each data set gets a directory
+│       ├── labels.json
+│       ├── test
+│       └── train
 ├── models
-│   └── example_net       # Each model gets a directory containing .h5 files
-│       ├── epoch1.h5
-│       ├── history.json
-│       └── latest.h5
+│   └── example_net       # Each model gets a directory containing .h5 files
+│       ├── epoch1.h5
+│       ├── history.json
+│       └── latest.h5
 ├── src                   # Neural network source code
 ├── tests                 # Unit and integration tests
-│   ├── unit_tests
-│   └── integration_tests
+│   ├── unit_tests
+│   └── integration_tests
 └── ...
 ```
 
@@ -168,17 +156,10 @@ Train for an additional 20 epochs:
 $ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
 ```
 
-<<<<<<< HEAD
-## Getting Information on a Model
-Viewing information on a model is possible. The summary, filters,
-and history of each model is saved to access the information. To
-get access to this information use info_model.py, example:
-=======
 ## Getting Descriptive Information and Metrics
 You can view information about a model's performance with `model_info.py`. This
 includes a summary of model parameters, a visualization of convolutional
 filters, a graph of training history and more.
->>>>>>> ccffef816aaa47dbe0c8c8e49d18049b08327a13
 
 View the models training history:
 ```terminal
