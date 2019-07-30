@@ -46,8 +46,28 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
     return train_iter, test_iter
 
 
-def make_metadata(dataset: str
-                  ) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
+def load_replace_data(dataset: str) -> Tuple[Iterator, MaskedDatasetMetadata]:
+    replace_gen = ImageDataGenerator(rescale=10)
+    metadata, _ = make_metadata(dataset, True)
+
+    # Load the entire dataset into memory
+    x_replace = []
+    y_replace = []
+    for img, mask in generate_from_metadata(metadata, clip_range=(0, 2)):
+        x_replace.append(img)
+        y_replace.append(mask)
+
+    replace_iter = replace_gen.flow(
+        np.array(x_replace), y=np.array(y_replace), batch_size=1, shuffle=False
+    )
+
+    return replace_iter, metadata
+
+
+def make_metadata(
+    dataset: str,
+    t_f: bool = False
+) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
     """ Returns two lists of metadata. One for the training data and one for the
     testing data. """
     train_metadata = []
@@ -70,10 +90,14 @@ def make_metadata(dataset: str
             )
             folder = os.path.basename(dirpath)
 
-            if folder == 'train':
+            if t_f is True:
                 train_metadata.append(data)
-            elif folder == 'test':
-                test_metadata.append(data)
+            else:
+                if folder == 'train':
+                    train_metadata.append(data)
+                elif folder == 'test':
+                    test_metadata.append(data)
+
     return train_metadata, test_metadata
 
 

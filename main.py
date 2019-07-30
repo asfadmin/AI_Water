@@ -51,8 +51,20 @@ def test_wrapper(args: Namespace) -> None:
         print("ERROR: This dataset is not compatible with your model")
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
-        predictions, test_iter = test_model_masked(model, args.dataset)
-        plot_masked_predictions(predictions, test_iter, args.dataset)
+        if args.replace is True:
+            predictions, data_iter, metadata = test_model_masked(
+                model, args.dataset, args.replace
+            )
+            plot_masked_predictions(
+                predictions, data_iter, metadata, args.replace
+            )
+        else:
+            predictions, test_iter = test_model_masked(
+                model, args.dataset, args.replace
+            )
+            plot_masked_predictions(
+                predictions, test_iter, [], args.replace
+            )
     else:
 
         details, confusion_matrix = test_model_binary(model, args.dataset)
@@ -93,6 +105,9 @@ if __name__ == '__main__':
     test = sp.add_parser('test', help='Test an existing model')
     test.add_argument('model', help='Name of the trained model')
     test.add_argument('dataset', nargs='?', default='dataset_calibrated')
+    test.add_argument(
+        '--replace', help="Replace mask with the networks", action='store_true'
+    )
     test.set_defaults(func=test_wrapper)
 
     # Parse and execute selected function
