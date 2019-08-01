@@ -36,10 +36,7 @@ from typing import Tuple
 
 
 def detect_windows_OS() -> bool:
-    if platform.system() == 'Windows':
-        return True
-    else:
-        return False
+    return platform.system() == 'Windows'
 
 
 def get_SAR_from_HyP3():
