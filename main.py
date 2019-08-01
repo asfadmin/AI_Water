@@ -119,10 +119,12 @@ def prediction_wrapper(args: Namespace) -> None:
             exit()
 
     # make sar_tiles, prediction_tiles dir
-    if not os.path.exists(sar_tiles_path):
-        os.mkdir(sar_tiles_path)
-    if not os.path.exists(prediction_tiles_path):
-        os.mkdir(prediction_tiles_path)
+    if os.path.exists(sar_tiles_path):
+        shutil.rmtree(sar_tiles_path)
+    os.mkdir(sar_tiles_path)
+    if os.path.exists(prediction_tiles_path):
+        shutil.rmtree(prediction_tiles_path)
+    os.mkdir(prediction_tiles_path)
 
     # tile vv vh and mv to tiles dir
     for sar in os.listdir(input_sar_path):
@@ -172,7 +174,7 @@ def prediction_wrapper(args: Namespace) -> None:
         out_image.SetProjection(projection[i])
         out_image.SetGeoTransform(geotransform[i])
         out_image.GetRasterBand(1).WriteArray(
-            prediction_array[i].reshape(width, height)  #???????????????????????
+            prediction_array[i].reshape(width, height)
         )
         out_image.FlushCache()
 
@@ -199,8 +201,8 @@ def prediction_wrapper(args: Namespace) -> None:
     )
     destination = f"{os.path.join(input_sar_path, sar_name)}_mask.tif"
     shutil.copy(tif, destination)
-    # shutil.rmtree(prediction_tiles_path)
-    # shutil.rmtree(sar_tiles_path)
+    shutil.rmtree(prediction_tiles_path)
+    shutil.rmtree(sar_tiles_path)
 
 
 if __name__ == '__main__':
@@ -243,15 +245,13 @@ if __name__ == '__main__':
         help='name of trained model'
     )
     prediction.add_argument(
-        'dataset', nargs='?',
+        'dataset',
+        nargs='?',
         help="""
-            Make a dir with the same sar name as the vh vv sar granule pair
-            Example: sar123/
-                     ├── sar123_vh.tif
-                     └── sar123_vv.tif
-        """
+                path to a dir (name same as sar) containing a vh vv tif pair.
+                to predict in batches, use prediction_list_wrapper.py
+            """
     )
-    # prediction.add_argument('outDir', help = 'path to output mask')
     prediction.set_defaults(func=prediction_wrapper)
 
     # Parse and execute selected function
