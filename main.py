@@ -97,6 +97,7 @@ def make_predict_metadata(tile_path: str) -> List[Tuple[str, str]]:
 def prediction_wrapper(args: Namespace) -> None:
     # local vars
     mxm_tile_size = 512
+    prediction_path = os.path.join('datasets', args.dataset)
     sar_tiles_path = os.path.join('datasets', args.dataset, 'sar_tiles')
     prediction_tiles_path = os.path.join('datasets', args.dataset,
                                          'prediction_tiles')
