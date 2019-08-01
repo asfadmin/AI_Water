@@ -82,7 +82,7 @@ def test_wrapper(args: Namespace) -> None:
 def make_predict_metadata(tile_path: str) -> List[Tuple[str, str]]:
     predict_metadata = []
     vh_vv_list = os.listdir(tile_path)
-    vh_vv_list=sorted(vh_vv_list)
+    vh_vv_list = natsorted(vh_vv_list)
     midpoint = int(len(vh_vv_list)/2)
     vh_list = vh_vv_list[0:midpoint]
     for i in range(midpoint):
@@ -97,13 +97,26 @@ def make_predict_metadata(tile_path: str) -> List[Tuple[str, str]]:
 def prediction_wrapper(args: Namespace) -> None:
     # local vars
     mxm_tile_size = 512
-    prediction_path = os.path.join('datasets', args.dataset)
-    sar_tiles_path = os.path.join('datasets', args.dataset, 'sar_tiles')
-    prediction_tiles_path = os.path.join('datasets', args.dataset,
+    input_sar_path = args.dataset
+    sar_name = Path(input_sar_path).stem
+    prediction_workspace_path = os.path.join(os.getcwd(),
+                                             'datasets',
+                                             'prediction_workspace')
+    sar_tiles_path = os.path.join(prediction_workspace_path, 'sar_tiles')
+    prediction_tiles_path = os.path.join(prediction_workspace_path,
                                          'prediction_tiles')
-    sar_name = 'temp'
-    for sar in os.listdir(prediction_path):
-        sar_name = sar[:-7]
+
+    # check there are only 2 tifs in dir
+    count = 0
+    for f in os.listdir(input_sar_path):
+        error = 'This dir should only contain the vh vv sar granules'
+        count += 1
+        if count > 2:
+            print(error)
+            exit()
+        if not f.endswith('.tif'):
+            print(error)
+            exit()
 
     # make sar_tiles, prediction_tiles dir
     if not os.path.exists(sar_tiles_path):
@@ -112,9 +125,9 @@ def prediction_wrapper(args: Namespace) -> None:
         os.mkdir(prediction_tiles_path)
 
     # tile vv vh and mv to tiles dir
-    for sar in os.listdir(prediction_path):
-        if not os.path.isdir(os.path.join(prediction_path, sar)):
-            tif = os.path.join(prediction_path, sar)
+    for sar in os.listdir(input_sar_path):
+        if not os.path.isdir(os.path.join(input_sar_path, sar)):
+            tif = os.path.join(input_sar_path, sar)
             tifData = gdal.Open(tif)
             xStep, yStep = mxm_tile_size, mxm_tile_size
             xSize, ySize = tifData.RasterXSize, tifData.RasterYSize
@@ -147,7 +160,7 @@ def prediction_wrapper(args: Namespace) -> None:
         vv_tif_array = gdal.Open(vv).ReadAsArray()
         input_array.append(np.stack((vh_tif_array, vv_tif_array), axis=2))
         name = f"Prediction_{os.path.basename(vh)[6:]}"
-        names.append(os.path.join(prediction_tiles_path ,name))
+        names.append(os.path.join(prediction_tiles_path, name))
     input_array = np.array(input_array)
     prediction_array = model.predict(input_array, verbose=1)
 
@@ -158,11 +171,15 @@ def prediction_wrapper(args: Namespace) -> None:
         )
         out_image.SetProjection(projection[i])
         out_image.SetGeoTransform(geotransform[i])
-        out_image.GetRasterBand(1).WriteArray(prediction_array[i].reshape(width, height)) # ???
+        out_image.GetRasterBand(1).WriteArray(
+            prediction_array[i].reshape(width, height)  #???????????????????????
+        )
         out_image.FlushCache()
 
-    #mosaic prediction_tiles
-    with open(os.path.join(prediction_tiles_path, 'prediction_tiles_list.txt'), 'w') as txt_file:
+    # mosaic prediction_tiles
+    prediction_tiles_list = os.path.join(prediction_tiles_path,
+                                         'prediction_tiles_list.txt')
+    with open(prediction_tiles_list, 'w') as txt_file:
         tiles = []
         for tile in os.listdir(prediction_tiles_path):
             if tile.endswith('.tif'):
@@ -170,9 +187,6 @@ def prediction_wrapper(args: Namespace) -> None:
         tiles = natsorted(tiles)
         for i in range(len(tiles)):
             txt_file.write(f"{os.path.join(prediction_tiles_path, tiles[i])}\n")
-    prediction_tiles_list = os.path.join(prediction_tiles_path,
-                                         'prediction_tiles_list.txt')
-    name = os.path.basename
     vrt = f"{os.path.join(prediction_tiles_path, sar_name)}.vrt"
     tif = f"{os.path.join(prediction_tiles_path, sar_name)}.prediction.tif"
     subprocess.call(
@@ -183,10 +197,10 @@ def prediction_wrapper(args: Namespace) -> None:
         f"gdal_translate -of GTiff {vrt} {tif}",
         shell=True
     )
-    shutil.copy(tif, prediction_path)
-    # clean up
-    shutil.rmtree(prediction_tiles_path)
-    shutil.rmtree(sar_tiles_path)
+    destination = f"{os.path.join(input_sar_path, sar_name)}_mask.tif"
+    shutil.copy(tif, destination)
+    # shutil.rmtree(prediction_tiles_path)
+    # shutil.rmtree(sar_tiles_path)
 
 
 if __name__ == '__main__':
@@ -230,7 +244,12 @@ if __name__ == '__main__':
     )
     prediction.add_argument(
         'dataset', nargs='?',
-        help='Path to dir containing a vh vv sar granule pair'
+        help="""
+            Make a dir with the same sar name as the vh vv sar granule pair
+            Example: sar123/
+                     ├── sar123_vh.tif
+                     └── sar123_vv.tif
+        """
     )
     # prediction.add_argument('outDir', help = 'path to output mask')
     prediction.set_defaults(func=prediction_wrapper)
