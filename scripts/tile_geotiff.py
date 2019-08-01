@@ -72,7 +72,7 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
 
 
 def interactive_classifier(directory: str) -> None:
-    if not check_dependencies(('gdal', 'matplotlib')):
+    if not check_dependencies(('gdal', 'pyplot')):
         return
 
     try:
@@ -213,8 +213,8 @@ def move_imgs(directory: str) -> None:
 
 
 def groom_imgs(directory: str) -> None:
-    # if not check_dependencies(('gdal', 'matplotlib', 'np')):
-    #     return
+    if not check_dependencies(('gdal', 'pyplot', 'np')):
+        return
     VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, args.directory)
     g_path = os.path.join(config.DATASETS_DIR, f'{args.directory}Groomed')
@@ -367,6 +367,7 @@ def valid_image(img: ndarray) -> bool:
 
 def check_dependencies(deps: Tuple[str, ...]) -> bool:
     global_vars = globals()
+
     for dep in deps:
         if dep not in global_vars:
             print(

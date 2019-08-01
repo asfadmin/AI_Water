@@ -1,9 +1,10 @@
 """
-main.py can be ran in the terminal.
-To run a test type:
+Train or test a neural network.
+
+To train a network:
+    '$ python3 main.py train name_of_net name_of_dataset --epochs 10'
+To test a trained network:
     '$ python3 main.py test name_of_net name_of_dataset'
-To train a a network tpye:
-    '$ python3 main.py train awesome_net awesome_dataset --epochs 10'
 For more information see README.md
 """
 
