@@ -37,7 +37,7 @@
 #           - Original and tiled VV, VH, and Mask images.
 #   - water_mark.py
 #   - etl_water_mark.py
-#   - download-all-<nums>.py (from asf hyp3)
+#   - download-all-<nums>.py (from ASF hyp3)
 ###############################################################################
 
 import argparse
@@ -111,7 +111,6 @@ def move_sar_mask_to_out_dir(out_dir):
     for sar in os.listdir(out_dir):
         image = os.path.join('inputs', f"{sar}.tif")
         mask = os.path.join('inputs', f"{sar}Mask.tif")
-        program = os.path.join('inputs', 'gdal_reclassify.py')
         copy_location = os.path.join(out_dir, sar)
         shutil.copy(image, copy_location)
         os.rename(
@@ -119,7 +118,6 @@ def move_sar_mask_to_out_dir(out_dir):
             os.path.join(out_dir, sar, f"{sar}_Image.tif")
         )
         shutil.copy(mask, copy_location)
-        shutil.copy(program, copy_location)
         os.remove(mask)
 
 
@@ -203,11 +201,6 @@ def reclassify_mask(out_dir):
                 old_name = os.path.join(out_dir, f"Binary_{f}")
                 new_name = os.path.join(out_dir, f)
                 os.rename(old_name, new_name)
-
-
-def clean_up(out_dir):
-    for sar in os.listdir(out_dir):
-        os.remove(os.path.join(out_dir, sar, 'gdal_reclassify.py'))
 
 
 def copy_vv_vh_to_inputs(out_dir, data_dict):
@@ -300,7 +293,6 @@ def main(**flags):
         clip_mask_to_sar(out_dir)
         trim_masks(out_dir, mxm_tile_size)
         reclassify_mask(out_dir)
-        clean_up(out_dir)
         return
     copy_vv_vh_to_inputs(out_dir, data)
     make_masks(out_dir, data)

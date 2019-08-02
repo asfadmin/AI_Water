@@ -21,7 +21,7 @@
 #   - inputs: (input directory made automatically)
 #   - water_mark.py
 #   - etl_water_mark.py
-#   - download-all-<nums>.py (python script from asf HyP3)
+#   - download-all-<nums>.py (python script from ASF HyP3)
 #   - gdal_reclassify.py   (needed for vrt)
 #   - downloadWaterData.py (needed for vrt)
 ################################################################################
@@ -55,8 +55,6 @@ def get_SAR_from_HyP3():
 def make_inputs_dir():
     if not os.path.exists('inputs'):
         os.mkdir('inputs')
-        if os.path.exists('gdal_reclassify.py'):
-            shutil.move('gdal_reclassify.py', 'inputs')
         if os.path.exists('downloadWaterData.py'):
             shutil.move('downloadWaterData.py', 'inputs')
 
