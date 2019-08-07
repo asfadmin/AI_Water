@@ -163,5 +163,5 @@ def test_model_masked(
         )
         test_iter.reset()
         masked_predictions = predictions.round(decimals=0, out=None)
-        print(type(masked_predictions))
+
         return masked_predictions, test_iter

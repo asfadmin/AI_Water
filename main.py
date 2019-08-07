@@ -16,6 +16,7 @@ from src.model import (
     ModelType, create_model, load_model, model_type, path_from_model_name
 )
 from src.plots import plot_confusion_chart, plot_predictions
+from src.plots_masked import edit_predictions
 from src.plots_masked import plot_predictions as plot_masked_predictions
 from src.reports import write_dict_to_csv
 
@@ -51,19 +52,19 @@ def test_wrapper(args: Namespace) -> None:
         print("ERROR: This dataset is not compatible with your model")
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
-        if args.replace is True:
+        if args.edit is True:
             predictions, data_iter, metadata = test_model_masked(
-                model, args.dataset, args.replace
+                model, args.dataset, args.edit
             )
-            plot_masked_predictions(
-                predictions, data_iter, metadata, args.replace
+            edit_predictions(
+                predictions, data_iter, metadata
             )
         else:
             predictions, test_iter = test_model_masked(
-                model, args.dataset, args.replace
+                model, args.dataset, args.edit
             )
             plot_masked_predictions(
-                predictions, test_iter, [], args.replace
+                predictions, test_iter
             )
     else:
 
@@ -106,7 +107,10 @@ if __name__ == '__main__':
     test.add_argument('model', help='Name of the trained model')
     test.add_argument('dataset', nargs='?', default='dataset_calibrated')
     test.add_argument(
-        '--replace', help="Replace mask with the networks", action='store_true'
+        '--edit',
+        '-e',
+        help="Replace mask with the networks",
+        action='store_true'
     )
     test.set_defaults(func=test_wrapper)
 

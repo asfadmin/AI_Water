@@ -72,13 +72,12 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
+
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
-
             pre, ext = m.groups()
             mask = f"{pre}.mask.{ext}"
             vh_name = f"{pre}.tile.vh.{ext}"
@@ -91,7 +90,8 @@ def make_metadata(
             folder = os.path.basename(dirpath)
 
             if t_f is True:
-                train_metadata.append(data)
+                if folder == 'test' or folder == 'train':
+                    train_metadata.append(data)
             else:
                 if folder == 'train':
                     train_metadata.append(data)
