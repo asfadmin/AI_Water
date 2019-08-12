@@ -134,7 +134,7 @@ def test_model_binary(model: Model, dataset: str, verbose: int = 1
 def test_model_masked(
     model: Model,
     dataset: str,
-    t_f: bool,
+    edit: bool,
     verbose: int = 1
 ) -> Tuple[np.ndarray, Iterator]:
 
@@ -145,7 +145,7 @@ def test_model_masked(
     if verbose > 0:
         model.summary()
 
-    if t_f is True:
+    if edit:
         dataset_data = load_replace_data(dataset)
 
         predictions = model.predict_generator(

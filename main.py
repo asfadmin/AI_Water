@@ -52,7 +52,7 @@ def test_wrapper(args: Namespace) -> None:
         print("ERROR: This dataset is not compatible with your model")
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
-        if args.edit is True:
+        if args.edit:
             predictions, data_iter, metadata = test_model_masked(
                 model, args.dataset, args.edit
             )
