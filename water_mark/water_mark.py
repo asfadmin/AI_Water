@@ -86,120 +86,6 @@ def delete_junk(target_dir):
             os.remove(os.path.join('inputs', f_name))
 
 
-<<<<<<< Updated upstream
-def cut_world_mask_to_sar():
-    for f_name in os.listdir('inputs'):
-        if '.tif' in f_name:
-            cut_size = os.path.join('inputs', f_name)
-            cut_size_shp = f"{cut_size[:-4]}.shp"  # change extension
-            input_file = os.path.join('inputs', 'world_mask', 'world_mask.vrt')
-            output_file = os.path.join('inputs', f"{f[:-4]}_Mask.tif")
-            # no documentation for gdal tile index
-            subprocess.call(
-                f"gdaltindex {cut_size_shp} {cut_size}",
-                shell=True
-            )
-            gdal.Warp(
-                output_file,
-                input_file,
-                options=['-cutline', cut_size_shp, '-crop_to_cutline']
-            )
-            delete_junk('inputs')
-
-
-def move_sar_mask_to_out_dir(out_dir):
-    for sar in os.listdir(out_dir):
-        image = os.path.join('inputs', f"{sar}.tif")
-        mask = os.path.join('inputs', f"{sar}Mask.tif")
-        copy_location = os.path.join(out_dir, sar)
-        shutil.copy(image, copy_location)
-        os.rename(
-            os.path.join(out_dir, sar, f"{sar}.tif"),
-            os.path.join(out_dir, sar, f"{sar}_Image.tif")
-        )
-        shutil.move(mask, copy_location)
-
-
-def cut_sar_to_tiles(out_dir, mxm_tile_size):
-    for sar in os.listdir(out_dir):
-        image = os.path.join(out_dir, sar,  f"{sar}_Image.tif")
-        imageData = gdal.Open(image)
-        xStep, yStep = mxm_tile_size, mxm_tile_size
-        xSize, ySize = imageData.RasterXSize, imageData.RasterYSize
-        count = 0
-        for x in range(0, xSize, xStep):
-            for y in range(0, ySize, yStep):
-                fileName = f"Image_{sar}_{count}.tif"
-                output_file = os.path.join(out_dir, sar, fileName)
-                input_file = image
-                gdal.Translate(
-                    output_file,
-                    input_file,
-                    srcWin=[x, y, xStep, yStep],
-                    format="GTiff"
-                )
-                count += 1
-
-
-def clip_mask_to_sar(out_dir):
-    for sar in os.listdir(out_dir):
-        for tile in os.listdir(os.path.join(out_dir, sar)):
-            cut_size = tile
-            cut_size_shp = f"{cut_size[:-4]}.shp"  # change ext
-            input_file = sar
-            output_file = f"Mask_{tile[5:]}"
-            # no documentation for gdal tile index
-            subprocess.call(f"gdaltindex {cut_size_shp} {cut_size}", shell=True)
-            gdal.Warp(
-                output_file,
-                input_file
-                options=['-cutline', cut_size_shp, '-crop_to_cutline']
-            )
-            delete_junk('inputs')
-
-
-def trim_masks(out_dir, mxm_tile_size):
-    for sar in os.listdir(out_dir):
-        for f_name in os.listdir(os.path.join(out_dir, sar)):
-            if f_name == f"{sar}Image.tif" or f_name == f"{sar}Mask.tif" or f_name.endswith('.py'):
-                pass
-            else:
-                resizedImage = f"RS{f}"
-                output_file = resizedImage
-                input_file = f_name
-                gdal.Translate(
-                    output_file,
-                    input_file,
-                    options=["-outsize", mxm_tile_size, mxm_tile_size]
-                )
-                os.remove(os.path.join(out_dir, f_name))
-                os.rename(resizedImage, resizedImage[2:])  # remove 'RS'
-
-
-def reclassify_mask(out_dir):
-    for sar in os.listdir(out_dir):
-        for f_name in os.listdir(os.path.join(out_dir, sar)):
-            if 'Mask' in f_name:
-                input_file = f_name
-                output_file = f"Binary{f}"
-                processDataset(
-                    src_file=input_file,
-                    dst_file=output_file,
-                    in_classes='<=45, <=100',
-                    out_classes='0, 1',
-                    default=0,
-                    nodata=True,
-                    output_format='GTiff',
-                    compression='COMPRESS=LZW'
-                )
-                os.remove(f_name)
-                old_name = os.path.join(out_dir, f"Binary_{f_name}")
-                new_name = os.path.join(out_dir, f_name)
-                os.rename(old_name, new_name)
-
-
-=======
->>>>>>> Stashed changes
 def copy_vv_vh_to_inputs(out_dir, data_dict):
     for sar, vvvhband in data_dict.items():
         shutil.copy(
@@ -268,30 +154,12 @@ def tile_vv_vh_mask(out_dir, mxm_tile_size):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('size', type=int, default=512)
-<<<<<<< Updated upstream
-    parser.add_argument('world_mask, action='store_true')
     args = parser.parse_args()
     mxm_tile_size = args.size
-    world_mask = args.world_mask
-=======
-    args = parser.parse_args()
-    mxm_tile_size = args.size
->>>>>>> Stashed changes
 
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
     make_output_dir(out_dir, data)
-<<<<<<< Updated upstream
-    if world_mask:
-        cut_world_mask_to_sar()
-        move_sar_mask_to_out_dir(out_dir)
-        cut_sar_to_tiles(out_dir, mxm_tile_size)
-        clip_mask_to_sar(out_dir)
-        trim_masks(out_dir, mxm_tile_size)
-        reclassify_mask(out_dir)
-        return
-=======
->>>>>>> Stashed changes
     copy_vv_vh_to_inputs(out_dir, data)
     make_masks(out_dir, data)
     tile_vv_vh_mask(out_dir, mxm_tile_size)
