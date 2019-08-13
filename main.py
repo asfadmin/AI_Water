@@ -80,15 +80,12 @@ def test_wrapper(args: Namespace) -> None:
 
 
 def make_predict_metadata(tile_path: str) -> List[Tuple[str, str]]:
-    predict_metadata = []
-    vh_vv_list = os.listdir(tile_path)
-    vh_vv_list = natsorted(vh_vv_list)
+    vh_vv_list = natsorted(os.listdir(tile_path))
     midpoint = int(len(vh_vv_list)/2)
     vh_list = vh_vv_list[0:midpoint]
-    for i in range(midpoint):
-        vh_list[i] = os.path.join(tile_path, vh_list[i])
     vv_list = vh_vv_list[midpoint:]
     for i in range(midpoint):
+        vh_list[i] = os.path.join(tile_path, vh_list[i])
         vv_list[i] = os.path.join(tile_path, vv_list[i])
     predict_metadata = tuple(zip(vh_list, vv_list))
     return predict_metadata
