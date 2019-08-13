@@ -86,6 +86,7 @@ def delete_junk(target_dir):
             os.remove(os.path.join('inputs', f_name))
 
 
+<<<<<<< Updated upstream
 def cut_world_mask_to_sar():
     for f_name in os.listdir('inputs'):
         if '.tif' in f_name:
@@ -197,6 +198,8 @@ def reclassify_mask(out_dir):
                 os.rename(old_name, new_name)
 
 
+=======
+>>>>>>> Stashed changes
 def copy_vv_vh_to_inputs(out_dir, data_dict):
     for sar, vvvhband in data_dict.items():
         shutil.copy(
@@ -265,14 +268,20 @@ def tile_vv_vh_mask(out_dir, mxm_tile_size):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('size', type=int, default=512)
+<<<<<<< Updated upstream
     parser.add_argument('world_mask, action='store_true')
     args = parser.parse_args()
     mxm_tile_size = args.size
     world_mask = args.world_mask
+=======
+    args = parser.parse_args()
+    mxm_tile_size = args.size
+>>>>>>> Stashed changes
 
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
     make_output_dir(out_dir, data)
+<<<<<<< Updated upstream
     if world_mask:
         cut_world_mask_to_sar()
         move_sar_mask_to_out_dir(out_dir)
@@ -281,6 +290,8 @@ def main():
         trim_masks(out_dir, mxm_tile_size)
         reclassify_mask(out_dir)
         return
+=======
+>>>>>>> Stashed changes
     copy_vv_vh_to_inputs(out_dir, data)
     make_masks(out_dir, data)
     tile_vv_vh_mask(out_dir, mxm_tile_size)

@@ -16,7 +16,10 @@
 ###############################################################################
 # Python3
 # Windows admin powershell or Linux
+<<<<<<< Updated upstream
 # '-vrt' to make vrt
+=======
+>>>>>>> Stashed changes
 # - water_mark:
 #   - water_mark.py
 #   - etl_water_mark.py
@@ -25,17 +28,27 @@
 #   - downloadWaterData.pyz
 ################################################################################
 
+<<<<<<< Updated upstream
 import argparse
 import os
 import shutil
 import zipfile
 import sys
+=======
+import os
+import shutil
+import zipfile
+>>>>>>> Stashed changes
 
 
 def get_SAR_from_HyP3():
     script_to_run = 'temp'
     for file_name in os.listdir():
+<<<<<<< Updated upstream
         if ('download' in file_name) and (not file_name.endswith('.pyz')):
+=======
+        if 'download' in file_name:
+>>>>>>> Stashed changes
             script_to_run = file_name
     exec(Open(script_to_run).read())
 
@@ -47,6 +60,7 @@ def make_inputs_dir():
             shutil.move('downloadWaterData.py', 'inputs')
 
 
+<<<<<<< Updated upstream
 def make_vrt():
     world_mask_path = os.path.join('inputs', 'worldMask')
     if os.path.exists(world_mask_path):
@@ -60,6 +74,8 @@ def make_vrt():
     )
 
 
+=======
+>>>>>>> Stashed changes
 def extract_SAR_to_temp_dir():
     h3 = 'HyP3_downloads'
     if os.path.exists(h3):
@@ -93,6 +109,7 @@ def clean_up():
 
 
 def main():
+<<<<<<< Updated upstream
     parser = argparse.ArgumentParser()
     parser.add_argument('-vrt', action='store_true')
     args = parser.parse_args()
@@ -102,6 +119,10 @@ def main():
     make_inputs_dir()
     if vrt:
         make_vrt()
+=======
+    get_SAR_from_HyP3()
+    make_inputs_dir()
+>>>>>>> Stashed changes
     extract_SAR_to_temp_dir()
     extract_VV_VH_to_inputs()
     clean_up()
