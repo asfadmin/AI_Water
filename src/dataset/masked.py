@@ -18,8 +18,8 @@ TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
-    train_gen = ImageDataGenerator()
-    test_gen = ImageDataGenerator()
+    train_gen = ImageDataGenerator(rescale=10)
+    test_gen = ImageDataGenerator(rescale=10)
 
     train_metadata, test_metadata = make_metadata(dataset)
     # Load the entire dataset into memory
@@ -47,7 +47,7 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
 
 def load_replace_data(dataset: str) -> Tuple[Iterator, MaskedDatasetMetadata]:
-    replace_gen = ImageDataGenerator()
+    replace_gen = ImageDataGenerator(rescale=10)
     metadata, _ = make_metadata(dataset, edit=True)
 
     # Load the entire dataset into memory
