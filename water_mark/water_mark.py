@@ -93,6 +93,7 @@ def cut_world_mask_to_sar():
             cut_size_shp = f"{cut_size[:-4]}.shp"  # change extension
             input_file = os.path.join('inputs', 'world_mask', 'world_mask.vrt')
             output_file = os.path.join('inputs', f"{f[:-4]}_Mask.tif")
+            # no documentation for gdal tile index
             subprocess.call(
                 f"gdaltindex {cut_size_shp} {cut_size}",
                 shell=True
@@ -256,26 +257,21 @@ def tile_vv_vh_mask(out_dir, mxm_tile_size):
                 tile(out_dir, tif_name, sar, mxm_tile_size, False)
             elif tif_name.endswith('VH.tif'):
                 tile(out_dir, tif_name, sar, mxm_tile_size, False)
-            elif tif_name.startswith('Mask'):
+            elif tif_name.startswith('Mask_'):
                 tif_name = tif_name[5:]  # remove leading 'Mask_'
                 tile(out_dir, tif_name, sar, mxm_tile_size, True)
 
 
-def main(**flags):
-    if not flags:
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-size', type=int, default=512)
-        parser.add_argument('-world_mask, action='store_true')
-        args = parser.parse_args()
-        mxm_tile_size = args.size
-        world_mask = args.world_mask
-    else:
-        mxm_tile_size = flags.get('mxm_tile_size')
-        world_mask = flags.get('world_mask')
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-size', type=int, default=512)
+    parser.add_argument('-world_mask, action='store_true')
+    args = parser.parse_args()
+    mxm_tile_size = args.size
+    world_mask = args.world_mask
 
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
-
     make_output_dir(out_dir, data)
     if world_mask:
         cut_world_mask_to_sar()
