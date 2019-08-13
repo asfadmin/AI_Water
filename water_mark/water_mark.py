@@ -51,17 +51,17 @@ from gdal_reclassify import processDataset
 
 
 def make_database() -> Dict[str, Tuple[str, str]]:
-    data_list = []
-    for f in os.listdir('inputs'):
-        if f.endswith('.tif'):
-            data_list.append(f)
-    data_list.sort()
+    data_list = sorted([fname for fname in os.listdir('inputs') if fname.endswith('.tif')])
+    '''Take every pair of consecutive file names and add them to
+    data under a common key. This assumes that each pair of files
+    shares a common prefix and that there are no stray unpaired images
+    in the directory.'''
     data = {}
-    for info in range(0, len(data_list), 2):
-        sar = data_list[info]
-        sar = sar[:-7]
-        vv = data_list[info+1]
-        vh = data_list[info]
+    for i in range(0, len(data_list), 2):
+        sar_name = data_list[i]
+        sar_name = sar_name[:-7]
+        vv = data_list[i+1]
+        vh = data_list[i]
         data[sar] = (vv, vh)
     return data
 
@@ -264,8 +264,8 @@ def tile_vv_vh_mask(out_dir, mxm_tile_size):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-size', type=int, default=512)
-    parser.add_argument('-world_mask, action='store_true')
+    parser.add_argument('size', type=int, default=512)
+    parser.add_argument('world_mask, action='store_true')
     args = parser.parse_args()
     mxm_tile_size = args.size
     world_mask = args.world_mask

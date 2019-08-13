@@ -16,7 +16,7 @@
 ###############################################################################
 # Python3
 # Windows admin powershell or Linux
-# '-vrt' or main(vrt=True) to make vrt
+# '-vrt' to make vrt
 # - water_mark:
 #   - water_mark.py
 #   - etl_water_mark.py
