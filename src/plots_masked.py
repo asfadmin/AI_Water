@@ -65,24 +65,25 @@ def plot_predictions(
 
 
 def plots(pred, mask, img) -> None:
+    dem = 512
     plt.subplot(1, 4, 1)
     plt.title('prediction')
-    plt.imshow(pred.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
+    plt.imshow(pred.reshape(dem, dem), cmap=plt.get_cmap('gist_gray'))
 
     plt.subplot(1, 4, 2)
     plt.title('mask')
-    plt.imshow(mask.reshape(512, 512), cmap=plt.get_cmap('gist_gray'))
+    plt.imshow(mask.reshape(dem, dem), cmap=plt.get_cmap('gist_gray'))
 
     plt.subplot(1, 4, 3)
     plt.title('vh img')
     img = img.clip(0, 1)
-    plt.imshow(img[0, :, :, 0].reshape(512, 512),
+    plt.imshow(img[0, :, :, 0].reshape(dem, dem),
                cmap=plt.get_cmap('gist_gray'))
 
     plt.subplot(1, 4, 4)
     plt.title('vv img')
     img = img.clip(0, 1)
-    plt.imshow(img[0, :, :, 1].reshape(512, 512),
+    plt.imshow(img[0, :, :, 1].reshape(dem, dem),
                cmap=plt.get_cmap('gist_gray'))
 
 
