@@ -87,25 +87,25 @@ def delete_junk(target_dir):
 
 
 def copy_vv_vh_to_inputs(out_dir, data_dict):
-    for sar, vvvhband in data_dict.items():
+    for sar, vv_vh_band in data_dict.items():
         shutil.copy(
-            os.path.join('inputs', vvvhband[0]),
+            os.path.join('inputs', vv_vh_band[0]),
             os.path.join(out_dir, sar)
         )
         shutil.copy(
-            os.path.join('inputs', vvvhband[1]),
+            os.path.join('inputs', vv_vh_band[1]),
             os.path.join(out_dir, sar)
         )
 
 
 def make_masks(out_dir, data_dict):
     count = 0
-    for sar, vvvhband in data_dict.items():
+    for sar, vv_vh_band in data_dict.items():
         renamePath = os.path.join(out_dir, sar)
         print(f"{count} masks made")
         idw_main(
-            os.path.join('inputs', vvvhband[0]),
-            os.path.join('inputs', vvvhband[1])
+            os.path.join('inputs', vv_vh_band[0]),
+            os.path.join('inputs', vv_vh_band[1])
         )
         count += 1
         os.rename(

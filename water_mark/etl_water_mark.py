@@ -59,9 +59,7 @@ def extract_VV_VH_to_inputs():
     for sar in os.listdir(h3):
         for f_name in os.listdir(os.path.join(h3, sar)):
             input_file = os.path.join(h3, sar,  f_name)
-            if f_name.endswith('VH.tif'):
-                shutil.copy(input_file, 'inputs')
-            if f_name.endswith('VV.tif'):
+            if f_name.endswith('VH.tif') or f_name.endswith('VV.tif'):
                 shutil.copy(input_file, 'inputs')
 
 
