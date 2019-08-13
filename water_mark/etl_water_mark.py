@@ -40,8 +40,6 @@ def get_SAR_from_HyP3():
 def make_inputs_dir():
     if not os.path.exists('inputs'):
         os.mkdir('inputs')
-        if os.path.exists('downloadWaterData.py'):
-            shutil.move('downloadWaterData.py', 'inputs')
 
 
 def extract_SAR_to_temp_dir():
