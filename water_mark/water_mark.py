@@ -47,8 +47,6 @@ from osgeo import gdal
 from identify_water import main as idw_main
 from datetime import date
 from typing import Tuple, Dict, List
-
-from etl_water_mark import detect_windows_OS
 from gdal_reclassify import processDataset
 
 
@@ -77,21 +75,21 @@ def make_output_dir(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None
 
 
 def delete_junk(target_dir):
-    for f in os.listdir(directory):
-        if ('.shp') in f:
-            os.remove(os.path.join('inputs', f))
-        if ('.shx') in f:
-            os.remove(os.path.join('inputs', f))
-        if ('.prj') in f:
-            os.remove(os.path.join('inputs', f))
-        if ('.dbf') in f:
-            os.remove(os.path.join('inputs', f))
+    for f_name in os.listdir(directory):
+        if ('.shp') in f_name:
+            os.remove(os.path.join('inputs', f_name))
+        if ('.shx') in f_name:
+            os.remove(os.path.join('inputs', f_name))
+        if ('.prj') in f_name:
+            os.remove(os.path.join('inputs', f_name))
+        if ('.dbf') in f_name:
+            os.remove(os.path.join('inputs', f_name))
 
 
 def cut_world_mask_to_sar():
-    for f in os.listdir('inputs'):
-        if '.tif' in f:
-            cut_size = os.path.join('inputs', f)
+    for f_name in os.listdir('inputs'):
+        if '.tif' in f_name:
+            cut_size = os.path.join('inputs', f_name)
             cut_size_shp = f"{cut_size[:-4]}.shp"  # change extension
             input_file = os.path.join('inputs', 'world_mask', 'world_mask.vrt')
             output_file = os.path.join('inputs', f"{f[:-4]}_Mask.tif")
@@ -117,8 +115,7 @@ def move_sar_mask_to_out_dir(out_dir):
             os.path.join(out_dir, sar, f"{sar}.tif"),
             os.path.join(out_dir, sar, f"{sar}_Image.tif")
         )
-        shutil.copy(mask, copy_location)
-        os.remove(mask)
+        shutil.move(mask, copy_location)
 
 
 def cut_sar_to_tiles(out_dir, mxm_tile_size):
@@ -130,7 +127,6 @@ def cut_sar_to_tiles(out_dir, mxm_tile_size):
         count = 0
         for x in range(0, xSize, xStep):
             for y in range(0, ySize, yStep):
-                # fileName = 'Image_<sar>_<0-9+>.tif'
                 fileName = f"Image_{sar}_{count}.tif"
                 output_file = os.path.join(out_dir, sar, fileName)
                 input_file = image
@@ -150,6 +146,7 @@ def clip_mask_to_sar(out_dir):
             cut_size_shp = f"{cut_size[:-4]}.shp"  # change ext
             input_file = sar
             output_file = f"Mask_{tile[5:]}"
+            # no documentation for gdal tile index
             subprocess.call(f"gdaltindex {cut_size_shp} {cut_size}", shell=True)
             gdal.Warp(
                 output_file,
@@ -161,31 +158,27 @@ def clip_mask_to_sar(out_dir):
 
 def trim_masks(out_dir, mxm_tile_size):
     for sar in os.listdir(out_dir):
-        for f in os.listdir(os.path.join(out_dir, sar)):
-            if f == f"{sar}Image.tif" or f == f"{sar}Mask.tif" or f.endswith('.py'):
+        for f_name in os.listdir(os.path.join(out_dir, sar)):
+            if f_name == f"{sar}Image.tif" or f_name == f"{sar}Mask.tif" or f_name.endswith('.py'):
                 pass
             else:
                 resizedImage = f"RS{f}"
                 output_file = resizedImage
-                input_file = f
+                input_file = f_name
                 gdal.Translate(
                     output_file,
                     input_file,
                     options=["-outsize", mxm_tile_size, mxm_tile_size]
                 )
-                os.remove(os.path.join(out_dir, f))
+                os.remove(os.path.join(out_dir, f_name))
                 os.rename(resizedImage, resizedImage[2:])  # remove 'RS'
 
 
 def reclassify_mask(out_dir):
     for sar in os.listdir(out_dir):
-        for f in os.listdir(os.path.join(out_dir, sar)):
-            if 'Mask' in f:
-                python = 'python'
-                windowsMode = detect_windows_OS()
-                if not windowsMode:
-                    python = 'python3'
-                input_file = f
+        for f_name in os.listdir(os.path.join(out_dir, sar)):
+            if 'Mask' in f_name:
+                input_file = f_name
                 output_file = f"Binary{f}"
                 processDataset(
                     src_file=input_file,
@@ -197,9 +190,9 @@ def reclassify_mask(out_dir):
                     output_format='GTiff',
                     compression='COMPRESS=LZW'
                 )
-                os.remove(f)
-                old_name = os.path.join(out_dir, f"Binary_{f}")
-                new_name = os.path.join(out_dir, f)
+                os.remove(f_name)
+                old_name = os.path.join(out_dir, f"Binary_{f_name}")
+                new_name = os.path.join(out_dir, f_name)
                 os.rename(old_name, new_name)
 
 
@@ -225,7 +218,6 @@ def make_masks(out_dir, data_dict):
             os.path.join('inputs', vvvhband[1])
         )
         count += 1
-        # rename 'mask-0.tif' to 'Mask_<sar>.tif'
         os.rename(
             'mask-0.tif',
             os.path.join(renamePath, f"Mask_{sar}.tif")
@@ -245,7 +237,6 @@ def tile(out_dir, tif_name, sar, mxm_tile_size, isMask):
     count = 0
     for x in range(0, xSize, xStep):
         for y in range(0, ySize, yStep):
-            # fileName = '<Image|Mask>_<sar>_<0-9+>.tif'
             fileName = f"{label}_{tif_name[:-4]}_{count}.tif"
             output_file = os.path.join(out_dir, sar, fileName)
             input_file = tif
