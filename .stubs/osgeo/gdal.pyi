@@ -62,6 +62,9 @@ class Band(object):
     ) -> None:
         ...
 
+    def SetNoDataValue(self, value: int) -> None:
+        ...
+
 
 class Dataset(object):
     def ReadAsArray(
