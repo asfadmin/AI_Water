@@ -62,7 +62,7 @@ def make_database() -> Dict[str, Tuple[str, str]]:
         sar_name = sar_name[:-7]
         vv = data_list[i+1]
         vh = data_list[i]
-        data[sar] = (vv, vh)
+        data[sar_name] = (vv, vh)
     return data
 
 
