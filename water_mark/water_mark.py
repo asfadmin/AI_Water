@@ -44,10 +44,13 @@ import argparse
 import os
 import shutil
 from osgeo import gdal
-from identify_water import main as idw_main
 from datetime import date
 from typing import Tuple, Dict, List
 from gdal_reclassify import processDataset
+
+import sys
+sys.path.append('../scripts/')
+from identify_water import main as idw_main
 
 
 def make_database() -> Dict[str, Tuple[str, str]]:
