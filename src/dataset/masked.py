@@ -46,14 +46,21 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
     return train_iter, test_iter
 
 
-def load_replace_data(dataset: str) -> Tuple[Iterator, MaskedDatasetMetadata]:
+def load_replace_data(
+    dataset: str,
+) -> Tuple[Iterator, MaskedDatasetMetadata]:
+
     replace_gen = ImageDataGenerator(rescale=10)
     metadata, _ = make_metadata(dataset, edit=True)
 
     # Load the entire dataset into memory
     x_replace = []
     y_replace = []
-    for img, mask in generate_from_metadata(metadata, clip_range=(0, 2)):
+    for img, mask in generate_from_metadata(
+        metadata,
+        edit=True,
+        clip_range=(0, 2)
+    ):
         x_replace.append(img)
         y_replace.append(mask)
 
@@ -103,7 +110,8 @@ def make_metadata(
 
 def generate_from_metadata(
     metadata: MaskedDatasetMetadata,
-    clip_range: Optional[Tuple[float, float]] = None
+    clip_range: Optional[Tuple[float, float]] = None,
+    edit: bool = False
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
     output_shape = (512, 512, 2)
@@ -116,8 +124,10 @@ def generate_from_metadata(
             tile_vv_array = f.ReadAsArray()
 
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
-        if not valid_image(tile_array):
-            continue
+
+        if not edit:
+            if not valid_image(tile_array):
+                continue
 
         with gdal_open(mask_name) as f:
             mask_array = f.ReadAsArray()
