@@ -27,14 +27,17 @@
 import os
 import shutil
 import zipfile
+import importlib
 
 
 def get_SAR_from_HyP3():
-    script_to_run = 'temp'
     for file_name in os.listdir():
         if 'download' in file_name:
-            script_to_run = file_name
-    exec(Open(script_to_run).read())
+            download_module = importlib.import_module(file_name[:-3])
+            downloader = download_module.bulk_downloader()
+            downloader.download_files()
+            downloader.print_summary()
+            break
 
 
 def make_inputs_dir():
