@@ -1,6 +1,6 @@
 install:
-	ln -s `pwd`/tile_geotiff.py ~/.local/bin/
-	chmod u+x ~/.local/bin/tile_geotiff.py
+	ln -s `pwd`/prepare_data.py ~/.local/bin/
+	chmod u+x ~/.local/bin/prepare_data.py
 
 uninstall:
-	rm ~/.local/bin/tile_geotiff.py
+	rm ~/.local/bin/prepare_data.py

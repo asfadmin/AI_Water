@@ -11,13 +11,12 @@ pytest = "*"
 hypothesis = "*"
 pytest-cov = "*"
 mock = "*"
+matplotlib = "*"
 
 [packages]
 tensorflow = "*"
-matplotlib = "*"
-pygdal = "==2.2.3.3"
-scipy = "*"
 keras = "*"
+pygdal = "==2.2.3.3"
 typing-extensions = "*"
 
 [requires]
