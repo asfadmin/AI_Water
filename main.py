@@ -133,7 +133,6 @@ def prediction_wrapper(args: Namespace) -> None:
             count = 0
             for x in range(0, xSize, xStep):
                 for y in range(0, ySize, yStep):
-                    # fileName = '<Image|Mask>_<sar>_<0-9+>.tif'
                     fileName = f"Image_{sar[:-4]}_{count}.tif"
                     output_file = os.path.join(sar_tiles_path, fileName)
                     input_file = tif
