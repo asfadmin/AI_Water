@@ -160,7 +160,6 @@ def setup_data_wrapper(args: Namespace):
     copy_vv_vh_to_inputs(out_dir, data)
     make_masks(out_dir, data)
     tile_vv_vh_mask(out_dir, mxm_tile_size)
-    print('end of water mark is where ly')
 
 
 if __name__ == '__main__':
