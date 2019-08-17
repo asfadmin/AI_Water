@@ -42,7 +42,7 @@
 
 import os
 import shutil
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from datetime import date
 from typing import Dict, Tuple
 
@@ -148,12 +148,11 @@ def tile_vv_vh_mask(out_dir, mxm_tile_size):
             elif tif_name.endswith('VH.tif'):
                 tile(out_dir, tif_name, sar, mxm_tile_size, False)
             elif tif_name.startswith('Mask_'):
-                tif_name = tif_name[5:]  # remove leading 'Mask_'
                 tile(out_dir, tif_name, sar, mxm_tile_size, True)
 
 
-def setup_data_wrapper(args: Namespace):
-    mxm_tile_size = args.size
+def setup_data(size: int):
+    mxm_tile_size = size
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
     make_output_dir(out_dir, data)
@@ -168,10 +167,10 @@ if __name__ == '__main__':
     p.add_argument('size', type=int, default=512)
     args = p.parse_args()
 
-    p.set_defaults(func=setup_data_wrapper)
+    p.set_defaults(func=setup_data)
 
     args = p.parse_args()
     if hasattr(args, 'func'):
-        args.func(args)
+        args.func(args.size)
     else:
         p.print_help()
