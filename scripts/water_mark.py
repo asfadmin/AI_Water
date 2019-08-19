@@ -42,6 +42,7 @@
 
 import os
 import shutil
+import sys
 from argparse import ArgumentParser
 from datetime import date
 from typing import Dict, Tuple
@@ -87,7 +88,7 @@ def delete_junk(target_dir):
             os.remove(os.path.join('inputs', f_name))
 
 
-def copy_vv_vh_to_inputs(out_dir, data_dict):
+def copy_vv_vh_to_inputs(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) -> None:
     for sar, vv_vh_band in data_dict.items():
         shutil.copy(
             os.path.join('inputs', vv_vh_band[0]),
@@ -99,7 +100,7 @@ def copy_vv_vh_to_inputs(out_dir, data_dict):
         )
 
 
-def make_masks(out_dir, data_dict):
+def make_masks(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) -> None:
     count = 0
     for sar, vv_vh_band in data_dict.items():
         renamePath = os.path.join(out_dir, sar)
@@ -115,7 +116,7 @@ def make_masks(out_dir, data_dict):
         )
 
 
-def tile(out_dir, tif_name, sar, mxm_tile_size, isMask):
+def tile(out_dir: str, tif_name: str, sar: str, mxm_tile_size: int, isMask: bool) -> None:
     label = 'temp'
     if isMask:
         label = 'Mask'
@@ -140,7 +141,7 @@ def tile(out_dir, tif_name, sar, mxm_tile_size, isMask):
             count += 1
 
 
-def tile_vv_vh_mask(out_dir, mxm_tile_size):
+def tile_vv_vh_mask(out_dir: str, mxm_tile_size: int) -> None:
     for sar in os.listdir(out_dir):
         for tif_name in os.listdir(os.path.join(out_dir, sar)):
             if tif_name.endswith('VV.tif'):
