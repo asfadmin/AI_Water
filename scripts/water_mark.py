@@ -40,16 +40,15 @@
 #   - download-all-<nums>.py (from ASF hyp3)
 ###############################################################################
 
-import argparse
 import os
 import shutil
-from osgeo import gdal
-from datetime import date
-from typing import Tuple, Dict, List
-from gdal_reclassify import processDataset
-
 import sys
-sys.path.append('../scripts/')
+from argparse import ArgumentParser
+from datetime import date
+from typing import Dict, Tuple
+
+from osgeo import gdal
+
 from identify_water import main as idw_main
 
 
@@ -77,7 +76,7 @@ def make_output_dir(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None
         os.mkdir(os.path.join(out_dir, sar))
 
 
-def delete_junk(target_dir: str) -> None:
+def delete_junk(target_dir):
     for f_name in os.listdir(target_dir):
         if ('.shp') in f_name:
             os.remove(os.path.join('inputs', f_name))
@@ -150,12 +149,11 @@ def tile_vv_vh_mask(out_dir: str, mxm_tile_size: int) -> None:
             elif tif_name.endswith('VH.tif'):
                 tile(out_dir, tif_name, sar, mxm_tile_size, False)
             elif tif_name.startswith('Mask_'):
-                tif_name = tif_name[5:]  # remove leading 'Mask_'
                 tile(out_dir, tif_name, sar, mxm_tile_size, True)
 
 
-def setup_data_wrapper(args: Namespace) -> None:
-    mxm_tile_size = args.size
+def setup_data(size: int):
+    mxm_tile_size = size
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
     make_output_dir(out_dir, data)
@@ -165,12 +163,15 @@ def setup_data_wrapper(args: Namespace) -> None:
 
 
 if __name__ == '__main__':
+
     p = ArgumentParser()
     p.add_argument('size', type=int, default=512)
     args = p.parse_args()
-    p.set_defaults(func=setup_data_wrapper)
+
+    p.set_defaults(func=setup_data)
+
     args = p.parse_args()
     if hasattr(args, 'func'):
-        args.func(args)
+        args.func(args.size)
     else:
         p.print_help()

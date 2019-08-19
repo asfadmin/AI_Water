@@ -1,8 +1,7 @@
 #! /usr/bin/env python3
 """
 Author: Rohan Weeden
-    Helper script for tiling a GeoTiff, creating image labels,
-    and for preparing
+    Helper script for tiling a GeoTiff, creating image labels, and for preparing
 data to be used in the network.
 ## Annoying dependencies:
   * matplotlib

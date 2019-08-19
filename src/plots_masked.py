@@ -10,8 +10,8 @@ from keras.preprocessing.image import Iterator
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Button
 
-from identify_water import write_mask_to_file
 from mask_editor import interactive_editor
+from scripts.identify_water import write_mask_to_file
 
 from .config import DATASETS_DIR
 from .gdal_wrapper import gdal_open
@@ -22,12 +22,15 @@ def edit_predictions(
     predictions, test_iter: Iterator, dataset: List[str]
 ) -> None:
     done = False
+    REG_EX = re.compile(r'(.*)_(.*)/(train|test)(.*)')
     for pred, (img, mask), f_path in zip(predictions, test_iter, dataset):
         # Plots imgs from img_dict
+        m = re.match(REG_EX, f_path[0])
+        _, environment, _, _ = m.groups()
         if done:
             break
 
-        plots(pred, mask, img)
+        plots(pred, mask, img, environment)
 
         def close_plot(_: Any) -> None:
             nonlocal done
@@ -40,6 +43,7 @@ def edit_predictions(
         _edit_p_btn = edit_pred_button(f_path, pred)
         _dltbtn = delete_button(f_path)
         maximize_plot()
+
         plt.show()
 
 
@@ -64,10 +68,11 @@ def plot_predictions(
         plt.show()
 
 
-def plots(pred, mask, img) -> None:
+def plots(pred, mask, img, environment) -> None:
     dem = 512
     plt.subplot(1, 4, 1)
     plt.title('prediction')
+    plt.xlabel(environment)
     plt.imshow(pred.reshape(dem, dem), cmap=plt.get_cmap('gist_gray'))
 
     plt.subplot(1, 4, 2)
