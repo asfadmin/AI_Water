@@ -9,9 +9,9 @@ data to be used in the network.
   * gdal
 # Usage
 First tile the image:
-    `$ python3 tile_geotiff.py tile path/to/geo.tiff <size of tiles>`
+    `$ python3 prepare_data.py tile path/to/geo.tiff <size of tiles>`
 Then classify the tiles:
-    `$ python3 tile_geotiff.py classify path/to/`
+    `$ python3 prepare_data.py classify path/to/`
 """
 
 import json
