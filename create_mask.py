@@ -29,6 +29,7 @@ def main(
     original_shape = vv_array.shape
     n_rows, n_cols = get_tile_dimensions(*original_shape, tile_size=512)
     vv_array = pad_image(vv_array, 512)
+    invalid_pixels = np.nonzero(vv_array == 0.0)
 
     vv_tiles = tile_image(vv_array)
 
@@ -50,6 +51,7 @@ def main(
                 .swapaxes(1, 2) \
                 .reshape(n_rows * 512, n_cols * 512)  # yapf: disable
 
+    mask[invalid_pixels] = 0
     write_mask_to_file(mask, outfile, f.GetProjection(), f.GetGeoTransform())
 
 

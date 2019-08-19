@@ -8,9 +8,9 @@ data to be used in the network.
   * gdal
 # Usage
 First tile the image:
-    `$ python3 tile_geotiff.py tile path/to/geo.tiff <size of tiles>`
+    `$ python3 prepare_data.py tile path/to/geo.tiff <size of tiles>`
 Then classify the tiles:
-    `$ python3 tile_geotiff.py classify path/to/`
+    `$ python3 prepare_data.py classify path/to/`
 """
 
 import json
@@ -22,12 +22,14 @@ from typing import Any, List, Tuple
 
 import src.config as config
 
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
     from src.plots import close_button, maximize_plot
 except ImportError:
     Button = None
+
 
 try:
     import gdal
