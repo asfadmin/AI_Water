@@ -77,8 +77,8 @@ def make_output_dir(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None
         os.mkdir(os.path.join(out_dir, sar))
 
 
-def delete_junk(target_dir):
-    for f_name in os.listdir(directory):
+def delete_junk(target_dir: str) -> None:
+    for f_name in os.listdir(target_dir):
         if ('.shp') in f_name:
             os.remove(os.path.join('inputs', f_name))
         if ('.shx') in f_name:
@@ -89,7 +89,7 @@ def delete_junk(target_dir):
             os.remove(os.path.join('inputs', f_name))
 
 
-def copy_vv_vh_to_inputs(out_dir, data_dict):
+def copy_vv_vh_to_inputs(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) -> None:
     for sar, vv_vh_band in data_dict.items():
         shutil.copy(
             os.path.join('inputs', vv_vh_band[0]),
@@ -101,7 +101,7 @@ def copy_vv_vh_to_inputs(out_dir, data_dict):
         )
 
 
-def make_masks(out_dir, data_dict):
+def make_masks(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) -> None:
     count = 0
     for sar, vv_vh_band in data_dict.items():
         renamePath = os.path.join(out_dir, sar)
@@ -117,7 +117,7 @@ def make_masks(out_dir, data_dict):
         )
 
 
-def tile(out_dir, tif_name, sar, mxm_tile_size, isMask):
+def tile(out_dir: str, tif_name: str, sar: str, mxm_tile_size: int, isMask: bool) -> None:
     label = 'temp'
     if isMask:
         label = 'Mask'
@@ -142,7 +142,7 @@ def tile(out_dir, tif_name, sar, mxm_tile_size, isMask):
             count += 1
 
 
-def tile_vv_vh_mask(out_dir, mxm_tile_size):
+def tile_vv_vh_mask(out_dir: str, mxm_tile_size: int) -> None:
     for sar in os.listdir(out_dir):
         for tif_name in os.listdir(os.path.join(out_dir, sar)):
             if tif_name.endswith('VV.tif'):
@@ -154,12 +154,8 @@ def tile_vv_vh_mask(out_dir, mxm_tile_size):
                 tile(out_dir, tif_name, sar, mxm_tile_size, True)
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('size', type=int, default=512)
-    args = parser.parse_args()
+def setup_data_wrapper(args: Namespace) -> None:
     mxm_tile_size = args.size
-
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
     make_output_dir(out_dir, data)
@@ -169,4 +165,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    p = ArgumentParser()
+    p.add_argument('size', type=int, default=512)
+    args = p.parse_args()
+    p.set_defaults(func=setup_data_wrapper)
+    args = p.parse_args()
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        p.print_help()
