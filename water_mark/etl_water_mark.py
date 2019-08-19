@@ -61,8 +61,11 @@ def extract_VV_VH_to_inputs():
     h3 = 'HyP3_downloads'
     for sar in os.listdir(h3):
         for f_name in os.listdir(os.path.join(h3, sar)):
-            input_file = os.path.join(h3, sar,  f_name)
-            if f_name.endswith('VH.tif') or f_name.endswith('VV.tif'):
+            if f_name.endswith('VH.tif'):
+                input_file = os.path.join(h3, sar, f_name)
+                shutil.copy(input_file, 'inputs')
+            if f_name.endswith('VV.tif'):
+                input_file = os.path.join(h3, sar, f_name)
                 shutil.copy(input_file, 'inputs')
 
 
@@ -76,9 +79,9 @@ def clean_up():
 
 
 def main():
-    get_SAR_from_HyP3()
-    make_inputs_dir()
-    extract_SAR_to_temp_dir()
+    # get_SAR_from_HyP3()
+    # make_inputs_dir()
+    # extract_SAR_to_temp_dir()
     extract_VV_VH_to_inputs()
     clean_up()
 
