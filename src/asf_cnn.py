@@ -12,6 +12,7 @@ from keras.preprocessing.image import Iterator
 from .dataset.binary import load_dataset as load_dataset_binary
 from .dataset.binary import make_label_conversions
 from .dataset.masked import load_dataset as load_dataset_masked
+from .dataset.masked import load_replace_data
 from .model import ModelType, model_type, save_model
 from .typing import History
 
@@ -130,8 +131,12 @@ def test_model_binary(model: Model, dataset: str, verbose: int = 1
     return details, confusion_matrix
 
 
-def test_model_masked(model: Model, dataset: str,
-                      verbose: int = 1) -> Tuple[np.ndarray, Iterator]:
+def test_model_masked(
+    model: Model,
+    dataset: str,
+    edit: bool,
+    verbose: int = 1
+) -> Tuple[np.ndarray, Iterator]:
 
     assert model_type(
         model
@@ -140,11 +145,23 @@ def test_model_masked(model: Model, dataset: str,
     if verbose > 0:
         model.summary()
 
-    _, test_iter = load_dataset_masked(dataset)
-    predictions = model.predict_generator(
-        test_iter, len(test_iter), verbose=verbose
-    )
-    test_iter.reset()
-    masked_predictions = predictions.round(decimals=0, out=None)
+    if edit:
+        dataset_data = load_replace_data(dataset)
 
-    return masked_predictions, test_iter
+        predictions = model.predict_generator(
+            dataset_data[0], len(dataset_data[0]), verbose=verbose
+        )
+        dataset_data[0].reset()
+        masked_predictions = predictions.round(decimals=0, out=None)
+
+        return masked_predictions, dataset_data[0], dataset_data[1]
+
+    else:
+        _, test_iter = load_dataset_masked(dataset)
+        predictions = model.predict_generator(
+            test_iter, len(test_iter), verbose=verbose
+        )
+        test_iter.reset()
+        masked_predictions = predictions.round(decimals=0, out=None)
+
+        return masked_predictions, test_iter
