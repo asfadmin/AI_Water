@@ -46,19 +46,45 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
     return train_iter, test_iter
 
 
-def make_metadata(dataset: str
-                  ) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
+def load_replace_data(
+    dataset: str,
+) -> Tuple[Iterator, MaskedDatasetMetadata]:
+
+    replace_gen = ImageDataGenerator(rescale=10)
+    metadata, _ = make_metadata(dataset, edit=True)
+
+    # Load the entire dataset into memory
+    x_replace = []
+    y_replace = []
+    for img, mask in generate_from_metadata(
+        metadata,
+        edit=True,
+        clip_range=(0, 2)
+    ):
+        x_replace.append(img)
+        y_replace.append(mask)
+
+    replace_iter = replace_gen.flow(
+        np.array(x_replace), y=np.array(y_replace), batch_size=1, shuffle=False
+    )
+
+    return replace_iter, metadata
+
+
+def make_metadata(
+    dataset: str,
+    edit: bool = False
+) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
     """ Returns two lists of metadata. One for the training data and one for the
     testing data. """
     train_metadata = []
     test_metadata = []
-
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
+
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
-
             pre, ext = m.groups()
             mask = f"{pre}.mask.{ext}"
             vh_name = f"{pre}.tile.vh.{ext}"
@@ -70,16 +96,22 @@ def make_metadata(dataset: str
             )
             folder = os.path.basename(dirpath)
 
-            if folder == 'train':
-                train_metadata.append(data)
-            elif folder == 'test':
-                test_metadata.append(data)
+            if edit:
+                if folder == 'test' or folder == 'train':
+                    train_metadata.append(data)
+            else:
+                if folder == 'train':
+                    train_metadata.append(data)
+                elif folder == 'test':
+                    test_metadata.append(data)
+
     return train_metadata, test_metadata
 
 
 def generate_from_metadata(
     metadata: MaskedDatasetMetadata,
-    clip_range: Optional[Tuple[float, float]] = None
+    clip_range: Optional[Tuple[float, float]] = None,
+    edit: bool = False
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
     output_shape = (512, 512, 2)
@@ -92,8 +124,10 @@ def generate_from_metadata(
             tile_vv_array = f.ReadAsArray()
 
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
-        if not valid_image(tile_array):
-            continue
+
+        if not edit:
+            if not valid_image(tile_array):
+                continue
 
         with gdal_open(mask_name) as f:
             mask_array = f.ReadAsArray()

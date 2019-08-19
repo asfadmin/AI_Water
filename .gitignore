@@ -12,3 +12,8 @@ __pycache__/
 # Neural Network Stuff
 /datasets/
 /models/
+
+# Zipped Neural Network Stuff
+/zipped_Models/
+/zipped_TrainingData/
+

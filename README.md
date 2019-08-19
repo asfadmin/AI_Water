@@ -66,9 +66,9 @@ be restructured.
 ```
 AI_Water
 └── datasets
-    └── example_rtc       # Each data set gets a directory
-        ├── labels.json   # Your .json file needs to be named labels.json
-        ├── img1.tif
+    └── example_rtc       # Each data set gets a directory
+        ├── labels.json   # Your .json file needs to be named labels.json
+        ├── img1.tif
         └── img2.tif
 ```
 
@@ -91,11 +91,11 @@ At this point your data set is ready and the directory should look like this:
 ```
 AI_Water
 └── datasets
-    └── example_rtc
-        ├── labels.json
-        ├── test
+    └── example_rtc
+        ├── labels.json
+        ├── test
         │   └── img1.tif
-        └── train
+        └── train
             └── img2.tif
 ```
 
@@ -106,19 +106,19 @@ The project is organized into directories as follows.
 ```
 AI_Water
 ├── datasets
-│   └── example_rtc       # Each data set gets a directory
-│       ├── labels.json
-│       ├── test
-│       └── train
+│   └── example_rtc       # Each data set gets a directory
+│       ├── labels.json
+│       ├── test
+│       └── train
 ├── models
-│   └── example_net       # Each model gets a directory containing .h5 files
-│       ├── epoch1.h5
-│       ├── history.json
-│       └── latest.h5
+│   └── example_net       # Each model gets a directory containing .h5 files
+│       ├── epoch1.h5
+│       ├── history.json
+│       └── latest.h5
 ├── src                   # Neural network source code
 ├── tests                 # Unit and integration tests
-│   ├── unit_tests
-│   └── integration_tests
+│   ├── unit_tests
+│   └── integration_tests
 └── ...
 ```
 

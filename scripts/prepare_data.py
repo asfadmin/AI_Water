@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 """
 Author: Rohan Weeden
-    Helper script for tiling a GeoTiff, creating image labels, and for preparing
+    Helper script for tiling a GeoTiff, creating image labels,
+    and for preparing
 data to be used in the network.
 ## Annoying dependencies:
   * matplotlib
@@ -22,12 +23,14 @@ from typing import Any, List, Tuple
 
 import src.config as config
 
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
     from src.plots import close_button, maximize_plot
 except ImportError:
     Button = None
+
 
 try:
     import gdal
