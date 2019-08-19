@@ -33,24 +33,24 @@ can be any arbitrary value, but to be ran in the provided Neural Network
 it must be 512):
 
 ```terminal
-$ python3 scripts/tile_geotiff.py tile tile_name_of_img.tiff 512
+$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 512
 ```
 To get more help on tiling run this
 command:
 
 ```terminal
-$ python3 scripts/tile_geotiff.py tile -h
+$ python3 scripts/prepare_data.py tile -h
 ```
 
 ## Classifying Images (for binary data sets)
 In the terminal run the command:
 ```terminal
-$ python3 scripts/tile_geotiff.py classify prep_tiles
+$ python3 scripts/prepare_data.py classify prep_tiles
 ```
 
 to get more help run the command:
 ```terminal
-$ python3 scripts/tile_geotiff.py classify -h
+$ python3 scripts/prepare_data.py classify -h
 ```
 
 ## Preparing Tiled and Classified Data Set
@@ -75,7 +75,7 @@ AI_Water
 Once your data is in the correct directory run the following command:
 
 ```terminal
-$ python3 scripts/tile_geotiff.py prepare datasets/example_rtc .3
+$ python3 scripts/prepare_data.py prepare datasets/example_rtc .3
 ```
 
 This will move the image tiles into the directory structure expected by the
@@ -83,7 +83,7 @@ training script using a holdout of 30%.
 
 To get more information on preparing the data set run:
 ```terminal
-$ python3 scripts/tile_geotiff.py prepare -h
+$ python3 scripts/prepare_data.py prepare -h
 ```
 
 At this point your data set is ready and the directory should look like this:
