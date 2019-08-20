@@ -33,31 +33,19 @@ can be any arbitrary value, but to be ran in the provided Neural Network
 it must be 512):
 
 ```terminal
-<<<<<<< HEAD
-$ python3 prepare_data.py tile tile_name_of_img.tiff 512
-=======
 $ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 512
->>>>>>> 13061af7db51d93f35655b3f8fd0a9dc3f8a8720
 ```
 To get more help on tiling run this
 command:
 
 ```terminal
-<<<<<<< HEAD
-$ python3 prepare_data.py tile -h
-=======
 $ python3 scripts/prepare_data.py tile -h
->>>>>>> 13061af7db51d93f35655b3f8fd0a9dc3f8a8720
 ```
 
 ## Classifying Images (for binary data sets)
 In the terminal run the command:
 ```terminal
-<<<<<<< HEAD
-$ python3 prepare_data.py classify prep_tiles
-=======
 $ python3 scripts/prepare_data.py classify prep_tiles
->>>>>>> 13061af7db51d93f35655b3f8fd0a9dc3f8a8720
 ```
 
 to get more help run the command:
