@@ -5,11 +5,10 @@ import shutil
 from argparse import ArgumentParser, Namespace
 from datetime import date
 
-from etl_water_mark import main as etl_wm
+from prepare_data import move_imgs, prepare_data
 from src.asf_cnn import test_model_masked
 from src.model import load_model
 from src.plots_masked import edit_predictions
-from tile_geotiff import move_imgs, prepare_data
 from water_mark import setup_data
 
 
