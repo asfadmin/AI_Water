@@ -33,24 +33,36 @@ can be any arbitrary value, but to be ran in the provided Neural Network
 it must be 512):
 
 ```terminal
+<<<<<<< HEAD
 $ python3 prepare_data.py tile tile_name_of_img.tiff 512
+=======
+$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 512
+>>>>>>> 13061af7db51d93f35655b3f8fd0a9dc3f8a8720
 ```
 To get more help on tiling run this
 command:
 
 ```terminal
+<<<<<<< HEAD
 $ python3 prepare_data.py tile -h
+=======
+$ python3 scripts/prepare_data.py tile -h
+>>>>>>> 13061af7db51d93f35655b3f8fd0a9dc3f8a8720
 ```
 
 ## Classifying Images (for binary data sets)
 In the terminal run the command:
 ```terminal
+<<<<<<< HEAD
 $ python3 prepare_data.py classify prep_tiles
+=======
+$ python3 scripts/prepare_data.py classify prep_tiles
+>>>>>>> 13061af7db51d93f35655b3f8fd0a9dc3f8a8720
 ```
 
 to get more help run the command:
 ```terminal
-$ python3 prepare_data.py classify -h
+$ python3 scripts/prepare_data.py classify -h
 ```
 
 ## Preparing Tiled and Classified Data Set
@@ -66,16 +78,16 @@ be restructured.
 ```
 AI_Water
 └── datasets
-    └── example_rtc       # Each data set gets a directory
-        ├── labels.json   # Your .json file needs to be named labels.json
-        ├── img1.tif
+    └── example_rtc       # Each data set gets a directory
+        ├── labels.json   # Your .json file needs to be named labels.json
+        ├── img1.tif
         └── img2.tif
 ```
 
 Once your data is in the correct directory run the following command:
 
 ```terminal
-$ python3 prepare_data.py prepare datasets/example_rtc .3
+$ python3 scripts/prepare_data.py prepare datasets/example_rtc .3
 ```
 
 This will move the image tiles into the directory structure expected by the
@@ -83,7 +95,7 @@ training script using a holdout of 30%.
 
 To get more information on preparing the data set run:
 ```terminal
-$ python3 prepare_data.py prepare -h
+$ python3 scripts/prepare_data.py prepare -h
 ```
 
 At this point your data set is ready and the directory should look like this:
@@ -91,11 +103,11 @@ At this point your data set is ready and the directory should look like this:
 ```
 AI_Water
 └── datasets
-    └── example_rtc
-        ├── labels.json
-        ├── test
+    └── example_rtc
+        ├── labels.json
+        ├── test
         │   └── img1.tif
-        └── train
+        └── train
             └── img2.tif
 ```
 
@@ -106,19 +118,19 @@ The project is organized into directories as follows.
 ```
 AI_Water
 ├── datasets
-│   └── example_rtc       # Each data set gets a directory
-│       ├── labels.json
-│       ├── test
-│       └── train
+│   └── example_rtc       # Each data set gets a directory
+│       ├── labels.json
+│       ├── test
+│       └── train
 ├── models
-│   └── example_net       # Each model gets a directory containing .h5 files
-│       ├── epoch1.h5
-│       ├── history.json
-│       └── latest.h5
+│   └── example_net       # Each model gets a directory containing .h5 files
+│       ├── epoch1.h5
+│       ├── history.json
+│       └── latest.h5
 ├── src                   # Neural network source code
 ├── tests                 # Unit and integration tests
-│   ├── unit_tests
-│   └── integration_tests
+│   ├── unit_tests
+│   └── integration_tests
 └── ...
 ```
 

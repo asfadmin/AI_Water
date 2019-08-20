@@ -22,12 +22,14 @@ from typing import Any, List, Tuple
 
 import src.config as config
 
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
     from src.plots import close_button, maximize_plot
 except ImportError:
     Button = None
+
 
 try:
     import gdal
