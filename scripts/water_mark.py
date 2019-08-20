@@ -88,7 +88,7 @@ def delete_junk(target_dir):
             os.remove(os.path.join('inputs', f_name))
 
 
-def copy_vv_vh_to_inputs(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) -> None:
+def copy_vv_vh_to_inputs(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None:
     for sar, vv_vh_band in data_dict.items():
         shutil.copy(
             os.path.join('inputs', vv_vh_band[0]),
@@ -100,7 +100,7 @@ def copy_vv_vh_to_inputs(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) ->
         )
 
 
-def make_masks(out_dir: str, data_dict: Dict[str. Tuple[str, str]]) -> None:
+def make_masks(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None:
     count = 0
     for sar, vv_vh_band in data_dict.items():
         renamePath = os.path.join(out_dir, sar)

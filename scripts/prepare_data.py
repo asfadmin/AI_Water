@@ -22,7 +22,6 @@ from typing import Any, List, Tuple
 
 import src.config as config
 
-
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
@@ -201,7 +200,7 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
 
 def move_imgs(directory: str) -> None:
     """ Moves all images within each sub directory into one directory """
-    f_path = os.path.join(config.DATASETS_DIR, args.directory)
+    f_path = os.path.join(config.DATASETS_DIR, directory)
     for root, directories, files in os.walk(f_path, topdown=False):
         for img in files:
             os.rename(
@@ -216,8 +215,8 @@ def groom_imgs(directory: str) -> None:
     if not check_dependencies(('gdal', 'pyplot', 'np')):
         return
     VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
-    f_path = os.path.join(config.DATASETS_DIR, args.directory)
-    g_path = os.path.join(config.DATASETS_DIR, f'{args.directory}Groomed')
+    f_path = os.path.join(config.DATASETS_DIR, directory)
+    g_path = os.path.join(config.DATASETS_DIR, f'{directory}Groomed')
 
     done = False
     count = 0

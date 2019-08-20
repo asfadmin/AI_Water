@@ -1,6 +1,6 @@
 """
 While in the root directory run "pip install -e".
-This will install AI_Wate as a package
+This will install AI_Water as a package.
 """
 
 from setuptools import find_packages, setup
