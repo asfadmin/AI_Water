@@ -68,7 +68,7 @@ def plot_predictions(
         plt.show()
 
 
-def plots(pred, mask, img, environment) -> None:
+def plots(pred, mask, img, environment='') -> None:
     dem = 512
     plt.subplot(1, 4, 1)
     plt.title('prediction')
