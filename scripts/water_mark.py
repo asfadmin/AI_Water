@@ -115,6 +115,9 @@ def make_masks(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None:
             os.path.join(renamePath, f"Mask_{sar}.tif")
         )
 
+        os.remove(os.path.join('inputs', vv_vh_band[0]))
+        os.remove(os.path.join('inputs', vv_vh_band[1]))
+
 
 def tile(out_dir: str, tif_name: str, sar: str, mxm_tile_size: int, isMask: bool) -> None:
     label = 'temp'
