@@ -5,6 +5,7 @@ import shutil
 from argparse import ArgumentParser, Namespace
 from datetime import date
 
+from etl_water_mark import main as etl_wm
 from prepare_data import move_imgs, prepare_data
 from src.asf_cnn import test_model_masked
 from src.model import load_model
@@ -53,7 +54,7 @@ def div_imgs(dir_path: str, holdout: int) -> None:
 
 def mkdata_wrapper(args: Namespace) -> None:
 
-    # etl_wm()
+    etl_wm()
     setup_data(args.size)
     dataset_fpath = f"syntheticTriainingData{date.isoformat(date.today())}"
     dataset_dir = os.path.join('datasets', args.directory)
