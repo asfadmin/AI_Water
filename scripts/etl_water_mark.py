@@ -24,20 +24,37 @@
 #   - downloadWaterData.pyz
 ################################################################################
 
-import os
-import shutil
-import zipfile
 import importlib
+import os
+import re
+import shutil
+import sys
+import zipfile
+from pathlib import Path
+
+DOWNLOADS_FPATH = os.path.join(Path.home(), 'Downloads')
 
 
 def get_SAR_from_HyP3():
-    for file_name in os.listdir():
-        if 'download' in file_name:
-            download_module = importlib.import_module(file_name[:-3])
-            downloader = download_module.bulk_downloader()
-            downloader.download_files()
-            downloader.print_summary()
-            break
+    DOWNLOAD_REGEX = re.compile(r'download-all-(.*)\.py')
+    for file_name in os.listdir(DOWNLOADS_FPATH):
+        m = re.match(DOWNLOAD_REGEX, file_name)
+        if not m:
+            continue
+        date_info = m.groups()
+        module_name = f'download-all-{date_info[0]}'
+        sys.path.append(DOWNLOADS_FPATH)
+        download_module = importlib.import_module(
+            module_name
+        )
+
+        downloader = download_module.bulk_downloader()
+        downloader.download_files()
+        downloader.print_summary()
+
+        # Deletes the download-all-....py script
+        os.remove(os.path.join(DOWNLOADS_FPATH, file_name))
+        break
 
 
 def make_inputs_dir():
@@ -47,14 +64,21 @@ def make_inputs_dir():
 
 def extract_SAR_to_temp_dir():
     h3 = 'HyP3_downloads'
+    ZIP_REGEX = re.compile(r'S1A_IW_SLC__(.*)-power-rtc-gamma\.zip')
+
     if os.path.exists(h3):
         shutil.rmtree(h3)
     os.mkdir(h3)
+
     for f_name in os.listdir():
-        if f_name.endswith('.zip'):
-            zf = zipfile.ZipFile(f_name, 'r')
-            zf.extractall(h3)
-            zf.close()
+        m = re.match(ZIP_REGEX, f_name)
+        if not m:
+            continue
+
+        zf = zipfile.ZipFile(f_name, 'r')
+        zf.extractall(h3)
+        zf.close()
+        os.remove(f_name)
 
 
 def extract_VV_VH_to_inputs():
@@ -64,7 +88,7 @@ def extract_VV_VH_to_inputs():
             input_file = os.path.join(h3, sar, f_name)
             if f_name.endswith('VH.tif') or f_name.endswith('VV.tif'):
                 shutil.copy(input_file, 'inputs')
-            
+
 
 def clean_up():
     # Delete zips
