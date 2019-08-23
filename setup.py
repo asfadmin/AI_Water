@@ -1,5 +1,5 @@
 """
-While in the root directory run "pip install -e".
+While in the root directory run "pip install -e .".
 This will install AI_Water as a package.
 """
 
