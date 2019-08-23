@@ -98,7 +98,6 @@ def compress_wrapper(args: Namespace) -> None:
     ENV_REG_EX = re.compile(r'(.*)_([0-9]+)_(.*)_Groomed/train')
     env = ''
     f_path = os.path.join('datasets', args.directory)
-    print(args.directory)
     for root, dirs, files in os.walk(f_path, topdown=False):
         m = re.match(ENV_REG_EX, root)
         if not m:
