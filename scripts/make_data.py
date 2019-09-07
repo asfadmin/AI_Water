@@ -16,7 +16,7 @@ from water_mark import setup_data
 def div_imgs(dir_path: str, holdout: int) -> None:
     """ Creates a test and train folder. The image names need
     to be cleaned up unlike the prepare_data function in prepare_data.py """
-    VH_REGEX = re.compile(r'(.*)_([0-9]+).tile.vh.tif')
+    VH_REGEX = re.compile(r'(.*)_([0-9]+).vh.tif')
 
     for file in os.listdir(dir_path):
         m = re.match(VH_REGEX, file)
@@ -24,7 +24,7 @@ def div_imgs(dir_path: str, holdout: int) -> None:
             continue
 
         pre, num = m.groups()
-        vv = f'{pre}_{num}.tile.vv.tif'
+        vv = f'{pre}_{num}.vv.tif'
         mask = f'{pre}_{num}.mask.tif'
 
         if not os.path.isfile(os.path.join(dir_path, mask)):

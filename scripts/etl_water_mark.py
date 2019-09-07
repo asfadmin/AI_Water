@@ -64,7 +64,7 @@ def make_inputs_dir():
 
 def extract_SAR_to_temp_dir():
     h3 = 'HyP3_downloads'
-    ZIP_REGEX = re.compile(r'S1A_IW_SLC__(.*)-power-rtc-gamma\.zip')
+    ZIP_REGEX = re.compile(r'S1(A|B)_IW(.*)-rtc-gamma\.zip')
 
     if os.path.exists(h3):
         shutil.rmtree(h3)
@@ -74,11 +74,12 @@ def extract_SAR_to_temp_dir():
         m = re.match(ZIP_REGEX, f_name)
         if not m:
             continue
-
-        zf = zipfile.ZipFile(f_name, 'r')
+        final_path = os.path.join(h3, f_name)
+        os.rename(f_name, final_path)
+        zf = zipfile.ZipFile(final_path, 'r')
         zf.extractall(h3)
         zf.close()
-        os.remove(f_name)
+        os.remove(final_path)
 
 
 def extract_VV_VH_to_inputs():

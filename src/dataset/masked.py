@@ -14,7 +14,7 @@ from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
 
-TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.vh\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
