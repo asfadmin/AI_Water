@@ -49,10 +49,10 @@ FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
     """ Takes a .tiff file and breaks it into smaller .tiff files. """
-    # img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
-    img_fpath = os.path.join(config.PROJECT_DIR, ifname)
-    # if not check_dependencies(('gdal', )):
-    #     return
+    img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
+
+    if not check_dependencies(('gdal', )):
+        return
 
     datafile = gdal.Open(img_fpath)
     iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
