@@ -41,6 +41,7 @@
 ###############################################################################
 
 import os
+import re
 import shutil
 import sys
 from argparse import ArgumentParser
@@ -53,7 +54,7 @@ from identify_water import main as idw_main
 
 
 def make_database() -> Dict[str, Tuple[str, str]]:
-    data_list = sorted([fname for fname in os.listdir('inputs') if fname.endswith('.tif')])
+    data_list = sorted([fname for fname in os.listdir('inputs') if fname.endswith('.tif')])  # TODO: Update with ReGEX
     '''Take every pair of consecutive file names and add them to
     data under a common key. This assumes that each pair of files
     shares a common prefix and that there are no stray unpaired images
@@ -65,6 +66,7 @@ def make_database() -> Dict[str, Tuple[str, str]]:
         vv = data_list[i+1]
         vh = data_list[i]
         data[sar_name] = (vv, vh)
+
     return data
 
 
@@ -101,38 +103,32 @@ def copy_vv_vh_to_inputs(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) ->
 
 
 def make_masks(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None:
-    count = 0
+
     for sar, vv_vh_band in data_dict.items():
         renamePath = os.path.join(out_dir, sar)
-        print(f"{count} masks made")
         idw_main(
             os.path.join('inputs', vv_vh_band[0]),
             os.path.join('inputs', vv_vh_band[1])
         )
-        count += 1
         os.rename(
             'mask-0.tif',
-            os.path.join(renamePath, f"Mask_{sar}.tif")
+            os.path.join(renamePath, f"{sar}_MASK.tif")
         )
 
         os.remove(os.path.join('inputs', vv_vh_band[0]))
         os.remove(os.path.join('inputs', vv_vh_band[1]))
 
 
-def tile(out_dir: str, tif_name: str, sar: str, mxm_tile_size: int, isMask: bool) -> None:
-    label = 'temp'
-    if isMask:
-        label = 'Mask'
-    else:
-        label = 'Image'
-    tif = os.path.join(out_dir, sar, tif_name)
+def tile(out_dir: str, tif_name: str, sar: str, mxm_tile_size: int) -> None:
+    tif = os.path.join(out_dir, sar, f"{tif_name}.tif")
     tifData = gdal.Open(tif)
     xStep, yStep = mxm_tile_size, mxm_tile_size
     xSize, ySize = tifData.RasterXSize, tifData.RasterYSize
+
     count = 0
     for x in range(0, xSize, xStep):
         for y in range(0, ySize, yStep):
-            fileName = f"{label}_{tif_name[:-4]}_{count}.tif"
+            fileName = f"{tif_name}_{count}.tif"
             output_file = os.path.join(out_dir, sar, fileName)
             input_file = tif
             gdal.Translate(
@@ -145,24 +141,24 @@ def tile(out_dir: str, tif_name: str, sar: str, mxm_tile_size: int, isMask: bool
 
 
 def tile_vv_vh_mask(out_dir: str, mxm_tile_size: int) -> None:
+    BAND_REGEX = re.compile(r"(.*)(VV|VH|MASK)(.*)")
     for sar in os.listdir(out_dir):
         for tif_name in os.listdir(os.path.join(out_dir, sar)):
-            if tif_name.endswith('VV.tif'):
-                tile(out_dir, tif_name, sar, mxm_tile_size, False)
-            elif tif_name.endswith('VH.tif'):
-                tile(out_dir, tif_name, sar, mxm_tile_size, False)
-            elif tif_name.startswith('Mask_'):
-                tile(out_dir, tif_name, sar, mxm_tile_size, True)
+            m = re.match(BAND_REGEX, tif_name)
+            if not m:
+                continue
+            pre, band, file_type = m.groups()
+            tif_name = f"{pre}{band}"
+            tile(out_dir, tif_name, sar, mxm_tile_size)
 
 
 def setup_data(size: int):
-    mxm_tile_size = size
     out_dir = f"syntheticTriainingData{date.isoformat(date.today())}"
     data = make_database()
     make_output_dir(out_dir, data)
     copy_vv_vh_to_inputs(out_dir, data)
     make_masks(out_dir, data)
-    tile_vv_vh_mask(out_dir, mxm_tile_size)
+    tile_vv_vh_mask(out_dir, size)
 
 
 if __name__ == '__main__':
