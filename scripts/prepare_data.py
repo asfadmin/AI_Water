@@ -27,11 +27,12 @@ try:
     from matplotlib.widgets import RadioButtons, Button
     from src.plots import close_button, maximize_plot
 except ImportError:
+    print('Issue with importing matplotlib.')
     Button = None
 
 
 try:
-    import gdal
+    from osgeo import gdal
     from src.gdal_wrapper import gdal_open
 except ImportError:
     pass
@@ -157,7 +158,7 @@ def prepare_data(directory: str, holdout: float):
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
     """ Renames and moves mask and tile images. """
-    TILE_REGEX = re.compile(f"Image_(.*)VH_([0-9]+)\\.({EXT})")
+    TILE_REGEX = re.compile(f"(.*)VH_([0-9]+)\\.({EXT})")
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
@@ -165,11 +166,11 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
             continue
 
         pre, num, ext = m.groups()
-        new_vh_name = f"{pre}_{num}.tile.vh.{ext}".lower()
-        mask_name = f"Mask_{pre}Mask_{num}.{ext}"
+        new_vh_name = f"{pre}_{num}.vh.{ext}".lower()
+        mask_name = f"{pre}MASK_{num}.{ext}"
         new_mask_name = f"{pre}_{num}.mask.{ext}".lower()
-        vv_name = f"Image_{pre}VV_{num}.{ext}"
-        new_vv_name = f"{pre}_{num}.tile.vv.{ext}".lower()
+        vv_name = f"{pre}VV_{num}.{ext}"
+        new_vv_name = f"{pre}_{num}.vv.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
             print(f"Tile: {file} is missing a mask {mask_name}!")
@@ -214,7 +215,7 @@ def move_imgs(directory: str) -> None:
 def groom_imgs(directory: str) -> None:
     if not check_dependencies(('gdal', 'pyplot', 'np')):
         return
-    VH_REGEX = re.compile(r"(.*)\.tile\.vh\.tif")
+    VH_REGEX = re.compile(r"(.*)\.vh\.tif")
     f_path = os.path.join(config.DATASETS_DIR, directory)
     g_path = os.path.join(config.DATASETS_DIR, f'{directory}Groomed')
 

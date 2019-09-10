@@ -6,6 +6,7 @@ import mock
 import numpy as np
 import py
 import pytest
+
 from src.dataset.common import dataset_type
 from src.dataset.masked import (
     generate_from_metadata, load_dataset, make_metadata
@@ -30,8 +31,8 @@ def dataset_masked(tmpdir: py.path.local):
 
 @pytest.fixture
 def metadata_masked() -> MaskedDatasetMetadata:
-    return [("test_1.tile.vh.tif", "test_1.tile.vv.tif", "test_1.mask.tif"),
-            ("test_2.tile.vh.tif", "test_2.tile.vv.tif", "test_2.mask.tif")]
+    return [("test_1.vh.tif", "test_1.vv.tif", "test_1.mask.tif"),
+            ("test_2.vh.tif", "test_2.vv.tif", "test_2.mask.tif")]
 
 
 def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
@@ -42,25 +43,25 @@ def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
 
     assert train_metadata == [
         (
-            abspath("train", "test_3.tile.vh.tif"),
-            abspath("train", "test_3.tile.vv.tif"),
+            abspath("train", "test_3.vh.tif"),
+            abspath("train", "test_3.vv.tif"),
             abspath("train", "test_3.mask.tif"),
         ),
         (
-            abspath("train", "test_4.tile.vh.tif"),
-            abspath("train", "test_4.tile.vv.tif"),
+            abspath("train", "test_4.vh.tif"),
+            abspath("train", "test_4.vv.tif"),
             abspath("train", "test_4.mask.tif"),
         ),
     ]
     assert test_metadata == [
         (
-            abspath("test", "test_1.tile.vh.tif"),
-            abspath("test", "test_1.tile.vv.tif"),
+            abspath("test", "test_1.vh.tif"),
+            abspath("test", "test_1.vv.tif"),
             abspath("test", "test_1.mask.tif"),
         ),
         (
-            abspath("test", "test_2.tile.vh.tif"),
-            abspath("test", "test_2.tile.vv.tif"),
+            abspath("test", "test_2.vh.tif"),
+            abspath("test", "test_2.vv.tif"),
             abspath("test", "test_2.mask.tif"),
         ),
     ]
