@@ -87,8 +87,8 @@ def make_metadata(
                 continue
             pre, ext = m.groups()
             mask = f"{pre}.mask.{ext}"
-            vh_name = f"{pre}.tile.vh.{ext}"
-            vv_name = f"{pre}.tile.vv.{ext}"
+            vh_name = f"{pre}.vh.{ext}"
+            vv_name = f"{pre}.vv.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
