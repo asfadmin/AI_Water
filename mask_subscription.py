@@ -16,8 +16,6 @@ from asf_hyp3 import API
 from create_mask import main as mask_product
 from src.api_functions import download_prouducts, grab_subscription, hyp3_login
 
-# TODO: If the users has more then a hundred products create pages of products.
-
 
 def make_dirs(dir: str) -> str:
     """ If not already created this function creates the mask directory,
@@ -41,7 +39,6 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
 
     ZIP_REGEX = re.compile(r'(.*).zip')
     SAR_REGEX = re.compile(r'(.*)_(VH|VV).tif')
-
     for i, product in enumerate(products):
         download_prouducts(products, i, product)
         try:
@@ -53,6 +50,7 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
 
         m = re.match(ZIP_REGEX, product['name'])
         folder = m.groups()
+
         for file in os.listdir(folder[0]):
             img = os.path.join(folder[0], file)
             m = re.match(SAR_REGEX, file)
@@ -77,12 +75,26 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
         os.remove(f"{folder[0]}.zip")
 
 
+def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
+    """ mask_sub mask a given subscription  """
+    count = 0
+    while True:
+        print(f"Page: {count + 1}")
+        products = api.get_products(
+            sub_id=sub_id, page=count, page_size=100
+        )
+        mask_products(products, dir, model)
+        count += 1
+
+        if not products:
+            break
+
+
 def main(args: Namespace, api: API) -> None:
     """ main creates a vrt from a users subscription. """
     subscription = grab_subscription(api)
-    products = api.get_products(sub_id=subscription['id'])
     dir = make_dirs(args.name)
-    mask_products(products, dir, args.model)
+    mask_sub(subscription['id'], dir, args.model, api)
     # TODO: Add vrt feature
 
 
