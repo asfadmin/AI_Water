@@ -6,6 +6,7 @@
 """
 
 import os
+from getpass import getpass
 from subprocess import PIPE, call
 from typing import Dict, List
 
@@ -16,10 +17,14 @@ def hyp3_login() -> API:
     """ Takes users information to log in to NASA EarthData,
     updates .netrc with user's credentials then returns an API object. """
 
-    f = open('.netrc', 'r')
-    contents = f.read()
-    username = contents.split(' ')[3]
-    password = contents.split(' ')[5].split('\n')[0]
+    username = ""
+    try:
+        f = open('.netrc', 'r')
+        contents = f.read()
+        username = contents.split(' ')[3]
+        password = contents.split(' ')[5].split('\n')[0]
+    except IndexError:
+        pass
 
     error = None
     while True:
@@ -27,9 +32,10 @@ def hyp3_login() -> API:
             print(error)
             print('Please try agian.\n')
 
-        # print("Enter your NASA EarthData username: ", end='')
-        # username = input()
-        # password = getpass()
+        if username == "":
+            print("Enter your NASA EarthData username: ", end='')
+            username = input()
+            password = getpass()
 
         try:
             api = API(username)
@@ -67,7 +73,6 @@ def grab_subscription(api: API) -> Dict:
         print(f"ID: {subsciption['id']}: {subsciption['name']}")
     print('Pick an id from the list above: ', end='')
 
-    # TODO: ADD CODE TO ABORT IF USER HAS NO DATA, or give them the option
     while True:
         try:
             user_input = int(input())
@@ -102,5 +107,5 @@ def download_prouducts(products: List, i: int, product) -> None:
     username = contents.split(' ')[3]
     password = contents.split(' ')[5].split('\n')[0]
     args = ['wget', '-c', '-q', '--show-progress', f"--http-user={username}\
-", f"--http-password={password}", product['url']]  # LOOK INTO A BETTER WAY
+", f"--http-password={password}", product['url']]
     call(args, stdout=PIPE)
