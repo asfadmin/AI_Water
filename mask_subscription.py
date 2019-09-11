@@ -13,7 +13,9 @@ from argparse import ArgumentParser, Namespace
 from typing import List
 
 from asf_hyp3 import API
+
 from create_mask import main as mask_product
+from scripts.make_vrt import main as vrt
 from src.api_functions import download_prouducts, grab_subscription, hyp3_login
 
 
@@ -21,7 +23,8 @@ def make_dirs(dir: str) -> str:
     """ If not already created this function creates the mask directory,
         and the directory the user inputs. The mask directory will contain
         subdirectories containing all the masks within
-        individual subdirectories. """
+        individual subdirectories. Subdirectories are created each time
+        the script is ran. """
 
     users_dir = os.path.join('mask', dir)
     if not os.path.isdir('mask'):
@@ -76,7 +79,7 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
 
 
 def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
-    """ mask_sub mask a given subscription  """
+    """ mask_sub masks a given subscription  """
     count = 0
     while True:
         print(f"Page: {count + 1}")
@@ -95,7 +98,7 @@ def main(args: Namespace, api: API) -> None:
     subscription = grab_subscription(api)
     dir = make_dirs(args.name)
     mask_sub(subscription['id'], dir, args.model, api)
-    # TODO: Add vrt feature
+    vrt(dir, f"{args.name}.vrt")
 
 
 if __name__ == '__main__':
