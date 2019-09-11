@@ -23,7 +23,7 @@ def hyp3_login() -> API:
         contents = f.read()
         username = contents.split(' ')[3]
         password = contents.split(' ')[5].split('\n')[0]
-    except IndexError:
+    except IndexError and FileNotFoundError:
         pass
 
     error = None
