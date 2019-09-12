@@ -14,7 +14,7 @@ from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
 
-TILE_REGEX = re.compile(r"(.*)\.tile\.vh\.(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.vh\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -87,8 +87,8 @@ def make_metadata(
                 continue
             pre, ext = m.groups()
             mask = f"{pre}.mask.{ext}"
-            vh_name = f"{pre}.tile.vh.{ext}"
-            vv_name = f"{pre}.tile.vv.{ext}"
+            vh_name = f"{pre}.vh.{ext}"
+            vv_name = f"{pre}.vv.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
