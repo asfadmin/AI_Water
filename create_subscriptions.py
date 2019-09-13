@@ -7,9 +7,9 @@ TODO: Update with a description of what this script does.
 """
 
 from asf_hyp3 import API
+from src.api_functions import hyp3_login
 
-from scripts.tremendous import hyp3_login
-
+# Dictionary holding values to pass to the HYP3 API.
 PROCESS_TYPE = [
     {'type': 'Change Detection - Threshold', 'id': 10, 'index': 1},
     {'type': 'Geocode Only', 'id': 31, 'index': 2},
@@ -29,8 +29,8 @@ POLARIZATION_TYPES = [
     {'polarization': 'VV', 'index': 2},
     {'polarization': 'HH+VH', 'index': 3},
     {'polarization': 'VV+VH', 'index': 4},
-    {'polarization': 'Any single', 'index': 5},
-    {'polarization': 'Any dual', 'index': 6},
+    # {'polarization': 'Any single', 'index': 5},
+    # {'polarization': 'Any dual', 'index': 6},
 ]
 
 
@@ -88,6 +88,8 @@ def choose_subscription_name(api: API) -> str:
 
 
 def choose_polarization() -> str:
+    """ Displays polarization types that can be selected and
+        returned to pass into the HYP3 API. """
     print('')
     for polarization in POLARIZATION_TYPES:
         print(f'Index: {polarization["index"]} \
@@ -109,6 +111,7 @@ def choose_polarization() -> str:
 
 
 def choose_location() -> str:
+    """ """
     print('\nPlease input location (for example type help): ', end='')
 
     while True:
