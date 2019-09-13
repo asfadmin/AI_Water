@@ -8,6 +8,7 @@
 import os
 import re
 import shutil
+import time
 import zipfile
 from argparse import ArgumentParser, Namespace
 from typing import List
@@ -94,10 +95,13 @@ def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
 
 def main(args: Namespace, api: API) -> None:
     """ main creates a vrt from a users subscription. """
+    start_time = time.time()
     subscription = grab_subscription(api)
     dir = make_dirs(args.name)
     mask_sub(subscription['id'], dir, args.model, api)
     vrt(dir, f"{args.name}.vrt")
+    end_time = time.time()
+    print(end_time - start_time)
 
 
 if __name__ == '__main__':
