@@ -83,7 +83,7 @@ def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
     while True:
         print(f"Page: {count + 1}")
         products = api.get_products(
-            sub_id=sub_id, page=count, page_size=100
+            sub_id=sub_id, page=count, page_size=500
         )
         mask_products(products, dir, model)
         count += 1
