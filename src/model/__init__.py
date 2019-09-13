@@ -13,24 +13,10 @@ from keras.models import load_model as kload_model
 
 from ..config import MODELS_DIR
 from ..typing import History
-from .architecture.binary import create_model_binary
-from .architecture.masked import create_model_masked
 
 
 class ModelType(Enum):
-    BINARY = 0
     MASKED = 1
-
-
-def create_model(model_name: str, model_type: ModelType) -> Model:
-    """ Depending on the given data set, this function creates a model. """
-    if model_type == ModelType.MASKED:
-        model = create_model_masked(model_name)
-    elif model_type == ModelType.BINARY:
-        model = create_model_binary(model_name)
-    else:
-        print("ERROR: UNSUPPORTED DATA TYPE")
-    return model
 
 
 def path_from_model_name(model_name: str) -> str:
@@ -125,8 +111,6 @@ def load_history_from_path(model_dir: str) -> History:
 
 
 def model_type(model: Model) -> Optional[ModelType]:
-    if model.output_shape == (None, 1):
-        return ModelType.BINARY
     if model.output_shape == (None, 512, 512, 1):
         return ModelType.MASKED
 
