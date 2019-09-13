@@ -9,7 +9,7 @@ from etl_water_mark import main as etl_wm
 from prepare_data import move_imgs, prepare_data
 from src.asf_cnn import test_model_masked
 from src.model import load_model
-from src.plots_masked import edit_predictions
+from src.plots import edit_predictions
 from water_mark import setup_data
 
 
