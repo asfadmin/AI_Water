@@ -21,8 +21,8 @@ def hyp3_login() -> API:
     try:
         with open('.netrc', 'r')as f:
             contents = f.read()
-            username = contents.split(' ')[3]
-            password = contents.split(' ')[5].split('\n')[0]
+        username = contents.split(' ')[3]
+        password = contents.split(' ')[5].split('\n')[0]
     except IndexError and FileNotFoundError:
         pass
 
@@ -104,7 +104,7 @@ def download_prouducts(products: List, i: int, product) -> None:
     print(f'Downloading {i+1} granule of {len(products)}')
     with open('.netrc', 'r') as f:
         contents = f.read()
-        username = contents.split(' ')[3]
-        password = contents.split(' ')[5].split('\n')[0]
+    username = contents.split(' ')[3]
+    password = contents.split(' ')[5].split('\n')[0]
     args = ['wget', '-c', '-q', '--show-progress', f"--http-user={username}", f"--http-password={password}", product['url']]
     call(args, stdout=PIPE)
