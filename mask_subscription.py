@@ -9,9 +9,9 @@ import os
 import re
 import shutil
 import time
-import zipfile
 from argparse import ArgumentParser, Namespace
 from typing import List
+from zipfile import ZipFile
 
 from asf_hyp3 import API
 from create_mask import main as mask_product
@@ -45,8 +45,8 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
     for i, product in enumerate(products):
         download_prouducts(products, i, product)
         try:
-            zf = zipfile.ZipFile(product['name'], 'r')
-            zf.extractall()
+            with ZipFile(product['name'], 'r') as zf:
+                zf.extractall()
             zf.close()
         except FileNotFoundError:
             continue
