@@ -85,7 +85,7 @@ def grab_subscription(api: API) -> Dict:
                 return subscription
             else:
                 continue
-        # Prints if the ID wasn't apart of the users API
+        # Prints if the ID wasn't a choice in the users API
         print("That id wasn't an option, please try again: ", end='')
 
 
