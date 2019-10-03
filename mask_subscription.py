@@ -8,12 +8,12 @@
 import os
 import re
 import shutil
+import time
 import zipfile
 from argparse import ArgumentParser, Namespace
 from typing import List
 
 from asf_hyp3 import API
-
 from create_mask import main as mask_product
 from scripts.make_vrt import main as vrt
 from src.api_functions import download_prouducts, grab_subscription, hyp3_login
@@ -72,7 +72,7 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
                 continue
             vv_img = img
 
-        output = os.path.join(users_path, f"{folder[0]}_{i}.tiff")
+        output = os.path.join(users_path, f"{folder[0]}_{i}.tif")
         mask_product(model_path, vv_img, vh_img, output)
         shutil.rmtree(folder[0])
         os.remove(f"{folder[0]}.zip")
@@ -84,7 +84,7 @@ def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
     while True:
         print(f"Page: {count + 1}")
         products = api.get_products(
-            sub_id=sub_id, page=count, page_size=100
+            sub_id=sub_id, page=count, page_size=500
         )
         mask_products(products, dir, model)
         count += 1
@@ -95,10 +95,13 @@ def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
 
 def main(args: Namespace, api: API) -> None:
     """ main creates a vrt from a users subscription. """
+    start_time = time.time()
     subscription = grab_subscription(api)
     dir = make_dirs(args.name)
     mask_sub(subscription['id'], dir, args.model, api)
     vrt(dir, f"{args.name}.vrt")
+    end_time = time.time()
+    print(end_time - start_time)
 
 
 if __name__ == '__main__':
