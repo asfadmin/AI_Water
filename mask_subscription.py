@@ -9,12 +9,12 @@ import os
 import re
 import shutil
 import time
-import zipfile
 from argparse import ArgumentParser, Namespace
+from subprocess import call
 from typing import List
+from zipfile import ZipFile
 
 from asf_hyp3 import API
-from create_mask import main as mask_product
 from scripts.make_vrt import main as vrt
 from src.api_functions import download_prouducts, grab_subscription, hyp3_login
 
@@ -45,8 +45,8 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
     for i, product in enumerate(products):
         download_prouducts(products, i, product)
         try:
-            zf = zipfile.ZipFile(product['name'], 'r')
-            zf.extractall()
+            with ZipFile(product['name'], 'r') as zf:
+                zf.extractall()
             zf.close()
         except FileNotFoundError:
             continue
@@ -73,7 +73,8 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
             vv_img = img
 
         output = os.path.join(users_path, f"{folder[0]}_{i}.tif")
-        mask_product(model_path, vv_img, vh_img, output)
+        # Creating mask
+        call(f"python create_mask.py {model_path} {vv_img} {vh_img} {output}".split())
         shutil.rmtree(folder[0])
         os.remove(f"{folder[0]}.zip")
 
