@@ -6,6 +6,7 @@ import os
 import re
 from typing import Any, Callable, List, Optional
 
+import pyperclip
 from keras.preprocessing.image import Iterator
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Button
@@ -35,6 +36,7 @@ def edit_predictions(
             nonlocal done
             done = True
 
+        _copy_btn = copy_img_name(f_path[0])
         _cbtn = close_button(close_plot)
         _kpbtn = keep_button(f_path)
         _rpbtn = replace_button(f_path, pred)
@@ -89,6 +91,21 @@ def plots(pred, mask, img, environment='') -> None:
     img = img.clip(0, 1)
     plt.imshow(img[0, :, :, 1].reshape(dem, dem),
                cmap=plt.get_cmap('gist_gray'))
+
+
+def copy_img_name(f_path):
+    button = Button(plt.axes([0.05, 0.15, 0.1, 0.075]), 'Copy')
+
+    def click_handler(event: Any) -> None:
+        REG_EX = re.compile(r'(.*)/(.*).vh.tif')
+        m = re.match(REG_EX, f_path)
+        _, img = m.groups()
+        print(img)
+        pyperclip.copy(img)
+
+    button.on_clicked(click_handler)
+    # Returns to prevent the button from being garbage collected
+    return button
 
 
 def save_img(f_paths: List[str], pred) -> None:

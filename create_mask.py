@@ -1,6 +1,11 @@
+#!/usr/bin/env/python
 """
 Create a water mask for an image. The image must be dual pol (VV + VH) and must
 be calibrated.
+
+****** NOTE ******
+create_mask.py contains a memory leak. Use a subprocess call when using main
+in a loop to prevent memory issues.
 """
 
 import os
