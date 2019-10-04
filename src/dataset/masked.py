@@ -1,5 +1,5 @@
 """
-    masked.py contains the code for preparing a masked data set, and loading
+masked.py contains the code for preparing a masked data set, and loading
 the prepared data set for use.
 """
 
