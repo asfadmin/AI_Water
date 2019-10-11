@@ -47,9 +47,9 @@ EXT = "tiff|tif|TIFF|TIF"
 FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
-def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
+def make_tiles(ifname: str, tile_size: Tuple[int, int], folder='prep_tiles') -> None:
     """ Takes a .tiff file and breaks it into smaller .tiff files. """
-    img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
+    img_fpath = os.path.join(config.PROJECT_DIR, folder, ifname)
 
     if not check_dependencies(('gdal', )):
         return
