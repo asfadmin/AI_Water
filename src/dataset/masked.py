@@ -10,6 +10,9 @@ from typing import Generator, Optional, Tuple
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 
+import src.config as config
+from prepare_data import make_tiles
+
 from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
@@ -139,3 +142,18 @@ def generate_from_metadata(
             min_, max_ = clip_range
             np.clip(x, min_, max_, out=x)
         yield (x.reshape(output_shape), y.reshape(mask_output_shape))
+
+
+# TODO: Update name
+def break_up_image(dir: str) -> None:
+    """ Breaks an image down to 64 x 64 """
+    dir_fpath = os.path.join(config.PROJECT_DIR, dir)
+    for root, dirs, imgs in os.walk(dir_fpath):
+        for img in imgs:
+            img_path = os.path.join(dir, 'train')
+            make_tiles(img, (64, 64), img_path)
+            os.remove(img)
+
+
+def stitch_images() -> None:
+    pass
