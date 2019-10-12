@@ -20,11 +20,14 @@ from src.plots import plot_confusion_chart, plot_predictions
 from src.plots_masked import edit_predictions
 from src.plots_masked import plot_predictions as plot_masked_predictions
 from src.reports import write_dict_to_csv
+from src.dataset.masked import split_imgs
 
 
 def train_wrapper(args: Namespace) -> None:
     """Function for training a network"""
     data_type = dataset_type(args.dataset)
+    # TODO: Make sure this line works correctly
+    split_imgs(args.dataset)
     model_name = args.model
     if args.cont:
         model = load_model(model_name)
@@ -53,6 +56,8 @@ def test_wrapper(args: Namespace) -> None:
         print("ERROR: This dataset is not compatible with your model")
         return
     if dataset_type(args.dataset) == ModelType.MASKED:
+        # TODO: Make sure this line works correctly
+        split_imgs(args.dataset)
         if args.edit:
             predictions, data_iter, metadata = test_model_masked(
                 model, args.dataset, args.edit
