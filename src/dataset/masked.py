@@ -11,7 +11,6 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 
 import src.config as config
-from prepare_data import make_tiles
 
 from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
@@ -117,8 +116,8 @@ def generate_from_metadata(
     edit: bool = False
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
-    output_shape = (512, 512, 2)
-    mask_output_shape = (512, 512, 1)
+    output_shape = (64, 64, 2)
+    mask_output_shape = (64, 64, 1)
     for tile_vh, tile_vv, mask_name in metadata:
 
         with gdal_open(tile_vh) as f:
@@ -144,19 +143,49 @@ def generate_from_metadata(
         yield (x.reshape(output_shape), y.reshape(mask_output_shape))
 
 
-# TODO: Update name
-def break_up_image(dir: str) -> None:
+def make_tiles(ifname: str, tile_size: Tuple[int, int], folder='prep_tiles') -> None:
+    """ Takes a .tiff file and breaks it into smaller .tiff files. """
+    if folder == "prep_tiles":
+        img_fpath = os.path.join(config.PROJECT_DIR, folder, ifname)
+    else:
+        img_fpath = os.path.join(config.PROJECT_DIR, ifname, folder)
+    if not check_dependencies(('gdal', )):
+        return
+
+    datafile = gdal.Open(img_fpath)
+    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
+    step_x, step_y = tile_size
+
+    xsize = datafile.RasterXSize
+    ysize = datafile.RasterYSize
+
+    for x in range(0, xsize, step_x):
+        for y in range(0, ysize, step_y):
+            gdal.Translate(
+                f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
+                img_fpath,
+                srcWin=[x, y, step_x, step_y],
+                format="GTiff"
+            )
+
+
+def split_imgs(dir: str) -> None:
     """ Breaks an image down to 64 x 64 """
     dir_fpath = os.path.join(config.PROJECT_DIR, dir)
+    IMG_FOLDER = re.compile(f'(.*)/{dir}/(.*)')
     for root, dirs, imgs in os.walk(dir_fpath):
         for img in imgs:
-
-            if img.endswith('.xml'):
+            m = re.match(IMG_FOLDER, root)
+            if not m:
                 continue
 
+            if img.endswith('.xml'):
+                os.remove(img)
+
+            _, folder = m.groups()
             try:
-                img_path = os.path.join(dir, 'train')
-                make_tiles(img, (64, 64), img_path)
+                img_path = os.path.join(folder, img)
+                make_tiles(dir, (64, 64), img_path)
             except FileNotFoundError as e:
                 print(e)
 

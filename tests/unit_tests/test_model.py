@@ -40,12 +40,12 @@ def fake_model() -> Model:
 
 @pytest.fixture
 def fake_model_masked() -> Model:
-    return Sequential([Dense(1, input_shape=(512, 512, 2))])
+    return Sequential([Dense(1, input_shape=(64, 64, 2))])
 
 
 @pytest.fixture
 def fake_model_other() -> Model:
-    return Sequential([Dense(1, input_shape=(512, 512, 512, 2))])
+    return Sequential([Dense(1, input_shape=(64, 64, 64, 2))])
 
 
 @pytest.fixture

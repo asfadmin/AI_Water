@@ -33,7 +33,7 @@ def train_model(
     else:
         print(
             "Unknown model output shape. Expected either a binary",
-            "classification model or a 512x512 pixel mask."
+            "classification model or a 64x64 pixel mask."
         )
         return
 

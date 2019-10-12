@@ -60,7 +60,7 @@ def plot_predictions(predictions: List[float], dataset: str) -> None:
                 image_name = m.group(1)
             pyplot.subplot(3, 3, j + 1)
             pyplot.imshow(
-                img.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+                img.reshape(64, 64), cmap=pyplot.get_cmap('gist_gray')
             )
             y = 0
 

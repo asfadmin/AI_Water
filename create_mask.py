@@ -32,15 +32,15 @@ def main(
     f = gdal.Open(vv_path)
     vv_array = f.ReadAsArray()
     original_shape = vv_array.shape
-    n_rows, n_cols = get_tile_dimensions(*original_shape, tile_size=512)
-    vv_array = pad_image(vv_array, 512)
+    n_rows, n_cols = get_tile_dimensions(*original_shape, tile_size=64)
+    vv_array = pad_image(vv_array, 64)
     invalid_pixels = np.nonzero(vv_array == 0.0)
 
     vv_tiles = tile_image(vv_array)
 
     # Get vh tiles
     f = gdal.Open(vv_path)
-    vh_array = pad_image(f.ReadAsArray(), 512)
+    vh_array = pad_image(f.ReadAsArray(), 64)
 
     vh_tiles = tile_image(vh_array)
 
@@ -52,9 +52,9 @@ def main(
     )
     masks.round(decimals=0, out=masks)
     # Stitch masks together
-    mask = masks.reshape((n_rows, n_cols, 512, 512)) \
+    mask = masks.reshape((n_rows, n_cols, 64, 64)) \
                 .swapaxes(1, 2) \
-                .reshape(n_rows * 512, n_cols * 512)  # yapf: disable
+                .reshape(n_rows * 64, n_cols * 64)  # yapf: disable
 
     mask[invalid_pixels] = 0
     write_mask_to_file(mask, outfile, f.GetProjection(), f.GetGeoTransform())
@@ -77,7 +77,7 @@ def get_tile_dimensions(height: int, width: int, tile_size: int):
 
 
 def tile_image(
-    image: np.ndarray, width: int = 512, height: int = 512
+    image: np.ndarray, width: int = 64, height: int = 64
 ) -> np.ndarray:
     _nrows, _ncols = image.shape
     _strides = image.strides

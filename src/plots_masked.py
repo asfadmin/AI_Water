@@ -71,7 +71,7 @@ def plot_predictions(
 
 
 def plots(pred, mask, img, environment='') -> None:
-    dem = 512
+    dem = 64
     plt.subplot(1, 4, 1)
     plt.title('prediction')
     plt.xlabel(environment)
@@ -115,7 +115,7 @@ def save_img(f_paths: List[str], pred) -> None:
         mask_geo_transform = f.GetGeoTransform()
 
     write_mask_to_file(
-        pred.reshape(512, 512), f_paths[2], mask_projection, mask_geo_transform
+        pred.reshape(64, 64), f_paths[2], mask_projection, mask_geo_transform
     )
 
 

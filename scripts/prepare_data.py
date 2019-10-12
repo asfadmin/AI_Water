@@ -46,7 +46,7 @@ except ImportError:
 EXT = "tiff|tif|TIFF|TIF"
 FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
-
+# TOD): Bring this back to what it was
 def make_tiles(ifname: str, tile_size: Tuple[int, int], folder='prep_tiles') -> None:
     """ Takes a .tiff file and breaks it into smaller .tiff files. """
     if folder == "prep_tiles":
@@ -280,7 +280,7 @@ def groom_imgs(directory: str) -> None:
             std = flt.std()
             vh_array = vh_array.clip(0, mean + 3 * std)
             pyplot.imshow(
-                vh_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+                vh_array.reshape(64, 64), cmap=pyplot.get_cmap('gist_gray')
             )
 
             pyplot.subplot(1, 3, 3)
@@ -291,7 +291,7 @@ def groom_imgs(directory: str) -> None:
             std = flt.std()
             vv_array = vv_array.clip(0, mean + 20 * std)
             pyplot.imshow(
-                vv_array.reshape(512, 512), cmap=pyplot.get_cmap('gist_gray')
+                vv_array.reshape(64, 64), cmap=pyplot.get_cmap('gist_gray')
             )
 
             def close_plot(_: Any) -> None:

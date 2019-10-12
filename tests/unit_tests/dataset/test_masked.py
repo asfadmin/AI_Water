@@ -77,47 +77,47 @@ def generate_data(
 
 
 def test_generate_from_metadata(metadata_masked: MaskedDatasetMetadata):
-    data = generate_data(metadata_masked, np.ones((512, 512)))
+    data = generate_data(metadata_masked, np.ones((64, 64)))
 
     imgs = list(map(lambda x: x[0], data))
     masks = list(map(lambda x: x[1], data))
     for img in imgs:
-        assert (img == np.ones((512, 512, 2))).all()
+        assert (img == np.ones((64, 64, 2))).all()
 
     for mask in masks:
-        assert (mask == np.ones((512, 512, 1))).all()
+        assert (mask == np.ones((64, 64, 1))).all()
 
 
 def test_generate_from_metadata_clip_range(
     metadata_masked: MaskedDatasetMetadata
 ):
     data = generate_data(
-        metadata_masked, np.ones((512, 512)), clip_range=(0, 0.5)
+        metadata_masked, np.ones((64, 64)), clip_range=(0, 0.5)
     )
 
     imgs = list(map(lambda x: x[0], data))
     masks = list(map(lambda x: x[1], data))
     for img in imgs:
-        assert (img == np.ones((512, 512, 2)) / 2.0).all()
+        assert (img == np.ones((64, 64, 2)) / 2.0).all()
 
     for mask in masks:
-        assert (mask == np.ones((512, 512, 1))).all()
+        assert (mask == np.ones((64, 64, 1))).all()
 
 
 def test_generate_from_metadata_with_zeros(
     metadata_masked: MaskedDatasetMetadata
 ):
-    assert generate_data(metadata_masked, np.zeros((512, 512))) == []
+    assert generate_data(metadata_masked, np.zeros((64, 64))) == []
 
 
 def test_generate_from_metadata_with_nans(
     metadata_masked: MaskedDatasetMetadata
 ):
-    assert generate_data(metadata_masked, np.zeros((512, 512)) + np.nan) == []
+    assert generate_data(metadata_masked, np.zeros((64, 64)) + np.nan) == []
 
 
 def test_load_dataset(dataset_masked: str):
-    with mock_gdal_open(np.ones((512, 512))):
+    with mock_gdal_open(np.ones((64, 64))):
         train_iter, test_iter = load_dataset(dataset_masked)
 
     train = list(itertools.islice(train_iter, len(train_iter)))
