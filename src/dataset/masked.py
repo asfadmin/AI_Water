@@ -150,9 +150,15 @@ def break_up_image(dir: str) -> None:
     dir_fpath = os.path.join(config.PROJECT_DIR, dir)
     for root, dirs, imgs in os.walk(dir_fpath):
         for img in imgs:
-            img_path = os.path.join(dir, 'train')
-            make_tiles(img, (64, 64), img_path)
-            os.remove(img)
+
+            if img.endswith('.xml'):
+                continue
+
+            try:
+                img_path = os.path.join(dir, 'train')
+                make_tiles(img, (64, 64), img_path)
+            except FileNotFoundError as e:
+                print(e)
 
 
 def stitch_images() -> None:
