@@ -138,7 +138,7 @@ def generate_from_metadata(
             l, h = clip_range
             np.clip(x, l, h, out=x)
 
-        yield (x.reshape((64, 64, 1)), np.array(label_to_num[label]))
+        yield (x.reshape((512, 512, 1)), np.array(label_to_num[label]))
 
 
 def load_labels(dataset: str) -> Dict[str, str]:
