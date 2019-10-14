@@ -14,7 +14,7 @@ import src.config as config
 
 from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
-from .common import dataset_dir, valid_image
+from .common import dataset_dir, valid_image, check_dependencies
 
 TILE_REGEX = re.compile(r"(.*)\.vh\.(tiff|tif|TIFF|TIF)")
 
@@ -180,7 +180,10 @@ def split_imgs(dir: str) -> None:
                 continue
 
             if img.endswith('.xml'):
-                os.remove(img)
+                try:
+                    os.remove(img)
+                except FileNotFoundError:
+                    continue
 
             _, folder = m.groups()
             try:
