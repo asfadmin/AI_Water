@@ -153,31 +153,3 @@ def generate_from_metadata(
             min_, max_ = clip_range
             np.clip(x, min_, max_, out=x)
         yield (x.reshape(output_shape), y.reshape(mask_output_shape))
-
-
-def make_tiles(ifname: str,
-               tile_size: Tuple[int, int],
-               folder='prep_tiles') -> None:
-    """ Takes a .tiff file and breaks it into smaller .tiff files. """
-    if folder == "prep_tiles":
-        img_fpath = os.path.join(config.PROJECT_DIR, folder, ifname)
-    else:
-        img_fpath = os.path.join(config.PROJECT_DIR, ifname, folder)
-    if not check_dependencies(('gdal', )):
-        return
-
-    datafile = gdal.Open(img_fpath)
-    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
-    step_x, step_y = tile_size
-
-    xsize = datafile.RasterXSize
-    ysize = datafile.RasterYSize
-
-    for x in range(0, xsize, step_x):
-        for y in range(0, ysize, step_y):
-            gdal.Translate(
-                f'{iftitle}{y}.{ifext}',
-                img_fpath,
-                srcWin=[x, y, step_x, step_y],
-                format="GTiff"
-            )
