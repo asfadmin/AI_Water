@@ -15,8 +15,10 @@ import src.config as config
 from ..gdal_wrapper import gdal_open
 from ..typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
+from ..config import DATASETS_DIR
+from osgeo import gdal
 
-TILE_REGEX = re.compile(r"(.*)\.vh\.(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.vh(.*)\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -81,21 +83,25 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
+    dir = os.path.join(DATASETS_DIR, dataset)
 
+    for dirpath, dirnames, filenames in os.walk(dataset_dir(dir)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
-            pre, ext = m.groups()
-            mask = f"{pre}.mask.{ext}"
-            vh_name = f"{pre}.vh.{ext}"
-            vv_name = f"{pre}.vv.{ext}"
+
+            pre, test, ext = m.groups()
+            if test == '':
+                continue
+            mask = f"{pre}.mask{test}.{ext}"
+            vh_name = f"{pre}.vh{test}.{ext}"
+            vv_name = f"{pre}.vv{test}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
                 os.path.join(dirpath, mask)
-            )
+                )
             folder = os.path.basename(dirpath)
 
             if edit:
@@ -120,10 +126,16 @@ def generate_from_metadata(
     mask_output_shape = (64, 64, 1)
     for tile_vh, tile_vv, mask_name in metadata:
 
-        with gdal_open(tile_vh) as f:
-            tile_vh_array = f.ReadAsArray()
-        with gdal_open(tile_vv) as f:
-            tile_vv_array = f.ReadAsArray()
+        try:
+            with gdal_open(tile_vh) as f:
+                tile_vh_array = f.ReadAsArray()
+        except FileNotFoundError:
+            continue
+        try:
+            with gdal_open(tile_vv) as f:
+                tile_vv_array = f.ReadAsArray()
+        except FileNotFoundError:
+            continue
 
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
 
@@ -143,7 +155,9 @@ def generate_from_metadata(
         yield (x.reshape(output_shape), y.reshape(mask_output_shape))
 
 
-def make_tiles(ifname: str, tile_size: Tuple[int, int], folder='prep_tiles') -> None:
+def make_tiles(ifname: str,
+               tile_size: Tuple[int, int],
+               folder='prep_tiles') -> None:
     """ Takes a .tiff file and breaks it into smaller .tiff files. """
     if folder == "prep_tiles":
         img_fpath = os.path.join(config.PROJECT_DIR, folder, ifname)
@@ -162,33 +176,8 @@ def make_tiles(ifname: str, tile_size: Tuple[int, int], folder='prep_tiles') -> 
     for x in range(0, xsize, step_x):
         for y in range(0, ysize, step_y):
             gdal.Translate(
-                f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
+                f'{iftitle}{y}.{ifext}',
                 img_fpath,
                 srcWin=[x, y, step_x, step_y],
                 format="GTiff"
             )
-
-
-def split_imgs(dir: str) -> None:
-    """ Breaks an image down to 64 x 64 """
-    dir_fpath = os.path.join(config.PROJECT_DIR, dir)
-    IMG_FOLDER = re.compile(f'(.*)/{dir}/(.*)')
-    for root, dirs, imgs in os.walk(dir_fpath):
-        for img in imgs:
-            m = re.match(IMG_FOLDER, root)
-            if not m:
-                continue
-
-            if img.endswith('.xml'):
-                os.remove(img)
-
-            _, folder = m.groups()
-            try:
-                img_path = os.path.join(folder, img)
-                make_tiles(dir, (64, 64), img_path)
-            except FileNotFoundError as e:
-                print(e)
-
-
-def stitch_images() -> None:
-    pass
