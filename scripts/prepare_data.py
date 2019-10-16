@@ -21,7 +21,7 @@ from argparse import ArgumentParser
 from typing import Any, List, Tuple
 
 import src.config as config
-
+from src.dataset.common import check_dependencies
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
@@ -367,19 +367,6 @@ def valid_image(img: ndarray) -> bool:
         return False
     if 0 in img:
         return False
-    return True
-
-
-def check_dependencies(deps: Tuple[str, ...]) -> bool:
-    global_vars = globals()
-
-    for dep in deps:
-        if dep not in global_vars:
-            print(
-                f"This function requires {dep}. "
-                "Please install it in the current shell and try again."
-            )
-            return False
     return True
 
 
