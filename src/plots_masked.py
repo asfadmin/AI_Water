@@ -98,9 +98,9 @@ def copy_img_name(f_path):
     button = Button(plt.axes([0.05, 0.15, 0.1, 0.075]), 'Copy')
 
     def click_handler(event: Any) -> None:
-        REG_EX = re.compile(r'(.*)/(.*).vh.tif')
+        REG_EX = re.compile(r'(.*)/(.*).vh(.*).tif')
         m = re.match(REG_EX, f_path)
-        _, img = m.groups()
+        _, img, _ = m.groups()
         print(img)
         pyperclip.copy(img)
 
