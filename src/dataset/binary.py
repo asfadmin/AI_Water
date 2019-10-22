@@ -12,7 +12,7 @@ from keras.preprocessing.image import ImageDataGenerator, Iterator
 from osgeo import gdal
 from typing_extensions import Literal
 
-from ..typing import BinaryDatasetMetadata
+from ..asf_typing import BinaryDatasetMetadata
 from .common import dataset_dir, valid_image
 
 

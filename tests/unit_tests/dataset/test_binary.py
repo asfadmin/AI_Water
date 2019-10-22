@@ -13,7 +13,7 @@ from src.dataset.binary import (
 )
 from src.dataset.common import dataset_type
 from src.model import ModelType
-from src.typing import BinaryDatasetMetadata
+from src.asf_typing import BinaryDatasetMetadata
 from tests.strategies import classes
 
 from .conftest import mock_gdal_open

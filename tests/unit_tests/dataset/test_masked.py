@@ -12,7 +12,7 @@ from src.dataset.masked import (
     generate_from_metadata, load_dataset, make_metadata
 )
 from src.model import ModelType
-from src.typing import MaskedDatasetMetadata
+from src.asf_typing import MaskedDatasetMetadata
 
 from .conftest import mock_gdal_open
 

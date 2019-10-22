@@ -10,13 +10,12 @@ from typing import Generator, Optional, Tuple
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 
-import src.config as config
 
 from ..gdal_wrapper import gdal_open
-from ..typing import MaskedDatasetMetadata
+from ..asf_typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
 from ..config import DATASETS_DIR
-from osgeo import gdal
+
 
 TILE_REGEX = re.compile(r"(.*)\.vh(.*)\.(tiff|tif|TIFF|TIF)")
 

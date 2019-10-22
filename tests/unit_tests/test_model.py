@@ -13,7 +13,7 @@ from src.model import (
     ModelType, create_model, load_history, load_model, model_type,
     path_from_model_name, save_history, save_model
 )
-from src.typing import History
+from src.asf_typing import History
 from tests.strategies import model_component
 
 
