@@ -58,6 +58,8 @@ def mkdata_wrapper(args: Namespace) -> None:
     setup_data(args.size)
     dataset_fpath = f"syntheticTriainingData{date.isoformat(date.today())}"
     dataset_dir = os.path.join('datasets', args.directory)
+    model_name = args.model
+    model = load_model(model_name)
 
     if args.environment:
         final_dataset_fpath = os.path.join(
@@ -87,7 +89,7 @@ def mkdata_wrapper(args: Namespace) -> None:
     prepare_data(final_dataset_fpath, 0.2)
 
     predictions, data_iter, metadata = test_model_masked(
-        load_model(args.model), dataset, edit=True
+        model, dataset, edit=True
     )
     edit_predictions(
         predictions, data_iter, metadata
@@ -122,10 +124,10 @@ if __name__ == '__main__':
     sp = p.add_subparsers()
 
     mk_data = sp.add_parser('mkdata', help='Make data')
-    mk_data.add_argument('size', type=int, help='side of imgaes')
+    mk_data.add_argument('model', help='Neural network for generating masks')
     mk_data.add_argument('dataset', help='Name of dataset')
     mk_data.add_argument('directory', help='Directory to store dataset in')
-    mk_data.add_argument('model', help='Neural network for generating masks')
+    mk_data.add_argument('size', type=int, help='side of imgaes')
     mk_data.add_argument(
         '-e',
         '--environment',
