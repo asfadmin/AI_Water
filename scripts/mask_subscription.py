@@ -74,7 +74,7 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
 
         output = os.path.join(users_path, f"{folder[0]}_{i}.tif")
         # Creating mask
-        call(f"python create_mask.py {model_path} {vv_img} {vh_img} {output}".split())
+        call(f"python scripts/create_mask.py {model_path} {vv_img} {vh_img} {output}".split())
         shutil.rmtree(folder[0])
         os.remove(f"{folder[0]}.zip")
 
