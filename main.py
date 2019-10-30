@@ -11,21 +11,14 @@ For more information see README.md
 import os
 from argparse import ArgumentParser, Namespace
 
-from src.asf_cnn import test_model_binary, test_model_masked, train_model
-from src.dataset.common import dataset_type
-from src.model import (
-    ModelType, create_model, load_model, model_type, path_from_model_name
-)
-from src.plots import plot_confusion_chart, plot_predictions
-from src.plots_masked import edit_predictions
-from src.plots_masked import plot_predictions as plot_masked_predictions
-from src.reports import write_dict_to_csv
+from src.asf_cnn import test_model_masked, train_model
+from src.model import load_model, path_from_model_name
+from src.model.architecture.masked import create_model_masked
+from src.plots import edit_predictions, plot_predictions
 
 
 def train_wrapper(args: Namespace) -> None:
-    """Function for training a network"""
-    data_type = dataset_type(args.dataset)
-
+    """ Function for training a network. """
     model_name = args.model
     if args.cont:
         model = load_model(model_name)
@@ -36,12 +29,8 @@ def train_wrapper(args: Namespace) -> None:
             print(f"File {model_name} already exists!")
             return
 
-        model = create_model(model_name, data_type)
+        model = create_model_masked(model_name)
         history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
-
-    if model_type(model) != data_type:
-        print("ERROR: This dataset is not compatible with your model")
-        return
 
     train_model(model, history, args.dataset, args.epochs)
 
@@ -50,34 +39,20 @@ def test_wrapper(args: Namespace) -> None:
     model_name = args.model
     model = load_model(model_name)
 
-    if model_type(model) != dataset_type(args.dataset):
-        print("ERROR: This dataset is not compatible with your model")
-        return
-    if dataset_type(args.dataset) == ModelType.MASKED:
-        if args.edit:
-            predictions, data_iter, metadata = test_model_masked(
-                model, args.dataset, args.edit
-            )
-            edit_predictions(
-                predictions, data_iter, metadata
-            )
-        else:
-            predictions, test_iter = test_model_masked(
-                model, args.dataset, args.edit
-            )
-            plot_masked_predictions(
-                predictions, test_iter
-            )
+    if args.edit:
+        predictions, data_iter, metadata = test_model_masked(
+            model, args.dataset, args.edit
+        )
+        edit_predictions(
+            predictions, data_iter, metadata
+        )
     else:
-
-        details, confusion_matrix = test_model_binary(model, args.dataset)
-
-        model_dir = os.path.dirname(path_from_model_name(model_name))
-        with open(os.path.join(model_dir, 'results.csv'), 'w') as f:
-            write_dict_to_csv(details, f)
-
-        plot_confusion_chart(confusion_matrix)
-        plot_predictions(details['Percent'], args.dataset)
+        predictions, test_iter = test_model_masked(
+            model, args.dataset, args.edit
+        )
+        plot_predictions(
+            predictions, test_iter
+        )
 
 
 if __name__ == '__main__':

@@ -15,6 +15,7 @@ from typing import List
 from zipfile import ZipFile
 
 from asf_hyp3 import API
+
 from scripts.make_vrt import main as vrt
 from src.api_functions import download_prouducts, grab_subscription, hyp3_login
 
@@ -108,8 +109,8 @@ def main(args: Namespace, api: API) -> None:
 if __name__ == '__main__':
     p = ArgumentParser()
 
-    p.add_argument('name', help='Name of mask')
     p.add_argument('model', help='Path to model')
+    p.add_argument('name', help='Name of mask')
     p.set_defaults(func=main)
 
     args = p.parse_args()
