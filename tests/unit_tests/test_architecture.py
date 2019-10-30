@@ -1,8 +1,6 @@
 """
-Tests to see if the output of the models architecture in masked_architecutre
-and binary_architecture are correct.
+Tests to see if the output of the models architecture is correct.
 """
-from src.model.architecture.binary import create_model_binary
 from src.model.architecture.masked import create_model_masked
 
 
@@ -11,8 +9,5 @@ def model_final_layer(model):
 
 
 def test_architecture():
-    model = create_model_binary("binary_test")
-    assert model_final_layer(model) == (None, 1)
-
     model = create_model_masked("masked_test")
     assert model_final_layer(model) == (None, 512, 512, 1)

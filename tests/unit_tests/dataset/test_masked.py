@@ -7,7 +7,7 @@ import numpy as np
 import py
 import pytest
 
-from src.dataset.common import dataset_type
+# from src.dataset.common import dataset_type
 from src.dataset.masked import (
     generate_from_metadata, load_dataset, make_metadata
 )
@@ -128,5 +128,5 @@ def test_load_dataset(dataset_masked: str):
     assert len(test) == 2
 
 
-def test_dataset_type(dataset_masked: str):
-    assert dataset_type(dataset_masked) == ModelType.MASKED
+# def test_dataset_type(dataset_masked: str):
+#     assert dataset_type(dataset_masked) == ModelType.MASKED
