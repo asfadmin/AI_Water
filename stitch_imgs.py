@@ -40,10 +40,16 @@ def build_up(path: str, pwr_of_two=512) -> None:
 
     # THE PLAN AT THE MOMENT IS TO SORT THEM IN ORDER AND HOPEFULLY
     # THEY WILL BE IN THE CORRECT ORDER
+
+    REGEX = re.compile(r"(.*)_b([0-9]+).tif")
     for root, dirs, files in os.walk(path):
         for file in files:
-            if not file.endswith('.tif'):
+            m = re.match(REGEX, file)
+            if not m or not file.endswith('.tif'):
                 continue
+            _, num = m.groups()
+            num = int(num)
+
             try:
                 tif = gdal.Open(os.path.join(root, file))
             except AttributeError:
