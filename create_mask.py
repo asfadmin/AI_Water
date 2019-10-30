@@ -12,15 +12,13 @@ import os
 from argparse import ArgumentParser
 
 import numpy as np
-from keras.models import load_model
+from src.model import load_model
 from osgeo import gdal
 
 
 def main(
     model_path: str, vv_path: str, vh_path: str, outfile: str, verbose: int = 0
 ):
-    if not os.path.isfile(model_path):
-        raise FileNotFoundError(f"Model '{model_path}' does not exist!")
 
     if not os.path.isfile(vv_path):
         raise FileNotFoundError(f"Tiff '{vv_path}' does not exist")
@@ -45,7 +43,6 @@ def main(
     vh_tiles = tile_image(vh_array)
 
     model = load_model(model_path)
-
     # Predict masks
     masks = model.predict(
         np.stack((vh_tiles, vv_tiles), axis=3), batch_size=1, verbose=verbose
@@ -112,9 +109,7 @@ def write_mask_to_file(
 
 if __name__ == "__main__":
     p = ArgumentParser(description=__doc__)
-    p.add_argument(
-        "model_path", help="path to the .h5 file of the trained model"
-    )
+    p.add_argument("model_path", help="Name of the trained model")
     p.add_argument("vv_path", help="path to the calibrated VV tiff")
     p.add_argument("vh_path", help="path to the calibrated VH tiff")
     p.add_argument("outfile", help="name of the generated mask")
