@@ -13,7 +13,7 @@ from argparse import ArgumentParser, Namespace
 
 from src.asf_cnn import test_model_binary, test_model_masked, train_model
 from src.dataset.common import dataset_type
-from src.model import (
+from src.model import (  # Contained with in model/__init__.py
     ModelType, create_model, load_model, model_type, path_from_model_name
 )
 from src.plots import plot_confusion_chart, plot_predictions
@@ -27,10 +27,11 @@ def train_wrapper(args: Namespace) -> None:
     data_type = dataset_type(args.dataset)
 
     model_name = args.model
+    # Continue trianing a network
     if args.cont:
         model = load_model(model_name)
         history = model.__asf_model_history
-    else:
+    else:  # Train a new network
         model_path = path_from_model_name(model_name)
         if not args.overwrite and os.path.isfile(model_path):
             print(f"File {model_name} already exists!")
