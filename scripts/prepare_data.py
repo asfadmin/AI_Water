@@ -21,7 +21,7 @@ from argparse import ArgumentParser
 from typing import Any, List, Tuple
 
 import src.config as config
-from src.dataset.common import check_dependencies
+
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
