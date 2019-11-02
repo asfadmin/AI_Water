@@ -10,9 +10,10 @@ from keras.models import Model, Sequential
 
 from src.config import PROJECT_DIR
 from src.model import (
-    ModelType, create_model, load_history, load_model, model_type,
-    path_from_model_name, save_history, save_model
+    ModelType, load_history, load_model, model_type, path_from_model_name,
+    save_history, save_model
 )
+from src.model.architecture.masked import create_model_masked as create_model
 from src.typing import History
 from tests.strategies import model_component
 
@@ -60,10 +61,7 @@ def new_history() -> History:
 
 def test_create_model():
     # Verifying that create_model doesn't throw any errors
-    model_binary = create_model("some_binary_model", ModelType.BINARY)
-    model_masked = create_model("some_masked_model", ModelType.MASKED)
-
-    assert model_binary.__asf_model_name == "some_binary_model"
+    model_masked = create_model("some_masked_model")
     assert model_masked.__asf_model_name == "some_masked_model"
 
 
@@ -161,6 +159,6 @@ def test_save_history_no_dir(
 def test_model_type(
     fake_model: Model, fake_model_masked: Model, fake_model_other: Model
 ):
-    assert model_type(fake_model) == ModelType.BINARY
+
     assert model_type(fake_model_masked) == ModelType.MASKED
     assert model_type(fake_model_other) is None
