@@ -1,5 +1,5 @@
 """
-    Contains functions that work regardless of dataset type.
+Contains functions that work regardless of dataset type.
 """
 
 import os

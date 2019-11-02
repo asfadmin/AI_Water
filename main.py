@@ -41,6 +41,7 @@ def test_wrapper(args: Namespace) -> None:
     model = load_model(model_name)
 
     if args.edit:
+        # if user selected -e they get the option to edit water masks
         predictions, data_iter, metadata = test_model_masked(
             model, args.dataset, args.edit
         )

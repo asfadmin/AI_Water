@@ -1,3 +1,14 @@
+"""
+make_data.py allows a user to make a new dataset. To use make_data go to
+your finished products at http://hyp3.asf.alaska.edu, select the granule
+you'd like to turn into a dataset and then download its python script.
+Leave the script in downloads. After that run make_data.py
+
+Command layout:
+    python make_data.py ai_model_folder dataset_name dir_dataset_sits 512
+Example:
+    python make_data.py ai_model_7 Fairbanks Alaska 512
+"""
 import os
 import random
 import re
