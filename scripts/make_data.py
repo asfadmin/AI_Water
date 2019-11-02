@@ -4,10 +4,11 @@ your finished products at http://hyp3.asf.alaska.edu, select the granule
 you'd like to turn into a dataset and then download its python script.
 Leave the script in downloads. After that run make_data.py
 
+* Note: These commands assume you are in the projects root directory
 Command layout:
-    python make_data.py ai_model_folder dataset_name dir_dataset_sits 512
+    python scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
 Example:
-    python make_data.py ai_model_7 Fairbanks Alaska 512
+    python scripts/make_data.py ai_model_7 Fairbanks Alaska 512
 """
 import os
 import random
