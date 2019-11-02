@@ -1,6 +1,6 @@
 """
 make_data.py allows a user to make a new dataset. To use make_data go to
-your finished products at http://hyp3.asf.alaska.edu, select the granule
+your finished products at http://hyp3.asf.alaska.edu, select the granule(s)
 you'd like to turn into a dataset and then download its python script.
 Leave the script in downloads. After that run make_data.py
 

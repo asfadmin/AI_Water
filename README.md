@@ -53,37 +53,26 @@ to get more help run the command:
 $ python3 scripts/prepare_data.py classify -h
 ```
 
-## Preparing Tiled and Classified Data Set
-To run the Neural Net your data will first need to be prepared. This example
-would have a binary output as it includes a labels.json file. A masked data set
-would not have the labels.json file.
+## Preparing Data With a Neural Network
+To run the Neural Net your data will first need to be prepared.
 
-Within the same directory that main.py resides create a new folder called
-'datasets'. Wrap all of your data and metadata into a folder and then move that
-folder into data set. Below is an example of a tiled data set that is ready to
-be restructured.
+Within the same directory that main.py resides create a new folder called 'datasets'.
 
-```
-AI_Water
-└── datasets
-    └── example_rtc       # Each data set gets a directory
-        ├── labels.json   # Your .json file needs to be named labels.json
-        ├── img1.tif
-        └── img2.tif
-```
+Next, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished. Select the granules you'd like to use for your dataset. After that, click the button that says "Download Python Script for Selected" and make sure it downloads to the Downloads directory.
 
-Once your data is in the correct directory run the following command:
+After that run make_data.py.
 
+Command layout:
 ```terminal
-$ python3 scripts/prepare_data.py prepare datasets/example_rtc .3
+$ python3 scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
 ```
-
-This will move the image tiles into the directory structure expected by the
-training script using a holdout of 30%.
-
+Example:
+```terminal
+$ python scripts/make_data.py ai_model_7 Fairbanks Alaska 512
+```
 To get more information on preparing the data set run:
 ```terminal
-$ python3 scripts/prepare_data.py prepare -h
+$ python3 scripts/make_data.py prepare -h
 ```
 
 At this point your data set is ready and the directory should look like this:
@@ -91,12 +80,16 @@ At this point your data set is ready and the directory should look like this:
 ```
 AI_Water
 └── datasets
-    └── example_rtc
-        ├── labels.json
-        ├── test
-        │   └── img1.tif
-        └── train
-            └── img2.tif
+    └── Alaska
+        └── Fairbanks
+            ├── test
+            │   └── img1.vv.tif
+            │   └── img1.vh.tif
+            │   └── img1.mask.tif
+            └── train
+                └── img2.vv.tif
+                └── img2.vh.tif
+                └── img2.mask.tif
 ```
 
 ## Project Layout
@@ -107,7 +100,6 @@ The project is organized into directories as follows.
 AI_Water
 ├── datasets
 │   └── example_rtc       # Each data set gets a directory
-│       ├── labels.json
 │       ├── test
 │       └── train
 ├── models
@@ -119,6 +111,7 @@ AI_Water
 ├── tests                 # Unit and integration tests
 │   ├── unit_tests
 │   └── integration_tests
+├── scripts               # Supporting script files
 └── ...
 ```
 
@@ -134,7 +127,7 @@ $ pipenv run tests
 ```
 
 ## Training
-1. Move your data set (along with `labels.json`) to the `dataset` folder.
+1. Make sure your dataset is in the `dataset` folder.
 2. If you’re loading in weights run `main.py` with the `--continue` option.
 If you’re not loading them in and you're restarting the training of the CNN you
 will need to run `main.py` with the `--overwrite` option.
