@@ -19,46 +19,16 @@ the training and unit tests.
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
-## Tiling .tiff Images
-To tile your tiff image create a folder in the same directory as
-main.py and name it prep_tiles. Store the tiff file within this
-folder, like below:
-```
-AI_Water
-├── prep_tiles
-    └── name_of_img.tiff
-```
-Next run this command in the terminal (Note that 512 is the dimensions and
-can be any arbitrary value, but to be ran in the provided Neural Network
-it must be 512):
-
-```terminal
-$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 512
-```
-To get more help on tiling run this
-command:
-
-```terminal
-$ python3 scripts/prepare_data.py tile -h
-```
-
-## Classifying Images (for binary data sets)
-In the terminal run the command:
-```terminal
-$ python3 scripts/prepare_data.py classify prep_tiles
-```
-
-to get more help run the command:
-```terminal
-$ python3 scripts/prepare_data.py classify -h
-```
 
 ## Preparing Data With a Neural Network
 To run the Neural Net your data will first need to be prepared.
 
 Within the same directory that main.py resides create a new folder called 'datasets'.
 
-Next, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished. Select the granules you'd like to use for your dataset. After that, click the button that says "Download Python Script for Selected" and make sure it downloads to the Downloads directory.
+Next, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished.
+Select the granules you'd like to use for your dataset. After that, click the
+button that says "Download Python Script for Selected" and make sure it
+downloads to the Downloads directory.
 
 After that run make_data.py.
 
@@ -68,14 +38,15 @@ $ python3 scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
 ```
 Example:
 ```terminal
-$ python scripts/make_data.py ai_model_7 Fairbanks Alaska 512
+$ python scripts/make_data.py ai_model_7 Fairbanks Alaska 64
 ```
 To get more information on preparing the data set run:
 ```terminal
 $ python3 scripts/make_data.py prepare -h
 ```
 
-At this point your data set is ready and the directory should look like this:
+After the program is finished the dataset is ready and the directory should
+look like this:
 
 ```
 AI_Water
@@ -92,8 +63,44 @@ AI_Water
                 └── img2.mask.tif
 ```
 
-## Project Layout
+## Preparing data without a Network - Making Water Mask
+To create a water mask download, you will need both a VV and VH granule.
+Once you have them move them into a directory called prep_files (You might have
+to create it). Next run this command:
 
+```terminal
+$ python scripts/identify_water.py prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VV.tif  prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VH.tif
+```
+
+Next move the out put 'mask-0.tif' into the directory prep_files.
+
+## Preparing data without a Network - Tiling .tiff Images
+To tile your tiff image create a folder in the same directory as
+main.py and name it prep_tiles. Store the tiff file within this
+folder, like below:
+```
+AI_Water
+├── prep_tiles
+    └── name_of_img.tiff
+```
+Next run this command in the terminal (Note that 64 is the dimensions and
+can be any arbitrary value, but to be ran in the provided Neural Network
+it must be 64):
+
+```terminal
+$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 64
+```
+
+You will need to run this command for all the VV, VH, and Mask images.
+
+To get more help on tiling run this
+command:
+
+```terminal
+$ python3 scripts/prepare_data.py tile -h
+```
+
+## Project Layout
 The project is organized into directories as follows.
 
 ```
