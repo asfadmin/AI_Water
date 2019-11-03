@@ -72,7 +72,7 @@ to create it). Next run this command:
 $ python scripts/identify_water.py prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VV.tif  prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VH.tif
 ```
 
-Next move the out put 'mask-0.tif' into the directory prep_files.
+Next, move the output 'mask-0.tif' into the directory prep_files.
 
 ## Preparing data without a Network - Tiling .tiff Images
 To tile your tiff image create a folder in the same directory as
@@ -83,7 +83,7 @@ AI_Water
 ├── prep_tiles
     └── name_of_img.tiff
 ```
-Next run this command in the terminal (Note that 64 is the dimensions and
+Next, run this command in the terminal (Note that 64 is the dimensions and
 can be any arbitrary value, but to be ran in the provided Neural Network
 it must be 64):
 
