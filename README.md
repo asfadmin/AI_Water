@@ -19,7 +19,62 @@ the training and unit tests.
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
-## Tiling .tiff Images
+
+## Preparing Data With a Neural Network
+To run the Neural Net your data will first need to be prepared.
+
+Within the same directory that main.py resides create a new folder called 'datasets'.
+
+Next, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished.
+Select the granules you'd like to use for your dataset. After that, click the
+button that says "Download Python Script for Selected" and make sure it
+downloads to the Downloads directory.
+
+After that run make_data.py.
+
+Command layout:
+```terminal
+$ python3 scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
+```
+Example:
+```terminal
+$ python scripts/make_data.py ai_model_7 Fairbanks Alaska 64
+```
+To get more information on preparing the data set run:
+```terminal
+$ python3 scripts/make_data.py prepare -h
+```
+
+After the program is finished the dataset is ready and the directory should
+look like this:
+
+```
+AI_Water
+└── datasets
+    └── Alaska
+        └── Fairbanks
+            ├── test
+            │   └── img1.vv.tif
+            │   └── img1.vh.tif
+            │   └── img1.mask.tif
+            └── train
+                └── img2.vv.tif
+                └── img2.vh.tif
+                └── img2.mask.tif
+```
+
+## Preparing data without a Network - Making Water Mask
+To create a water mask download, you will need both a VV and VH granule.
+Once you have them move them into a directory called prep_files (You might have
+to create it). Next run this command:
+
+```terminal
+$ python scripts/identify_water.py prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VV.tif  prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VH.tif
+```
+
+Next, move the output 'mask-0.tif' into the directory prep_files.
+
+## Preparing data without a Network - Tiling .tiff Images
 To tile your tiff image create a folder in the same directory as
 main.py and name it prep_tiles. Store the tiff file within this
 folder, like below:
@@ -28,13 +83,16 @@ AI_Water
 ├── prep_tiles
     └── name_of_img.tiff
 ```
-Next run this command in the terminal (Note that 512 is the dimensions and
+Next, run this command in the terminal (Note that 64 is the dimensions and
 can be any arbitrary value, but to be ran in the provided Neural Network
-it must be 512):
+it must be 64):
 
 ```terminal
-$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 512
+$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 64
 ```
+
+You will need to run this command for all the VV, VH, and Mask images.
+
 To get more help on tiling run this
 command:
 
@@ -42,72 +100,13 @@ command:
 $ python3 scripts/prepare_data.py tile -h
 ```
 
-## Classifying Images (for binary data sets)
-In the terminal run the command:
-```terminal
-$ python3 scripts/prepare_data.py classify prep_tiles
-```
-
-to get more help run the command:
-```terminal
-$ python3 scripts/prepare_data.py classify -h
-```
-
-## Preparing Tiled and Classified Data Set
-To run the Neural Net your data will first need to be prepared. This example
-would have a binary output as it includes a labels.json file. A masked data set
-would not have the labels.json file.
-
-Within the same directory that main.py resides create a new folder called
-'datasets'. Wrap all of your data and metadata into a folder and then move that
-folder into data set. Below is an example of a tiled data set that is ready to
-be restructured.
-
-```
-AI_Water
-└── datasets
-    └── example_rtc       # Each data set gets a directory
-        ├── labels.json   # Your .json file needs to be named labels.json
-        ├── img1.tif
-        └── img2.tif
-```
-
-Once your data is in the correct directory run the following command:
-
-```terminal
-$ python3 scripts/prepare_data.py prepare datasets/example_rtc .3
-```
-
-This will move the image tiles into the directory structure expected by the
-training script using a holdout of 30%.
-
-To get more information on preparing the data set run:
-```terminal
-$ python3 scripts/prepare_data.py prepare -h
-```
-
-At this point your data set is ready and the directory should look like this:
-
-```
-AI_Water
-└── datasets
-    └── example_rtc
-        ├── labels.json
-        ├── test
-        │   └── img1.tif
-        └── train
-            └── img2.tif
-```
-
 ## Project Layout
-
 The project is organized into directories as follows.
 
 ```
 AI_Water
 ├── datasets
 │   └── example_rtc       # Each data set gets a directory
-│       ├── labels.json
 │       ├── test
 │       └── train
 ├── models
@@ -119,6 +118,7 @@ AI_Water
 ├── tests                 # Unit and integration tests
 │   ├── unit_tests
 │   └── integration_tests
+├── scripts               # Supporting script files
 └── ...
 ```
 
@@ -134,7 +134,7 @@ $ pipenv run tests
 ```
 
 ## Training
-1. Move your data set (along with `labels.json`) to the `dataset` folder.
+1. Make sure your dataset is in the `dataset` folder.
 2. If you’re loading in weights run `main.py` with the `--continue` option.
 If you’re not loading them in and you're restarting the training of the CNN you
 will need to run `main.py` with the `--overwrite` option.
