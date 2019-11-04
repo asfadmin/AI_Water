@@ -19,6 +19,22 @@ the training and unit tests.
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
+# GDAL Help
+To find GDALs package version run the following command:
+```terminal
+$ gdal-config --version
+```
+
+Next run this command:
+```terminal
+$ pip install gdal=(**YOUR VERSION***)
+```
+
+The last step is to run the following command in the terminal:
+```terminal
+$ pip install -e .
+```
+
 ## Tiling .tiff Images
 To tile your tiff image create a folder in the same directory as
 main.py and name it prep_tiles. Store the tiff file within this
