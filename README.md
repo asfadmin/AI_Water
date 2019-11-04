@@ -20,6 +20,36 @@ NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
 
+# GDAL Help
+To find GDALs package version run the following command:
+```terminal
+$ gdal-config --version
+```
+
+Next run this command:
+```terminal
+$ pip install gdal=(**YOUR VERSION***)
+```
+
+The last step is to run the following command in the terminal:
+```terminal
+$ pip install -e .
+```
+
+## Tiling .tiff Images
+To tile your tiff image create a folder in the same directory as
+main.py and name it prep_tiles. Store the tiff file within this
+folder, like below:
+```
+AI_Water
+├── prep_tiles
+    └── name_of_img.tiff
+```
+Next run this command in the terminal (Note that 512 is the dimensions and
+can be any arbitrary value, but to be ran in the provided Neural Network
+it must be 512):
+
+
 ## Preparing Data With a Neural Network
 To run the Neural Net your data will first need to be prepared.
 
