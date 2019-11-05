@@ -12,7 +12,7 @@ from keras.models import Model
 from keras.models import load_model as kload_model
 
 from ..config import MODELS_DIR
-from ..typing import History
+from ..asf_typing import History
 
 
 class ModelType(Enum):

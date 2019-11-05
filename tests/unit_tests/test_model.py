@@ -14,7 +14,7 @@ from src.model import (
     save_history, save_model
 )
 from src.model.architecture.masked import create_model_masked as create_model
-from src.typing import History
+from src.asf_typing import History
 from tests.strategies import model_component
 
 
