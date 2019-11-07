@@ -111,7 +111,7 @@ def load_history_from_path(model_dir: str) -> History:
 
 
 def model_type(model: Model) -> Optional[ModelType]:
-    if model.output_shape == (None, 512, 512, 1):
+    if model.output_shape == (None, 64, 64, 1):
         return ModelType.MASKED
 
     return None
