@@ -47,7 +47,6 @@ EXT = "tiff|tif|TIFF|TIF"
 FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
-# TOD): Bring this back to what it was
 def make_tiles(ifname: str,
                tile_size: Tuple[int, int],
                folder='prep_tiles') -> None:
