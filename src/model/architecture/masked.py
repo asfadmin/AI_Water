@@ -51,7 +51,6 @@ def create_model_masked(
     """ Function to define the UNET Model """
     inputs = Input(shape=(64, 64, 2))
 
-    # TODO: Update architecture for new input
     c1 = conv2d_block(
         inputs, num_filters * 1, kernel_size=3, batchnorm=batchnorm
     )
@@ -85,7 +84,6 @@ def create_model_masked(
     )
 
     # Expanding to 64 x 64 x 1
-    # TODO: Update to new input
     u8 = Conv2DTranspose(
         num_filters * 4, (3, 3), strides=(2, 2), padding='same'
     )(c7)
