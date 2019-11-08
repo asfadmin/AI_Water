@@ -30,8 +30,8 @@ def dataset_masked(tmpdir: py.path.local):
 
 @pytest.fixture
 def metadata_masked() -> MaskedDatasetMetadata:
-    return [("test_1.vh.tif", "test_1.vv.tif", "test_1.mask.tif"),
-            ("test_2.vh.tif", "test_2.vv.tif", "test_2.mask.tif")]
+    return [("test_1.vh.x0_y0.tif", "test_1.vv.x0_y0.tif", "test_1.mask.x0_y0.tif"),
+            ("test_2.vh.x0_y0.tif", "test_2.vv.x0_y0.tif", "test_2.mask.x0_y0.tif")]
 
 
 def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
@@ -42,26 +42,26 @@ def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
 
     assert train_metadata == [
         (
-            abspath("train", "test_3.vh.tif"),
-            abspath("train", "test_3.vv.tif"),
-            abspath("train", "test_3.mask.tif"),
+            abspath("train", "test_3.vh.x0_y0.tif"),
+            abspath("train", "test_3.vv.x0_y0.tif"),
+            abspath("train", "test_3.mask.x0_y0.tif"),
         ),
         (
-            abspath("train", "test_4.vh.tif"),
-            abspath("train", "test_4.vv.tif"),
-            abspath("train", "test_4.mask.tif"),
+            abspath("train", "test_4.vh.x0_y0.tif"),
+            abspath("train", "test_4.vv.x0_y0.tif"),
+            abspath("train", "test_4.mask.x0_y0.tif"),
         ),
     ]
     assert test_metadata == [
         (
-            abspath("test", "test_1.vh.tif"),
-            abspath("test", "test_1.vv.tif"),
-            abspath("test", "test_1.mask.tif"),
+            abspath("test", "test_1.vh.x0_y0.tif"),
+            abspath("test", "test_1.vv.x0_y0.tif"),
+            abspath("test", "test_1.mask.x0_y0.tif"),
         ),
         (
-            abspath("test", "test_2.vh.tif"),
-            abspath("test", "test_2.vv.tif"),
-            abspath("test", "test_2.mask.tif"),
+            abspath("test", "test_2.vh.x0_y0.tif"),
+            abspath("test", "test_2.vv.x0_y0.tif"),
+            abspath("test", "test_2.mask.x0_y0.tif"),
         ),
     ]
 

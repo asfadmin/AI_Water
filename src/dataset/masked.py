@@ -82,20 +82,20 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-    dir = os.path.join(DATASETS_DIR, dataset)
 
-    for dirpath, dirnames, filenames in os.walk(dataset_dir(dir)):
+    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
 
-            pre, test, ext = m.groups()
-            if test == '':
+            pre, order, ext = m.groups()
+            if order == "":
                 continue
-            mask = f"{pre}.mask{test}.{ext}"
-            vh_name = f"{pre}.vh{test}.{ext}"
-            vv_name = f"{pre}.vv{test}.{ext}"
+
+            mask = f"{pre}.mask{order}.{ext}"
+            vh_name = f"{pre}.vh{order}.{ext}"
+            vv_name = f"{pre}.vv{order}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),

@@ -24,7 +24,7 @@ def make_tiles(ifname: str,
     for x in range(0, xsize, step_x):
         for y in range(0, ysize, step_y):
             gdal.Translate(
-                f'{iftitle}_b{x}_b{y}.{ifext}',
+                f'{iftitle}.x{x}_y{y}.{ifext}',
                 img_fpath,
                 srcWin=[x, y, step_x, step_y],
                 format="GTiff"
