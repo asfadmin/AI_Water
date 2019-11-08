@@ -164,7 +164,7 @@ def setup_data(size: int):
 if __name__ == '__main__':
 
     p = ArgumentParser()
-    p.add_argument('size', type=int, default=512)
+    p.add_argument('size', type=int, default=64)
     args = p.parse_args()
 
     p.set_defaults(func=setup_data)

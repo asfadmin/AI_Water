@@ -12,7 +12,7 @@ from keras.preprocessing.image import Iterator
 from .dataset.masked import load_dataset as load_dataset_masked
 from .dataset.masked import load_replace_data
 from .model import ModelType, model_type, save_model
-from .typing import History
+from .asf_typing import History
 
 
 def train_model(

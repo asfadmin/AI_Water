@@ -10,4 +10,4 @@ def model_final_layer(model):
 
 def test_architecture():
     model = create_model_masked("masked_test")
-    assert model_final_layer(model) == (None, 512, 512, 1)
+    assert model_final_layer(model) == (None, 64, 64, 1)

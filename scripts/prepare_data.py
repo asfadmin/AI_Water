@@ -21,7 +21,6 @@ from argparse import ArgumentParser
 from typing import Any, List, Tuple
 
 import src.config as config
-
 try:
     from matplotlib import pyplot
     from matplotlib.widgets import RadioButtons, Button
@@ -47,10 +46,14 @@ EXT = "tiff|tif|TIFF|TIF"
 FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
 
 
-def make_tiles(ifname: str, tile_size: Tuple[int, int]) -> None:
+def make_tiles(ifname: str,
+               tile_size: Tuple[int, int],
+               folder='prep_tiles') -> None:
     """ Takes a .tiff file and breaks it into smaller .tiff files. """
-    img_fpath = os.path.join(config.PROJECT_DIR, 'prep_tiles', ifname)
-
+    if folder == "prep_tiles":
+        img_fpath = os.path.join(config.PROJECT_DIR, folder, ifname)
+    else:
+        img_fpath = os.path.join(config.PROJECT_DIR, ifname, folder)
     if not check_dependencies(('gdal', )):
         return
 

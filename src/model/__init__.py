@@ -12,7 +12,7 @@ from keras.models import Model
 from keras.models import load_model as kload_model
 
 from ..config import MODELS_DIR
-from ..typing import History
+from ..asf_typing import History
 
 
 class ModelType(Enum):
@@ -111,7 +111,7 @@ def load_history_from_path(model_dir: str) -> History:
 
 
 def model_type(model: Model) -> Optional[ModelType]:
-    if model.output_shape == (None, 512, 512, 1):
+    if model.output_shape == (None, 64, 64, 1):
         return ModelType.MASKED
 
     return None

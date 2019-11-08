@@ -1,5 +1,5 @@
 """
-    masked.py contains the code for preparing a masked data set, and loading
+masked.py contains the code for preparing a masked data set, and loading
 the prepared data set for use.
 """
 
@@ -10,11 +10,14 @@ from typing import Generator, Optional, Tuple
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 
-from ..gdal_wrapper import gdal_open
-from ..typing import MaskedDatasetMetadata
-from .common import dataset_dir, valid_image
 
-TILE_REGEX = re.compile(r"(.*)\.vh\.(tiff|tif|TIFF|TIF)")
+from ..gdal_wrapper import gdal_open
+from ..asf_typing import MaskedDatasetMetadata
+from .common import dataset_dir, valid_image
+from ..config import DATASETS_DIR
+
+
+TILE_REGEX = re.compile(r"(.*)\.vh(.*)\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -79,21 +82,25 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
 
+    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
-            pre, ext = m.groups()
-            mask = f"{pre}.mask.{ext}"
-            vh_name = f"{pre}.vh.{ext}"
-            vv_name = f"{pre}.vv.{ext}"
+
+            pre, order, ext = m.groups()
+            if order == "":
+                continue
+
+            mask = f"{pre}.mask{order}.{ext}"
+            vh_name = f"{pre}.vh{order}.{ext}"
+            vv_name = f"{pre}.vv{order}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
                 os.path.join(dirpath, mask)
-            )
+                )
             folder = os.path.basename(dirpath)
 
             if edit:
@@ -114,14 +121,20 @@ def generate_from_metadata(
     edit: bool = False
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
-    output_shape = (512, 512, 2)
-    mask_output_shape = (512, 512, 1)
+    output_shape = (64, 64, 2)
+    mask_output_shape = (64, 64, 1)
     for tile_vh, tile_vv, mask_name in metadata:
 
-        with gdal_open(tile_vh) as f:
-            tile_vh_array = f.ReadAsArray()
-        with gdal_open(tile_vv) as f:
-            tile_vv_array = f.ReadAsArray()
+        try:
+            with gdal_open(tile_vh) as f:
+                tile_vh_array = f.ReadAsArray()
+        except FileNotFoundError:
+            continue
+        try:
+            with gdal_open(tile_vv) as f:
+                tile_vv_array = f.ReadAsArray()
+        except FileNotFoundError:
+            continue
 
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
 
