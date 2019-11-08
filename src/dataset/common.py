@@ -8,8 +8,6 @@ import numpy as np
 
 from ..config import DATASETS_DIR
 
-# from ..model import ModelType
-
 
 def dataset_dir(dataset: str) -> str:
     return os.path.join(DATASETS_DIR, dataset)
