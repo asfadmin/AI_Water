@@ -15,6 +15,12 @@ def make_tiles(ifname: str,
     img_fpath = os.path.join(config.PROJECT_DIR, ifname, folder)
 
     datafile = gdal.Open(img_fpath)
+    try:
+        if datafile.RasterXSize > 2048:
+            return
+    except Exception:
+        return
+
     iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
     step_x, step_y = tile_size
 
@@ -24,7 +30,7 @@ def make_tiles(ifname: str,
     for x in range(0, xsize, step_x):
         for y in range(0, ysize, step_y):
             gdal.Translate(
-                f'{iftitle}.x{x}_y{y}.{ifext}',
+                f'{iftitle}.{ifext}',
                 img_fpath,
                 srcWin=[x, y, step_x, step_y],
                 format="GTiff"
@@ -48,8 +54,12 @@ def break_up_image(dir: str) -> None:
             try:
                 img_path = os.path.join(folder, img)
                 make_tiles(dir, (64, 64), img_path)
-            except FileNotFoundError as e:
-                print(e)
+            except FileNotFoundError:
+                pass
+            try:
+                os.remove(img)
+            except FileNotFoundError:
+                pass
 
 
 if __name__ == '__main__':
