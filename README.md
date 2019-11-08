@@ -20,7 +20,6 @@ NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
 
-Gdal help
 To find GDALs package version run the following command:
 ```terminal
 $ gdal-config --version
