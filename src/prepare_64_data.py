@@ -52,13 +52,14 @@ def break_up_image(dir: str) -> None:
 
             _, folder = m.groups()
             try:
-                img_path = os.path.join(folder, img)
+                img_path = os.path.join(root, img)
+                print(f"img path: {img_path}")
                 make_tiles(dir, (64, 64), img_path)
             except FileNotFoundError:
                 pass
 
             try:
-                os.remove(os.path.join(dir, img))
+                os.remove(os.path.join(dir, folder, img))
             except FileNotFoundError:
                 pass
 
