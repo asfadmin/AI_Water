@@ -14,8 +14,6 @@ from keras.preprocessing.image import ImageDataGenerator, Iterator
 from ..gdal_wrapper import gdal_open
 from ..asf_typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
-from ..config import DATASETS_DIR
-
 
 TILE_REGEX = re.compile(r"(.*)\.vh(.*)\.(tiff|tif|TIFF|TIF)")
 
@@ -89,13 +87,11 @@ def make_metadata(
             if not m:
                 continue
 
-            pre, order, ext = m.groups()
-            if order == "":
-                continue
+            pre, coordinates, ext = m.groups()
 
-            mask = f"{pre}.mask{order}.{ext}"
-            vh_name = f"{pre}.vh{order}.{ext}"
-            vv_name = f"{pre}.vv{order}.{ext}"
+            mask = f"{pre}.mask{coordinates}.{ext}"
+            vh_name = f"{pre}.vh{coordinates}.{ext}"
+            vv_name = f"{pre}.vv{coordinates}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
