@@ -30,7 +30,7 @@ def make_tiles(ifname: str,
     for x in range(0, xsize, step_x):
         for y in range(0, ysize, step_y):
             gdal.Translate(
-                f'{iftitle}.{ifext}',
+                f'{iftitle}.x{x}_y{y}.{ifext}',
                 img_fpath,
                 srcWin=[x, y, step_x, step_y],
                 format="GTiff"
@@ -56,8 +56,9 @@ def break_up_image(dir: str) -> None:
                 make_tiles(dir, (64, 64), img_path)
             except FileNotFoundError:
                 pass
+
             try:
-                os.remove(img)
+                os.remove(os.path.join(dir, img))
             except FileNotFoundError:
                 pass
 
