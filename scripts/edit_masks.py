@@ -37,6 +37,7 @@ def main(path: str) -> None:
     model = load_model("ai_test_7")
     remove_64(full_path)
     run_gui(path, model)
+    print("Finishing up...")
     break_up_images(full_path)
 
 

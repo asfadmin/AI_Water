@@ -39,9 +39,9 @@ def edit_predictions(
         _copy_btn = copy_img_name(f_path[0])
         _cbtn = close_button(close_plot)
         _kpbtn = keep_button(f_path)
-        _rpbtn = replace_button(f_path, pred)
+        _rpbtn = replace_button(f_path, pred, dem)
         _edit_m_btn = edit_mask_button(f_path)
-        _edit_p_btn = edit_pred_button(f_path, pred)
+        _edit_p_btn = edit_pred_button(f_path, pred, dem)
         _dltbtn = delete_button(f_path)
         maximize_plot()
 
@@ -146,11 +146,11 @@ def edit_mask_button(f_paths: List[str]) -> Button:
     return button
 
 
-def edit_pred_button(f_paths: List[str], pred) -> Button:
+def edit_pred_button(f_paths: List[str], pred, dems=NETWORK_DEMS) -> Button:
     button = Button(plt.axes([.175, 0.05, 0.1, 0.075]), 'edit prediction')
 
     def click_handler(event: Any) -> None:
-        save_img(f_paths, pred)
+        save_img(f_paths, pred, dems)
         plt.close()
         interactive_editor(f_paths[2])
         move_img(f_paths)
@@ -185,11 +185,11 @@ def keep_button(f_paths: List[str]) -> Button:
     return button
 
 
-def replace_button(f_paths: List[str], pred) -> Button:
+def replace_button(f_paths: List[str], pred, dems=NETWORK_DEMS) -> Button:
     button = Button(plt.axes([.425, 0.05, 0.1, 0.075]), 'replace')
 
     def click_handler(event: Any) -> None:
-        save_img(f_paths, pred)
+        save_img(f_paths, pred, dems)
         move_img(f_paths)
         plt.close()
 
