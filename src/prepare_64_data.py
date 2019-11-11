@@ -37,7 +37,7 @@ def make_tiles(ifname: str,
             )
 
 
-def break_up_image(dir: str) -> None:
+def break_up_images(dir: str) -> None:
     """ Breaks an image down to 64 x 64 """
     dir_fpath = os.path.join(config.PROJECT_DIR, dir)
     IMG_FOLDER = re.compile(f'(.*){dir}(.*)')
@@ -53,7 +53,6 @@ def break_up_image(dir: str) -> None:
             _, folder = m.groups()
             try:
                 img_path = os.path.join(root, img)
-                print(f"img path: {img_path}")
                 make_tiles(dir, (64, 64), img_path)
             except FileNotFoundError:
                 pass
@@ -70,7 +69,7 @@ if __name__ == '__main__':
 
     break_down = sp.add_parser('break_down', help='Break an image down to 64x64')
     break_down.add_argument('folder', help='path to images')
-    break_down.set_defaults(func=break_up_image)
+    break_down.set_defaults(func=break_up_images)
 
     args = p.parse_args()
     if hasattr(args, 'func'):

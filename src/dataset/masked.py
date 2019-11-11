@@ -14,6 +14,7 @@ from keras.preprocessing.image import ImageDataGenerator, Iterator
 from ..gdal_wrapper import gdal_open
 from ..asf_typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
+from ..config import NETWORK_DEMS
 
 TILE_REGEX = re.compile(r"(.*)\.vh(.*)\.(tiff|tif|TIFF|TIF)")
 
@@ -49,6 +50,7 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
 def load_replace_data(
     dataset: str,
+    dems=NETWORK_DEMS
 ) -> Tuple[Iterator, MaskedDatasetMetadata]:
 
     replace_gen = ImageDataGenerator(rescale=10)
@@ -60,7 +62,8 @@ def load_replace_data(
     for img, mask in generate_from_metadata(
         metadata,
         edit=True,
-        clip_range=(0, 2)
+        clip_range=(0, 2),
+        dems=dems
     ):
         x_replace.append(img)
         y_replace.append(mask)
@@ -74,7 +77,7 @@ def load_replace_data(
 
 def make_metadata(
     dataset: str,
-    edit: bool = False
+    edit: bool = False,
 ) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
     """ Returns two lists of metadata. One for the training data and one for the
     testing data. """
@@ -114,11 +117,12 @@ def make_metadata(
 def generate_from_metadata(
     metadata: MaskedDatasetMetadata,
     clip_range: Optional[Tuple[float, float]] = None,
-    edit: bool = False
+    edit: bool = False,
+    dems=NETWORK_DEMS
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
-    output_shape = (64, 64, 2)
-    mask_output_shape = (64, 64, 1)
+    output_shape = (dems, dems, 2)
+    mask_output_shape = (dems, dems, 1)
     for tile_vh, tile_vv, mask_name in metadata:
 
         try:

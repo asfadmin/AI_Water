@@ -14,12 +14,12 @@ from matplotlib.widgets import Button
 from mask_editor import interactive_editor
 from scripts.identify_water import write_mask_to_file
 
-from .config import DATASETS_DIR
+from .config import DATASETS_DIR, NETWORK_DEMS
 from .gdal_wrapper import gdal_open
 
 
 def edit_predictions(
-    predictions, test_iter: Iterator, dataset: List[str]
+    predictions, test_iter: Iterator, dataset: List[str], dem=NETWORK_DEMS
 ) -> None:
     done = False
     REG_EX = re.compile(r'(.*)_(.*)/(train|test)(.*)')
@@ -30,7 +30,7 @@ def edit_predictions(
         if done:
             break
 
-        plots(pred, mask, img, environment)
+        plots(pred, mask, img, environment, dem=dem)
 
         def close_plot(_: Any) -> None:
             nonlocal done
@@ -69,8 +69,7 @@ def plot_predictions(
         plt.show()
 
 
-def plots(pred, mask, img, environment='') -> None:
-    dem = 64
+def plots(pred, mask, img, environment='', dem=NETWORK_DEMS) -> None:
     plt.subplot(1, 4, 1)
     plt.title('prediction')
     plt.xlabel(environment)
@@ -108,13 +107,13 @@ def copy_img_name(f_path):
     return button
 
 
-def save_img(f_paths: List[str], pred) -> None:
+def save_img(f_paths: List[str], pred, dem=NETWORK_DEMS) -> None:
     with gdal_open(f_paths[2]) as f:
         mask_projection = f.GetProjection()
         mask_geo_transform = f.GetGeoTransform()
 
     write_mask_to_file(
-        pred.reshape(64, 64), f_paths[2], mask_projection, mask_geo_transform
+        pred.reshape(dem, dem), f_paths[2], mask_projection, mask_geo_transform
     )
 
 

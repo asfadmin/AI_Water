@@ -13,6 +13,7 @@ from .dataset.masked import load_dataset as load_dataset_masked
 from .dataset.masked import load_replace_data
 from .model import ModelType, model_type, save_model
 from .asf_typing import History
+from .config import NETWORK_DEMS
 
 
 def train_model(
@@ -70,18 +71,19 @@ def test_model_masked(
     model: Model,
     dataset: str,
     edit: bool,
-    verbose: int = 1
+    verbose: int = 1,
+    dems: int = NETWORK_DEMS
 ) -> Tuple[np.ndarray, Iterator]:
 
     assert model_type(
-        model
+        model, dems
     ) == ModelType.MASKED, "This function only works on masked models"
 
     if verbose > 0:
         model.summary()
 
     if edit:
-        dataset_data = load_replace_data(dataset)
+        dataset_data = load_replace_data(dataset, dems)
 
         predictions = model.predict_generator(
             dataset_data[0], len(dataset_data[0]), verbose=verbose
