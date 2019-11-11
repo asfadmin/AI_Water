@@ -14,6 +14,7 @@ from argparse import ArgumentParser
 import numpy as np
 from src.model import load_model
 from osgeo import gdal
+from src.config import NETWORK_DEMS as dems
 
 
 def main(
@@ -30,15 +31,15 @@ def main(
     f = gdal.Open(vv_path)
     vv_array = f.ReadAsArray()
     original_shape = vv_array.shape
-    n_rows, n_cols = get_tile_dimensions(*original_shape, tile_size=64)
-    vv_array = pad_image(vv_array, 64)
+    n_rows, n_cols = get_tile_dimensions(*original_shape, tile_size=dems)
+    vv_array = pad_image(vv_array, dems)
     invalid_pixels = np.nonzero(vv_array == 0.0)
 
     vv_tiles = tile_image(vv_array)
 
     # Get vh tiles
     f = gdal.Open(vv_path)
-    vh_array = pad_image(f.ReadAsArray(), 64)
+    vh_array = pad_image(f.ReadAsArray(), dems)
 
     vh_tiles = tile_image(vh_array)
 
@@ -49,9 +50,9 @@ def main(
     )
     masks.round(decimals=0, out=masks)
     # Stitch masks together
-    mask = masks.reshape((n_rows, n_cols, 64, 64)) \
+    mask = masks.reshape((n_rows, n_cols, dems, dems)) \
                 .swapaxes(1, 2) \
-                .reshape(n_rows * 64, n_cols * 64)  # yapf: disable
+                .reshape(n_rows * dems, n_cols * dems)  # yapf: disable
 
     mask[invalid_pixels] = 0
     write_mask_to_file(mask, outfile, f.GetProjection(), f.GetGeoTransform())
@@ -74,7 +75,7 @@ def get_tile_dimensions(height: int, width: int, tile_size: int):
 
 
 def tile_image(
-    image: np.ndarray, width: int = 64, height: int = 64
+    image: np.ndarray, width: int = dems, height: int = dems
 ) -> np.ndarray:
     _nrows, _ncols = image.shape
     _strides = image.strides

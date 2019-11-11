@@ -43,7 +43,7 @@
 import os
 import re
 import shutil
-import sys
+
 from argparse import ArgumentParser
 from datetime import date
 from typing import Dict, Tuple
@@ -51,6 +51,7 @@ from typing import Dict, Tuple
 from osgeo import gdal
 
 from identify_water import main as idw_main
+from src.config import NETWORK_DEMS as dems
 
 
 def make_database() -> Dict[str, Tuple[str, str]]:
@@ -164,7 +165,7 @@ def setup_data(size: int):
 if __name__ == '__main__':
 
     p = ArgumentParser()
-    p.add_argument('size', type=int, default=64)
+    p.add_argument('size', type=int, default=dems)
     args = p.parse_args()
 
     p.set_defaults(func=setup_data)

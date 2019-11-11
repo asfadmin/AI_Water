@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import src.config as config
 from osgeo import gdal
 from typing import Tuple
+from src.config import NETWORK_DEMS as dems
 
 
 def make_tiles(ifname: str,
@@ -53,7 +54,7 @@ def break_up_images(dir: str) -> None:
             _, folder = m.groups()
             try:
                 img_path = os.path.join(root, img)
-                make_tiles(dir, (64, 64), img_path)
+                make_tiles(dir, (dems, dems), img_path)
             except FileNotFoundError:
                 pass
 

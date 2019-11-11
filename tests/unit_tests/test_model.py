@@ -16,7 +16,7 @@ from src.model import (
 from src.model.architecture.masked import create_model_masked as create_model
 from src.asf_typing import History
 from tests.strategies import model_component
-
+from src.config import NETWORK_DEMS as dems
 
 @pytest.fixture
 def model_name(tmpdir: py.path.local):
@@ -41,7 +41,7 @@ def fake_model() -> Model:
 
 @pytest.fixture
 def fake_model_masked() -> Model:
-    return Sequential([Dense(1, input_shape=(64, 64, 2))])
+    return Sequential([Dense(1, input_shape=(dems, dems, 2))])
 
 
 @pytest.fixture
