@@ -77,7 +77,7 @@ def load_replace_data(
 
 def make_metadata(
     dataset: str,
-    edit: bool = False,
+    edit: bool = False
 ) -> Tuple[MaskedDatasetMetadata, MaskedDatasetMetadata]:
     """ Returns two lists of metadata. One for the training data and one for the
     testing data. """
