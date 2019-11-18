@@ -12,9 +12,9 @@ from src.model import load_model
 from src.prepare_64_data import break_up_images
 
 
-def remove_64(path: str) -> None:
+def remove_64(folder: str) -> None:
     REGEX = re.compile(r"(.*)_([0-9]+).(.*).x([0-9]+)_y([0-9]+).tif")
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(folder):
         for file in files:
 
             m = re.match(REGEX, file)
@@ -23,20 +23,20 @@ def remove_64(path: str) -> None:
             os.remove(os.path.join(root, file))
 
 
-def run_gui(path: str, model) -> None:
+def run_gui(folder: str, model) -> None:
     predictions, data_iter, metadata = test_model_masked(
-        model, path, True, dems=512
+        model, folder, True, dems=512
     )
     edit_predictions(
         predictions, data_iter, metadata, dem=512
     )
 
 
-def main(path: str) -> None:
-    full_path = os.path.join("datasets", path)
-    model = load_model("ai_test_7")
+def main(folder: str) -> None:
+    full_path = os.path.join("datasets", folder)
+    model = load_model("AI_FCN_512")
     remove_64(full_path)
-    run_gui(path, model)
+    run_gui(folder, model)
     print("Finishing up...")
     break_up_images(full_path)
 
@@ -44,8 +44,8 @@ def main(path: str) -> None:
 if __name__ == "__main__":
     # TODO: Remove after done with testing
     p = ArgumentParser()
-    p.add_argument("path", help='path to the folder with imgs')
+    p.add_argument("folder", help='folder containing data')
     # p.add_argument("power", help='Enter a power of two')
 
     args = p.parse_args()
-    main(args.path)
+    main(args.folder)
