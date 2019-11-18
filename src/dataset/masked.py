@@ -147,7 +147,6 @@ def generate_from_metadata(
             if not valid_image(tile_array):
                 continue
 
-        print
         with gdal_open(mask_name) as f:
             mask_array = f.ReadAsArray()
 
