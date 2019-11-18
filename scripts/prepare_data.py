@@ -202,9 +202,9 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
         )
 
 
-def move_imgs(directory: str) -> None:
+def move_imgs(args) -> None:
     """ Moves all images within each sub directory into one directory """
-    f_path = os.path.join(config.DATASETS_DIR, directory)
+    f_path = os.path.join(config.DATASETS_DIR, args.directory)
     for root, directories, files in os.walk(f_path, topdown=False):
         for img in files:
             os.rename(
