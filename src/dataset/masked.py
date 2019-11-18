@@ -9,7 +9,7 @@ from typing import Generator, Optional, Tuple
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
-
+from osgeo import gdal
 
 from ..gdal_wrapper import gdal_open
 from ..asf_typing import MaskedDatasetMetadata
@@ -124,7 +124,12 @@ def generate_from_metadata(
     output_shape = (dems, dems, 2)
     mask_output_shape = (dems, dems, 1)
     for tile_vh, tile_vv, mask_name in metadata:
+        test = gdal.Open(tile_vh)
 
+        # Should prevent the following error
+        # ValueError: cannot reshape array of size 524288 into shape (64,64,2)
+        if(test.RasterXSize != dems):
+            continue
         try:
             with gdal_open(tile_vh) as f:
                 tile_vh_array = f.ReadAsArray()
@@ -142,6 +147,7 @@ def generate_from_metadata(
             if not valid_image(tile_array):
                 continue
 
+        print
         with gdal_open(mask_name) as f:
             mask_array = f.ReadAsArray()
 
