@@ -133,35 +133,12 @@ def _show_plot(tif_array, file, image_labels, close):
 
 def prepare_data(directory: str, holdout: float):
     """ Moves images to the correct directory structure. """
-    try:
-        with open(os.path.join(directory, 'labels.json'), 'r') as f:
-            image_labels = json.load(f)
-    except FileNotFoundError:
-        prepare_mask_data(directory, holdout)
-        return
-
-    file_names = list(
-        filter(
-            lambda x: re.match(FILENAME_REGEX, x) is not None,
-            os.listdir(directory)
-        )
-    )
-
-    for file in file_names:
-        if file not in image_labels:
-            continue
-
-        test_or_train = 'train' if random.random() > holdout else 'test'
-        folder = os.path.join(directory, test_or_train)
-        if not os.path.isdir(folder):
-            os.makedirs(folder)
-
-        os.rename(os.path.join(directory, file), os.path.join(folder, file))
+    prepare_mask_data(directory, holdout)
 
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
     """ Renames and moves mask and tile images. """
-    TILE_REGEX = re.compile(f"(.*)VH_([0-9]+)\\.({EXT})")
+    TILE_REGEX = re.compile(f"(.*)vh(.*)\\.({EXT})")
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
@@ -169,11 +146,11 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
             continue
 
         pre, num, ext = m.groups()
-        new_vh_name = f"{pre}_{num}.vh.{ext}".lower()
-        mask_name = f"{pre}MASK_{num}.{ext}"
-        new_mask_name = f"{pre}_{num}.mask.{ext}".lower()
-        vv_name = f"{pre}VV_{num}.{ext}"
-        new_vv_name = f"{pre}_{num}.vv.{ext}".lower()
+        new_vh_name = f"{pre}vh{num}.{ext}".lower()
+        mask_name = f"{pre}mask{num}.{ext}"
+        new_mask_name = f"{pre}mask{num}.{ext}".lower()
+        vv_name = f"{pre}vv{num}.{ext}"
+        new_vv_name = f"{pre}vv{num}.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
             print(f"Tile: {file} is missing a mask {mask_name}!")
