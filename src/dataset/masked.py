@@ -124,11 +124,11 @@ def generate_from_metadata(
     output_shape = (dems, dems, 2)
     mask_output_shape = (dems, dems, 1)
     for tile_vh, tile_vv, mask_name in metadata:
-        test = gdal.Open(tile_vh)
+        tif_vh = gdal.Open(tile_vh)
 
         # Should prevent the following error
         # ValueError: cannot reshape array of size 524288 into shape (64,64,2)
-        if(test.RasterXSize != dems):
+        if(tif_vh.RasterXSize != dems):
             continue
         try:
             with gdal_open(tile_vh) as f:
