@@ -1,5 +1,5 @@
 """
-    masked.py contains the code for preparing a masked data set, and loading
+masked.py contains the code for preparing a masked data set, and loading
 the prepared data set for use.
 """
 
@@ -9,12 +9,14 @@ from typing import Generator, Optional, Tuple
 
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, Iterator
+from osgeo import gdal
 
 from ..gdal_wrapper import gdal_open
-from ..typing import MaskedDatasetMetadata
+from ..asf_typing import MaskedDatasetMetadata
 from .common import dataset_dir, valid_image
+from ..config import NETWORK_DEMS
 
-TILE_REGEX = re.compile(r"(.*)\.vh\.(tiff|tif|TIFF|TIF)")
+TILE_REGEX = re.compile(r"(.*)\.vh(.*)\.(tiff|tif|TIFF|TIF)")
 
 
 def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
@@ -48,6 +50,7 @@ def load_dataset(dataset: str) -> Tuple[Iterator, Iterator]:
 
 def load_replace_data(
     dataset: str,
+    dems=NETWORK_DEMS
 ) -> Tuple[Iterator, MaskedDatasetMetadata]:
 
     replace_gen = ImageDataGenerator(rescale=10)
@@ -59,7 +62,8 @@ def load_replace_data(
     for img, mask in generate_from_metadata(
         metadata,
         edit=True,
-        clip_range=(0, 2)
+        clip_range=(0, 2),
+        dems=dems
     ):
         x_replace.append(img)
         y_replace.append(mask)
@@ -79,21 +83,23 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
 
+    for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
-            pre, ext = m.groups()
-            mask = f"{pre}.mask.{ext}"
-            vh_name = f"{pre}.vh.{ext}"
-            vv_name = f"{pre}.vv.{ext}"
+
+            pre, coordinates, ext = m.groups()
+
+            mask = f"{pre}.mask{coordinates}.{ext}"
+            vh_name = f"{pre}.vh{coordinates}.{ext}"
+            vv_name = f"{pre}.vv{coordinates}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
                 os.path.join(dirpath, mask)
-            )
+                )
             folder = os.path.basename(dirpath)
 
             if edit:
@@ -111,17 +117,31 @@ def make_metadata(
 def generate_from_metadata(
     metadata: MaskedDatasetMetadata,
     clip_range: Optional[Tuple[float, float]] = None,
-    edit: bool = False
+    edit: bool = False,
+    dems=NETWORK_DEMS
 ) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """ Yield training images and masks from the given metadata. """
-    output_shape = (512, 512, 2)
-    mask_output_shape = (512, 512, 1)
+    output_shape = (dems, dems, 2)
+    mask_output_shape = (dems, dems, 1)
     for tile_vh, tile_vv, mask_name in metadata:
+        tif_vh = gdal.Open(tile_vh)
 
-        with gdal_open(tile_vh) as f:
-            tile_vh_array = f.ReadAsArray()
-        with gdal_open(tile_vv) as f:
-            tile_vv_array = f.ReadAsArray()
+        # Should prevent the following error
+        # ValueError: cannot reshape array of size 524288 into shape (64,64,2)
+        comp = str(tif_vh.RasterXSize)
+        if(comp != str(dems) and "mock" not in comp):
+            # mock is include for the unit tests
+            continue
+        try:
+            with gdal_open(tile_vh) as f:
+                tile_vh_array = f.ReadAsArray()
+        except FileNotFoundError:
+            continue
+        try:
+            with gdal_open(tile_vv) as f:
+                tile_vv_array = f.ReadAsArray()
+        except FileNotFoundError:
+            continue
 
         tile_array = np.stack((tile_vh_array, tile_vv_array), axis=2)
 

@@ -21,3 +21,6 @@ S1A*
 download-all*
 
 VV_*
+mask/*
+.idea*
+AI_Water.egg*

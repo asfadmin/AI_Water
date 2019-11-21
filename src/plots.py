@@ -14,12 +14,12 @@ from matplotlib.widgets import Button
 from mask_editor import interactive_editor
 from scripts.identify_water import write_mask_to_file
 
-from .config import DATASETS_DIR
+from .config import DATASETS_DIR, NETWORK_DEMS
 from .gdal_wrapper import gdal_open
 
 
 def edit_predictions(
-    predictions, test_iter: Iterator, dataset: List[str]
+    predictions, test_iter: Iterator, dataset: List[str], dem=NETWORK_DEMS
 ) -> None:
     done = False
     REG_EX = re.compile(r'(.*)_(.*)/(train|test)(.*)')
@@ -30,7 +30,7 @@ def edit_predictions(
         if done:
             break
 
-        plots(pred, mask, img, environment)
+        plots(pred, mask, img, environment, dem=dem)
 
         def close_plot(_: Any) -> None:
             nonlocal done
@@ -39,9 +39,9 @@ def edit_predictions(
         _copy_btn = copy_img_name(f_path[0])
         _cbtn = close_button(close_plot)
         _kpbtn = keep_button(f_path)
-        _rpbtn = replace_button(f_path, pred)
+        _rpbtn = replace_button(f_path, pred, dem)
         _edit_m_btn = edit_mask_button(f_path)
-        _edit_p_btn = edit_pred_button(f_path, pred)
+        _edit_p_btn = edit_pred_button(f_path, pred, dem)
         _dltbtn = delete_button(f_path)
         maximize_plot()
 
@@ -69,8 +69,7 @@ def plot_predictions(
         plt.show()
 
 
-def plots(pred, mask, img, environment='') -> None:
-    dem = 512
+def plots(pred, mask, img, environment='', dem=NETWORK_DEMS) -> None:
     plt.subplot(1, 4, 1)
     plt.title('prediction')
     plt.xlabel(environment)
@@ -108,13 +107,13 @@ def copy_img_name(f_path):
     return button
 
 
-def save_img(f_paths: List[str], pred) -> None:
+def save_img(f_paths: List[str], pred, dem=NETWORK_DEMS) -> None:
     with gdal_open(f_paths[2]) as f:
         mask_projection = f.GetProjection()
         mask_geo_transform = f.GetGeoTransform()
 
     write_mask_to_file(
-        pred.reshape(512, 512), f_paths[2], mask_projection, mask_geo_transform
+        pred.reshape(dem, dem), f_paths[2], mask_projection, mask_geo_transform
     )
 
 
@@ -147,11 +146,11 @@ def edit_mask_button(f_paths: List[str]) -> Button:
     return button
 
 
-def edit_pred_button(f_paths: List[str], pred) -> Button:
+def edit_pred_button(f_paths: List[str], pred, dems=NETWORK_DEMS) -> Button:
     button = Button(plt.axes([.175, 0.05, 0.1, 0.075]), 'edit prediction')
 
     def click_handler(event: Any) -> None:
-        save_img(f_paths, pred)
+        save_img(f_paths, pred, dems)
         plt.close()
         interactive_editor(f_paths[2])
         move_img(f_paths)
@@ -186,11 +185,11 @@ def keep_button(f_paths: List[str]) -> Button:
     return button
 
 
-def replace_button(f_paths: List[str], pred) -> Button:
+def replace_button(f_paths: List[str], pred, dems=NETWORK_DEMS) -> Button:
     button = Button(plt.axes([.425, 0.05, 0.1, 0.075]), 'replace')
 
     def click_handler(event: Any) -> None:
-        save_img(f_paths, pred)
+        save_img(f_paths, pred, dems)
         move_img(f_paths)
         plt.close()
 

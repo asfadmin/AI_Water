@@ -11,8 +11,8 @@ from typing import Optional, Tuple
 from keras.models import Model
 from keras.models import load_model as kload_model
 
-from ..config import MODELS_DIR
-from ..typing import History
+from ..config import MODELS_DIR, NETWORK_DEMS
+from ..asf_typing import History
 
 
 class ModelType(Enum):
@@ -110,8 +110,8 @@ def load_history_from_path(model_dir: str) -> History:
         return json.load(f)
 
 
-def model_type(model: Model) -> Optional[ModelType]:
-    if model.output_shape == (None, 512, 512, 1):
+def model_type(model: Model, dem=NETWORK_DEMS) -> Optional[ModelType]:
+    if model.output_shape == (None, dem, dem, 1):
         return ModelType.MASKED
 
     return None

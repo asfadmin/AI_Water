@@ -8,7 +8,7 @@ from keras.layers.merge import concatenate
 from keras.layers.pooling import MaxPooling2D
 from keras.models import Model
 from keras.optimizers import Adam
-
+from src.config import NETWORK_DEMS as dems
 
 def conv2d_block(
     input_tensor: Input,
@@ -49,7 +49,7 @@ def create_model_masked(
     batchnorm: bool = True
 ) -> Model:
     """ Function to define the UNET Model """
-    inputs = Input(shape=(512, 512, 2))
+    inputs = Input(shape=(dems, dems, 2))
 
     c1 = conv2d_block(
         inputs, num_filters * 1, kernel_size=3, batchnorm=batchnorm
@@ -83,7 +83,7 @@ def create_model_masked(
         p6, num_filters=num_filters * 16, kernel_size=3, batchnorm=batchnorm
     )
 
-    # Expanding to 512 x 512 x 1
+    # Expanding to 64 x 64 x 1
     u8 = Conv2DTranspose(
         num_filters * 4, (3, 3), strides=(2, 2), padding='same'
     )(c7)

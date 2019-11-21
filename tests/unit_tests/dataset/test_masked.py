@@ -11,10 +11,10 @@ import pytest
 from src.dataset.masked import (
     generate_from_metadata, load_dataset, make_metadata
 )
-from src.model import ModelType
-from src.typing import MaskedDatasetMetadata
+from src.asf_typing import MaskedDatasetMetadata
 
 from .conftest import mock_gdal_open
+from src.config import NETWORK_DEMS as dems
 
 
 @pytest.fixture
@@ -31,8 +31,8 @@ def dataset_masked(tmpdir: py.path.local):
 
 @pytest.fixture
 def metadata_masked() -> MaskedDatasetMetadata:
-    return [("test_1.vh.tif", "test_1.vv.tif", "test_1.mask.tif"),
-            ("test_2.vh.tif", "test_2.vv.tif", "test_2.mask.tif")]
+    return [("test_1.vh.x0_y0.tif", "test_1.vv.x0_y0.tif", "test_1.mask.x0_y0.tif"),
+            ("test_2.vh.x0_y0.tif", "test_2.vv.x0_y0.tif", "test_2.mask.x0_y0.tif")]
 
 
 def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
@@ -43,26 +43,26 @@ def test_make_metadata(dataset_masked: str, tmpdir: py.path.local):
 
     assert train_metadata == [
         (
-            abspath("train", "test_3.vh.tif"),
-            abspath("train", "test_3.vv.tif"),
-            abspath("train", "test_3.mask.tif"),
+            abspath("train", "test_3.vh.x0_y0.tif"),
+            abspath("train", "test_3.vv.x0_y0.tif"),
+            abspath("train", "test_3.mask.x0_y0.tif"),
         ),
         (
-            abspath("train", "test_4.vh.tif"),
-            abspath("train", "test_4.vv.tif"),
-            abspath("train", "test_4.mask.tif"),
+            abspath("train", "test_4.vh.x0_y0.tif"),
+            abspath("train", "test_4.vv.x0_y0.tif"),
+            abspath("train", "test_4.mask.x0_y0.tif"),
         ),
     ]
     assert test_metadata == [
         (
-            abspath("test", "test_1.vh.tif"),
-            abspath("test", "test_1.vv.tif"),
-            abspath("test", "test_1.mask.tif"),
+            abspath("test", "test_1.vh.x0_y0.tif"),
+            abspath("test", "test_1.vv.x0_y0.tif"),
+            abspath("test", "test_1.mask.x0_y0.tif"),
         ),
         (
-            abspath("test", "test_2.vh.tif"),
-            abspath("test", "test_2.vv.tif"),
-            abspath("test", "test_2.mask.tif"),
+            abspath("test", "test_2.vh.x0_y0.tif"),
+            abspath("test", "test_2.vv.x0_y0.tif"),
+            abspath("test", "test_2.mask.x0_y0.tif"),
         ),
     ]
 
@@ -77,47 +77,47 @@ def generate_data(
 
 
 def test_generate_from_metadata(metadata_masked: MaskedDatasetMetadata):
-    data = generate_data(metadata_masked, np.ones((512, 512)))
+    data = generate_data(metadata_masked, np.ones((dems, dems)))
 
     imgs = list(map(lambda x: x[0], data))
     masks = list(map(lambda x: x[1], data))
     for img in imgs:
-        assert (img == np.ones((512, 512, 2))).all()
+        assert (img == np.ones((dems, dems, 2))).all()
 
     for mask in masks:
-        assert (mask == np.ones((512, 512, 1))).all()
+        assert (mask == np.ones((dems, dems, 1))).all()
 
 
 def test_generate_from_metadata_clip_range(
     metadata_masked: MaskedDatasetMetadata
 ):
     data = generate_data(
-        metadata_masked, np.ones((512, 512)), clip_range=(0, 0.5)
+        metadata_masked, np.ones((dems, dems)), clip_range=(0, 0.5)
     )
 
     imgs = list(map(lambda x: x[0], data))
     masks = list(map(lambda x: x[1], data))
     for img in imgs:
-        assert (img == np.ones((512, 512, 2)) / 2.0).all()
+        assert (img == np.ones((dems, dems, 2)) / 2.0).all()
 
     for mask in masks:
-        assert (mask == np.ones((512, 512, 1))).all()
+        assert (mask == np.ones((dems, dems, 1))).all()
 
 
 def test_generate_from_metadata_with_zeros(
     metadata_masked: MaskedDatasetMetadata
 ):
-    assert generate_data(metadata_masked, np.zeros((512, 512))) == []
+    assert generate_data(metadata_masked, np.zeros((dems, dems))) == []
 
 
 def test_generate_from_metadata_with_nans(
     metadata_masked: MaskedDatasetMetadata
 ):
-    assert generate_data(metadata_masked, np.zeros((512, 512)) + np.nan) == []
+    assert generate_data(metadata_masked, np.zeros((dems, dems)) + np.nan) == []
 
 
 def test_load_dataset(dataset_masked: str):
-    with mock_gdal_open(np.ones((512, 512))):
+    with mock_gdal_open(np.ones((dems, dems))):
         train_iter, test_iter = load_dataset(dataset_masked)
 
     train = list(itertools.islice(train_iter, len(train_iter)))
