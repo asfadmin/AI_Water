@@ -27,7 +27,7 @@ $ gdal-config --version
 
 Next run this command:
 ```terminal
-$ pip install gdal=(**YOUR VERSION***)
+$ pip install gdal==(**YOUR VERSION***)
 ```
 
 The last step is to run the following command in the terminal:
