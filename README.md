@@ -274,8 +274,9 @@ Password:
 If one were able to login in successfully and have subscriptions through [ASF HYP3](http://hyp3.asf.alaska.edu), one
 should see similar text as  below:
 
-```login successful!
-Welcome dmsorensen
+```
+login successful!
+Welcome user
 ID: 1949: Arizona
 ID: 1893: Washington
 ID: 1959: Lake_Erie
