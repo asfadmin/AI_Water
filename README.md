@@ -7,6 +7,13 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
     - [Fixing Gdal](#Installing-Gdal)
 - Prepare Data
     - [Tile images](#Tiling-tif-Images)
+    - [Preparing Data With a Neural Network](#Preparing-Data-With-a-Neural-Network)
+    - [Preparing Data Without a Neural Network](#Preparing-data-without-a-Network)
+- [Project layout](#Project-Layout)
+- [Running Unit Tests](#Running-Unit-Tests)
+- [Training a Neural Network](#Training)
+    - [Examples](*Examples)
+    - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
 
 ## Installation
 Installing dependencies is straight forward with pipenv. First install the
@@ -99,7 +106,9 @@ AI_Water
                 └── img2.mask.tif
 ```
 
-## Preparing data without a Network - Making Water Mask
+## Preparing data without a Network 
+**Making Water Mask:**
+
 To create a water mask download, you will need both a VV and VH granule.
 Once you have them move them into a directory called prep_files (You might have
 to create it). Next run this command:
@@ -110,7 +119,8 @@ $ python scripts/identify_water.py prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_
 
 Next, move the output 'mask-0.tif' into the directory prep_files.
 
-## Preparing data without a Network - Tiling .tiff Images
+**Tiling:**
+
 To tile your tiff image create a folder in the same directory as
 main.py and name it prep_tiles. Store the tiff file within this
 folder, like below:
