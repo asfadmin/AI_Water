@@ -83,7 +83,7 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-    print(f"**** in masked.py -> make_metadata")
+
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
