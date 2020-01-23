@@ -90,11 +90,11 @@ def make_metadata(
             if not m:
                 continue
 
-            pre, coordinates, ext = m.groups()
+            pre, end, ext = m.groups()
 
-            mask = f"{pre}.mask{coordinates}.{ext}"
-            vh_name = f"{pre}.vh{coordinates}.{ext}"
-            vv_name = f"{pre}.vv{coordinates}.{ext}"
+            mask = f"{pre}.mask{end}.{ext}"
+            vh_name = f"{pre}.vh{end}.{ext}"
+            vv_name = f"{pre}.vv{end}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),

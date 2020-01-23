@@ -18,6 +18,7 @@ tensorflow = "*"
 keras = "*"
 pygdal = "==2.2.3.3"
 typing-extensions = "*"
+pyperclip = "*"
 asf_hyp3 = "*"
 
 [requires]
