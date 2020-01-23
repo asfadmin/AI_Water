@@ -6,7 +6,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Installation](#installation)
     - [Fixing Gdal](#Installing-Gdal)
 - Prepare Data
-    - [Tile images](#tiling-.tiff-images)
+    - [Tile images](#tiling-tiff-images)
 
 ## Installation
 Installing dependencies is straight forward with pipenv. First install the
@@ -42,9 +42,9 @@ The last step is to run the following command in the terminal:
 $ pip install -e .
 ```
 
-## Tiling .tiff Images
-To tile your tiff image create a folder in the same directory as
-main.py and name it prep_tiles. Store the tiff file within this
+## Tiling tif Images
+To tile your tif image create a folder in the same directory as
+main.py and name it prep_tiles. Store the tif file within this
 folder, like below:
 ```
 AI_Water
