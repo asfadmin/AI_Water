@@ -17,7 +17,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Scripts](#Scripts)
     - [Identify Water](#Identify-Water)
     - [Info Model](#Info-Model)
-    - [Mask Subscriptions](#Mask Subscriptions)
+    - [Mask Subscriptions](#Mask-Subscriptions)
     - [Create Mask](#Create-Mask)
     - [Make Data](#Make-Data)
 ## Installation
