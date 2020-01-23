@@ -83,18 +83,18 @@ def make_metadata(
     testing data. """
     train_metadata = []
     test_metadata = []
-
+    print(f"**** in masked.py -> make_metadata")
     for dirpath, dirnames, filenames in os.walk(dataset_dir(dataset)):
         for name in sorted(filenames):
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
+            print(f"name: **** {name} **** masked.py -> make_metadatas")
+            pre, end, ext = m.groups()
 
-            pre, coordinates, ext = m.groups()
-
-            mask = f"{pre}.mask{coordinates}.{ext}"
-            vh_name = f"{pre}.vh{coordinates}.{ext}"
-            vv_name = f"{pre}.vv{coordinates}.{ext}"
+            mask = f"{pre}.mask{end}.{ext}"
+            vh_name = f"{pre}.vh{end}.{ext}"
+            vv_name = f"{pre}.vv{end}.{ext}"
 
             data = (
                 os.path.join(dirpath, vh_name), os.path.join(dirpath, vv_name),
