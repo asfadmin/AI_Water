@@ -14,7 +14,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Training a Neural Network](#Training-a-Neural-Network)
     - [Examples](*Examples)
     - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
-
+- [Scripts](#Scripts)
 ## Installation
 Installing dependencies is straight forward with pipenv. First install the
 GDAL dev libraries:
@@ -29,9 +29,14 @@ $ pipenv install --dev
 Specifying the `--dev` flag will also install dependencies you will need to run
 the training and unit tests.
 
+The last step is to run the following command in the terminal:
+```terminal
+$ pip install -e .
+```
+
 ## Installing Gdal
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
-in `Pipfile` corresponds to the version of your GDAL installation.*
+in `Pipfile` corresponds to the version of your GDAL installation, or run the commands below.*
 
 
 To find GDALs package version run the following command:
@@ -44,9 +49,9 @@ Next run this command:
 $ pip install gdal==(**YOUR VERSION***)
 ```
 
-The last step is to run the following command in the terminal:
+If an error appears try running the following command:
 ```terminal
-$ pip install -e .
+$ pip install pygdal==(**YOUR VERSION***)
 ```
 
 ### Tiling tif Images
@@ -62,13 +67,19 @@ Next run this command in the terminal (Note that 512 is the dimensions and
 can be any arbitrary value, but to be ran in the provided Neural Network
 it must be 512):
 
+# Preparing Data
+To run the Neural Net, your data will first need to be prepared. There are a few methods of creating data but all of 
+them require a `datasets` directory within `AI_Water`.  
+
+Once in the directory `AI_Water` run the command:
+```terminal
+$ python3 mkdir datasets
+
+```
 
 ## Preparing Data With a Neural Network
-To run the Neural Net your data will first need to be prepared.
 
-Within the same directory that main.py resides create a new folder called 'datasets'.
-
-Next, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished.
+After following instructions in the [Preparing Data](#Preparing-Data) section, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished.
 Select the granules you'd like to use for your dataset. After that, click the
 button that says "Download Python Script for Selected" and make sure it
 downloads to the Downloads directory.
@@ -78,7 +89,10 @@ After that run make_data.py.
 Command layout:
 ```terminal
 $ python3 scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
+
 ```
+NOTE: *`ai_model_folder` and `dataset_name` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
+
 Example:
 ```terminal
 $ python scripts/make_data.py ai_model_7 Fairbanks Alaska 64
@@ -108,6 +122,8 @@ AI_Water
 
 ## Preparing data without a Neural Network 
 **Making Water Mask:**
+
+First follow the instructions in the [Preparing Data](#Preparing-Data) section.
 
 To create a water mask download, you will need both a VV and VH granule.
 Once you have them move them into a directory called prep_files (You might have
@@ -202,6 +218,8 @@ Train for an additional 20 epochs:
 $ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
 ```
 
+NOTE: *`awesome_net` and `awesome_dataset` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
+
 ## Getting Descriptive Information and Metrics
 You can view information about a model's performance with `model_info.py`. This
 includes a summary of model parameters, a visualization of convolutional
@@ -212,7 +230,11 @@ View the models training history:
 $ python3 scripts/model_info.py awesome_net history
 ```
 
+NOTE: *`awesome_net` must be in a directory named `models` that lives in `AI_Water`.*
+
 For a list of available statistics run the help command:
 ```terminal
 $ python3 scripts/model_info.py -h
 ```
+
+## Scripts
