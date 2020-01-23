@@ -6,7 +6,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Installation](#installation)
     - [Fixing Gdal](#Installing-Gdal)
 - Prepare Data
-    - [Tile images](#Tiling-.tiff-Images)
+    - [Tile images](#tiling-.tiff-images)
 
 ## Installation
 Installing dependencies is straight forward with pipenv. First install the
