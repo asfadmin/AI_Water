@@ -8,10 +8,10 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - Prepare Data
     - [Tile images](#Tiling-tif-Images)
     - [Preparing Data With a Neural Network](#Preparing-Data-With-a-Neural-Network)
-    - [Preparing Data Without a Neural Network](#Preparing-data-without-a-Network)
+    - [Preparing Data Without a Neural Network](#Preparing-data-without-Neural-a-Network)
 - [Project layout](#Project-Layout)
 - [Running Unit Tests](#Running-Unit-Tests)
-- [Training a Neural Network](#Training)
+- [Training a Neural Network](#Training-a-Neural-Network)
     - [Examples](*Examples)
     - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
 
@@ -106,7 +106,7 @@ AI_Water
                 └── img2.mask.tif
 ```
 
-## Preparing data without a Network 
+## Preparing data without a Neural Network 
 **Making Water Mask:**
 
 To create a water mask download, you will need both a VV and VH granule.
@@ -179,7 +179,7 @@ Then you can run the tests and get the full report with:
 $ pipenv run tests
 ```
 
-## Training
+## Training a Neural Network
 1. Make sure your dataset is in the `dataset` folder.
 2. If you’re loading in weights run `main.py` with the `--continue` option.
 If you’re not loading them in and you're restarting the training of the CNN you
