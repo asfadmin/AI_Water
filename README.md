@@ -1,7 +1,7 @@
 # AI_Water ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidUtONGNXUzYvWDJod3V6MU9JMG95YlY3ZHUySXl2ZWtlQVd3V00xY3RwK3JMenFjM1ZuSHJpRzdEcjhKY1B5QmI0THZoTlI0ZGk4T0F0KzUydHVIRjVjPSIsIml2UGFyYW1ldGVyU3BlYyI6ImExM2llSGhpOE80OXhYczIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 Using Convolutional Neural Networks to generate water masks from SAR data.
 
-## Table of Content 
+##Table of Content 
 
 - [Installation](#installation)
     - [Fixing Gdal](#Installing-Gdal)
@@ -34,7 +34,7 @@ The last step is to run the following command in the terminal:
 $ pip install -e .
 ```
 
-## Installing Gdal
+### Installing Gdal
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation, or run the commands below.*
 
@@ -67,7 +67,7 @@ Next run this command in the terminal (Note that 512 is the dimensions and
 can be any arbitrary value, but to be ran in the provided Neural Network
 it must be 512):
 
-# Preparing Data
+## Preparing Data
 To run the Neural Net, your data will first need to be prepared. There are a few methods of creating data but all of 
 them require a `datasets` directory within `AI_Water`.  
 
@@ -77,7 +77,7 @@ $ python3 mkdir datasets
 
 ```
 
-## Preparing Data With a Neural Network
+### Preparing Data With a Neural Network
 
 After following instructions in the [Preparing Data](#Preparing-Data) section, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished.
 Select the granules you'd like to use for your dataset. After that, click the
@@ -120,7 +120,7 @@ AI_Water
                 └── img2.mask.tif
 ```
 
-## Preparing data without a Neural Network 
+### Preparing data without a Neural Network 
 **Making Water Mask:**
 
 First follow the instructions in the [Preparing Data](#Preparing-Data) section.
