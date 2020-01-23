@@ -89,7 +89,7 @@ def make_metadata(
             m = re.match(TILE_REGEX, name)
             if not m:
                 continue
-            print(f"name: **** {name} **** masked.py -> make_metadatas")
+
             pre, end, ext = m.groups()
 
             mask = f"{pre}.mask{end}.{ext}"
