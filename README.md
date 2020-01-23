@@ -1,8 +1,14 @@
 # AI_Water ![Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidUtONGNXUzYvWDJod3V6MU9JMG95YlY3ZHUySXl2ZWtlQVd3V00xY3RwK3JMenFjM1ZuSHJpRzdEcjhKY1B5QmI0THZoTlI0ZGk4T0F0KzUydHVIRjVjPSIsIml2UGFyYW1ldGVyU3BlYyI6ImExM2llSGhpOE80OXhYczIiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 Using Convolutional Neural Networks to generate water masks from SAR data.
 
-## Installation
+## Table of Content 
 
+- [Installation](#installation)
+    - [Fixing Gdal](#Installing-Gdal)
+- Prepare Data
+    - [Tile images](#Tiling-.tiff-Images)
+
+## Installation
 Installing dependencies is straight forward with pipenv. First install the
 GDAL dev libraries:
 ```terminal
@@ -16,6 +22,7 @@ $ pipenv install --dev
 Specifying the `--dev` flag will also install dependencies you will need to run
 the training and unit tests.
 
+## Installing Gdal
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation.*
 
