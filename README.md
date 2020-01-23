@@ -42,7 +42,7 @@ The last step is to run the following command in the terminal:
 $ pip install -e .
 ```
 
-## Tiling tif Images
+### Tiling tif Images
 To tile your tif image create a folder in the same directory as
 main.py and name it prep_tiles. Store the tif file within this
 folder, like below:
