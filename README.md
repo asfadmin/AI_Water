@@ -5,7 +5,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 
 - [Installation](#installation)
     - [Fixing Gdal](#Installing-Gdal)
-- Prepare Data
+- [Preparing Data](#Preparing-Data)
     - [Tile images](#Tiling-tif-Images)
     - [Preparing Data With a Neural Network](#Preparing-Data-With-a-Neural-Network)
     - [Preparing Data Without a Neural Network](#Preparing-data-without-Neural-a-Network)
