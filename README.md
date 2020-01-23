@@ -246,13 +246,52 @@ $ python3 scripts/model_info.py -h
 Scripts contained within `AI_Water`.
 
 ### Identify Water
+`identify_water.py` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
 
+Example command:
+ ```terminal
+$ python3 scripts/identify_water.py full_path_to_vv_img full_path_to_vh_img
+
+```
 ### Info Model
 `info_model.py` is explained under the section [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics).
 
 ### Mask Subscription
+`mask_subscription.py` can be used to mask a users subscription from [ASF HYP3](http://hyp3.asf.alaska.edu).
+The output is a list of water masks created from the granules within the subscription, and a vrt.
+
+Example command:
+ ```terminal
+$ python3 scripts/identify_water.py ai_model_folder name_of_vrt_output
+
+```
+
+After the program is ran, you will be asked for your [Nasa Earthdata](https://earthdata.nasa.gov) Credentials.œ
+```
+Enter your NASA EarthData username: 
+Password: 
+```
+If one were able to login in successfully and have subscriptions through [ASF HYP3](http://hyp3.asf.alaska.edu), one
+should see similar text as  below:
+
+```login successful!
+Welcome dmsorensen
+ID: 1949: Arizona
+ID: 1893: Washington
+ID: 1959: Lake_Erie
+ID: 1836: UAF
+ID: 1826: Alaska
+Pick an id from the list above: 
+```
+The final step is to pick an ID that is listed. Inputting 1826 will create a mask from the subscription `Alaska`.
 
 ### Create Mask
+`create_mask.py` can be used to create a water mask using a Neural Network, given dual band SAR images (VV and VH).
+Example command:
+ ```terminal
+$ python3 scripts/create_mask.py ai_model_folder full_path_to_vv_img full_path_to_vh_img output_mask_name
+
+```
 
 ### Make Data
 `make_data.py` is explained under the section [Preparing Data With a Neural Network](#Preparing-Data-With-a-Neural-Network).
