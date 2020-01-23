@@ -15,6 +15,11 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
     - [Examples](*Examples)
     - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
 - [Scripts](#Scripts)
+    - [Identify Water](#Identify-Water)
+    - [Info Model](#Info-Model)
+    - [Mask Subscriptions](#Mask Subscriptions)
+    - [Create Mask](#Create-Mask)
+    - [Make Data](#Make-Data)
 ## Installation
 Installing dependencies is straight forward with pipenv. First install the
 GDAL dev libraries:
@@ -238,3 +243,16 @@ $ python3 scripts/model_info.py -h
 ```
 
 ## Scripts
+Scripts contained within `AI_Water`.
+
+### Identify Water
+
+### Info Model
+`info_model.py` is explained under the section [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics).
+
+### Mask Subscription
+
+### Create Mask
+
+### Make Data
+`make_data.py` is explained under the section [Preparing Data With a Neural Network](#Preparing-Data-With-a-Neural-Network).
