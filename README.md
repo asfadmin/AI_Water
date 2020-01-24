@@ -266,7 +266,7 @@ $ python3 scripts/identify_water.py ai_model_folder name_of_vrt_output
 
 ```
 
-After the program is ran, you will be asked for your [Nasa Earthdata](https://earthdata.nasa.gov) Credentials.œ
+After the program is ran, you will be asked for your [Nasa Earthdata](https://earthdata.nasa.gov) Credentials.
 ```
 Enter your NASA EarthData username: 
 Password: 
