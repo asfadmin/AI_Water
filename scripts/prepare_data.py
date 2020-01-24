@@ -138,7 +138,7 @@ def prepare_data(directory: str, holdout: float):
 
 def prepare_mask_data(directory: str, holdout: float) -> None:
     """ Renames and moves mask and tile images. """
-    TILE_REGEX = re.compile(f"(.*)vh(.*)\\.({EXT})")
+    TILE_REGEX = re.compile(f"(.*)_VH_(.*)\\.({EXT})")
 
     for file in os.listdir(directory):
         m = re.match(TILE_REGEX, file)
@@ -146,11 +146,11 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
             continue
 
         pre, num, ext = m.groups()
-        new_vh_name = f"{pre}vh{num}.{ext}".lower()
-        mask_name = f"{pre}mask{num}.{ext}"
-        new_mask_name = f"{pre}mask{num}.{ext}".lower()
-        vv_name = f"{pre}vv{num}.{ext}"
-        new_vv_name = f"{pre}vv{num}.{ext}".lower()
+        new_vh_name = f"{pre}_{num}.vh.{ext}".lower()
+        mask_name = f"{pre}_MASK_{num}.{ext}"
+        new_mask_name = f"{pre}_{num}.mask.{ext}".lower()
+        vv_name = f"{pre}_VV_{num}.{ext}"
+        new_vv_name = f"{pre}_{num}.vv.{ext}".lower()
 
         if not os.path.isfile(os.path.join(directory, mask_name)):
             print(f"Tile: {file} is missing a mask {mask_name}!")
@@ -179,9 +179,9 @@ def prepare_mask_data(directory: str, holdout: float) -> None:
         )
 
 
-def move_imgs(args) -> None:
+def move_imgs(directory: str) -> None:
     """ Moves all images within each sub directory into one directory """
-    f_path = os.path.join(config.DATASETS_DIR, args.directory)
+    f_path = os.path.join(config.DATASETS_DIR, directory)
     for root, directories, files in os.walk(f_path, topdown=False):
         for img in files:
             os.rename(
