@@ -78,7 +78,7 @@ them require a `datasets` directory within `AI_Water`.
 
 Once in the directory `AI_Water` run the command:
 ```terminal
-$ python3 mkdir datasets
+$ mkdir datasets
 
 ```
 
