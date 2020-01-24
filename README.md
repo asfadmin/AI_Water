@@ -93,7 +93,7 @@ After that run make_data.py.
 
 Command layout:
 ```terminal
-$ python3 scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
+$ python3 scripts/make_data.py mkdata ai_model_folder dataset_name dir_dataset_sits 512
 
 ```
 NOTE: *`ai_model_folder` and `dataset_name` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
