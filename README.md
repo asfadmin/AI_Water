@@ -84,7 +84,7 @@ $ python3 mkdir datasets
 
 ### Preparing Data With a Neural Network
 
-After following instructions in the [Preparing Data](#Preparing-Data) section, go to http://hyp3.asf.alaska.edu, click on the products tab, then finished.
+After following instructions in the [Preparing Data](#Preparing-Data) section, go to [ASF HYP3](http://hyp3.asf.alaska.edu), click on the products tab, then finished.
 Select the granules you'd like to use for your dataset. After that, click the
 button that says "Download Python Script for Selected" and make sure it
 downloads to the Downloads directory.
