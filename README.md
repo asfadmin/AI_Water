@@ -12,7 +12,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Project layout](#Project-Layout)
 - [Running Unit Tests](#Running-Unit-Tests)
 - [Training a Neural Network](#Training-a-Neural-Network)
-    - [Examples](*Examples)
+    - [Examples](#Examples)
     - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
 - [Scripts](#Scripts)
     - [Identify Water](#Identify-Water)
