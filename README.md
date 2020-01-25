@@ -243,7 +243,7 @@ $ python3 scripts/model_info.py -h
 ```
 
 ## Scripts
-Scripts contained within `AI_Water`.
+Scripts contained within `AI_Water/scripts`.
 
 ### Identify Water
 `identify_water.py` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
