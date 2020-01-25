@@ -76,7 +76,7 @@ it must be 512):
 To run the Neural Net, your data will first need to be prepared. There are a few methods of creating data but all of 
 them require a `datasets` directory within `AI_Water`.  
 
-Once in the directory `AI_Water` run the command:
+If the `datasets` directory wasn't created during `setup.py`, cd into the directory `AI_Water` and then run the command:
 ```terminal
 $ mkdir datasets
 
