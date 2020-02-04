@@ -12,7 +12,7 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Project layout](#Project-Layout)
 - [Running Unit Tests](#Running-Unit-Tests)
 - [Training a Neural Network](#Training-a-Neural-Network)
-    - [Examples](*Examples)
+    - [Examples](#Examples)
     - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
 - [Scripts](#Scripts)
     - [Identify Water](#Identify-Water)
@@ -76,7 +76,7 @@ it must be 512):
 To run the Neural Net, your data will first need to be prepared. There are a few methods of creating data but all of 
 them require a `datasets` directory within `AI_Water`.  
 
-Once in the directory `AI_Water` run the command:
+If the `datasets` directory wasn't created during `setup.py`, cd into the directory `AI_Water` and then run the command:
 ```terminal
 $ mkdir datasets
 
@@ -93,7 +93,7 @@ After that run make_data.py.
 
 Command layout:
 ```terminal
-$ python3 scripts/make_data.py ai_model_folder dataset_name dir_dataset_sits 512
+$ python3 scripts/make_data.py mkdata ai_model_folder dataset_name dir_dataset_sits 512
 
 ```
 NOTE: *`ai_model_folder` and `dataset_name` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
@@ -243,7 +243,7 @@ $ python3 scripts/model_info.py -h
 ```
 
 ## Scripts
-Scripts contained within `AI_Water`.
+Scripts contained within `AI_Water/scripts`.
 
 ### Identify Water
 `identify_water.py` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
@@ -266,7 +266,7 @@ $ python3 scripts/identify_water.py ai_model_folder name_of_vrt_output
 
 ```
 
-After the program is ran, you will be asked for your [Nasa Earthdata](https://earthdata.nasa.gov) Credentials.
+After the program is ran, you will be asked for your [NASA Earthdata](https://earthdata.nasa.gov) Credentials.
 ```
 Enter your NASA EarthData username: 
 Password: 
