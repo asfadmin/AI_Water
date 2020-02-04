@@ -12,6 +12,7 @@ from osgeo import gdal
 
 # Key bindings
 KEY_FILL_0 = '0'
+KEY_FILL_2 = '2' # convenience so 1/0 is closer on the keyboard
 KEY_FILL_1 = '1'
 KEY_UNDO = 'u'
 KEY_SAVE = 'w'
@@ -52,7 +53,7 @@ def interactive_editor(mask_path: str) -> None:
     plt.text(
         0,
         1.1, (
-            f"Press '{KEY_FILL_0}' to fill zeros, "
+            f"Press '{KEY_FILL_0}' or '{KEY_FILL_2}' to fill zeros, "
             f"'{KEY_FILL_1}' to fill ones, "
             f"'{KEY_UNDO}' to undo the last fill and "
             f"'{KEY_SAVE}' to save the mask "
@@ -93,6 +94,8 @@ def interactive_editor(mask_path: str) -> None:
         previous_selection = (x1, y1, x2, y2)
 
         if event.key == KEY_FILL_0:
+            mask[y1:y2, x1:x2] = 0
+        elif event.key == KEY_FILL_2:
             mask[y1:y2, x1:x2] = 0
         elif event.key == KEY_FILL_1:
             mask[y1:y2, x1:x2] = 1
