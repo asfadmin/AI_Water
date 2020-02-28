@@ -20,51 +20,59 @@ from scripts.make_vrt import main as vrt
 from src.api_functions import download_prouducts, grab_subscription, hyp3_login
 
 
-def make_dirs(dir: str) -> str:
-    """ If not already created this function creates the mask directory,
-        and the directory the user inputs. The mask directory will contain
-        subdirectories containing all the masks within
-        individual subdirectories. Subdirectories are created each time
-        the script is ran. """
+class User:
 
-    users_dir = os.path.join('mask', dir)
-    if not os.path.isdir('mask'):
-        os.mkdir('mask')
-    if not os.path.isdir(users_dir):
-        os.mkdir(users_dir)
-    return users_dir
+    def __init__(self, mask_path: str, model_path: str, api: API):
+        self.mask_path = mask_path
+        self.model_path = model_path
+
+        self._make_dirs(mask_path)
+        self.api = api
+
+    def _make_dirs(self) -> str:
+        self.mask_path = os.path.join('mask', self.mask_path)
+        if not os.path.isdir('mask'):
+            os.mkdir('mask')
+        if not os.path.isdir(self.mask_path):
+            os.mkdir(self.mask_path)
 
 
-def mask_products(products: List, users_path: str, model_path: str) -> None:
-    """ Takes a list of products generated from the HYP3 API,
-        the path to save the masks, and the path to a model (.h5 file).
-        The function then creates a mask for each product contained in
-        the product list. """
+class Mask:
 
-    ZIP_REGEX = re.compile(r'(.*).zip')
-    SAR_REGEX = re.compile(r'(.*)_(VH|VV).tif')
-    for i, product in enumerate(products):
-        download_prouducts(products, i, product)
-        try:
-            with ZipFile(product['name'], 'r') as zf:
-                zf.extractall()
-            zf.close()
-        except FileNotFoundError:
-            continue
+    def __init__(self, user: User):
+        self.ZIP_REGEX = re.compile(r'(.*).zip')  # Move these?
+        self.SAR_REGEX = re.compile(r'(.*)_(VH|VV).tif')  # Move these?
 
-        m = re.match(ZIP_REGEX, product['name'])
-        folder = m.groups()
+        self.user = user
+        self.products = []
+        subscription = grab_subscription(self.user.api)
+        self.subscription_id = subscription["id"]
 
-        for file in os.listdir(folder[0]):
-            img = os.path.join(folder[0], file)
-            m = re.match(SAR_REGEX, file)
+    def mask_subscription(self):
+        """ mask_sub masks a given subscription  """
+        count = 0
+        while True:
+            print(f"Page: {count + 1}")
+            self.products = self.user.api.get_products(
+                sub_id=self.subscription_id, page=count, page_size=500
+            )
+            self._mask_products()
+            count += 1
+
+            if not self.products:
+                break
+
+    def _get_product_metadata(self, product):
+        m = re.match(self.ZIP_REGEX, product)
+        product_name = m.groups()[0]
+
+        for file in os.listdir(product_name):
+            img = os.path.join(product_name, file)
+            m = re.match(self.SAR_REGEX, file)
 
             if not m or file.endswith('.xml'):
-                try:
-                    os.remove(img)
-                    continue
-                except FileNotFoundError and IsADirectoryError:
-                    continue
+                remove_img(img)
+                continue
 
             _, band = m.groups()
 
@@ -73,35 +81,48 @@ def mask_products(products: List, users_path: str, model_path: str) -> None:
                 continue
             vv_img = img
 
-        output = os.path.join(users_path, f"{folder[0]}_{i}.tif")
-        # Creating mask
-        call(f"python scripts/create_mask.py {model_path} {vv_img} {vh_img} {output}".split())
-        shutil.rmtree(folder[0])
-        os.remove(f"{folder[0]}.zip")
+        return vv_img, vh_img, product_name
+
+    def _mask_products(self) -> None:
+        for i, product in enumerate(self.products):
+            download_prouducts(self.products, i, product)
+
+            if not extract_zip(product["name"]):
+                continue
+
+            vv_img, vh_img, product_name = self._get_product_metadata(product['name'])
+
+            output = os.path.join(self.user.users_path, f"{product_name}_{i}.tif")
+            # Creating mask
+            call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
+            shutil.rmtree(product_name)
+            os.remove(f"{product_name}.zip")
 
 
-def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
-    """ mask_sub masks a given subscription  """
-    count = 0
-    while True:
-        print(f"Page: {count + 1}")
-        products = api.get_products(
-            sub_id=sub_id, page=count, page_size=500
-        )
-        mask_products(products, dir, model)
-        count += 1
+def extract_zip(product_name):
+    try:
+        with ZipFile(product_name, 'r') as zf:
+            zf.extractall()
+        zf.close()
+        return True
+    except FileNotFoundError:
+        return False
 
-        if not products:
-            break
+
+def remove_img(img_path):
+    try:
+        os.remove(img_path)
+    except FileNotFoundError and IsADirectoryError:
+        pass
 
 
 def main(args: Namespace, api: API) -> None:
     """ main creates a vrt from a users subscription. """
     start_time = time.time()
-    subscription = grab_subscription(api)
-    dir = make_dirs(args.name)
-    mask_sub(subscription['id'], dir, args.model, api)
-    vrt(dir, f"{args.name}.vrt")
+    user = User(args.name, args.model, api)
+    mask = Mask(user)
+    mask.mask_subscription()
+    vrt(mask.user.mask_path, f"{args.name}.vrt")
     end_time = time.time()
     print(end_time - start_time)
 
