@@ -53,25 +53,29 @@ class Mask:
 
         return vv_img, vh_img, product_name
 
-    def _mask_products(self) -> None:
-        for i, product in enumerate(self.products):
-            download_prouducts(self.products, i, product)
+    def _mask_product(self, product_zip_name, product_count):
+        vv_img, vh_img, product_name = self._get_product_metadata(product_zip_name)
 
-            if not extract_zip(product["name"]):
+        output = os.path.join(self.user.users_path, f"{product_name}_{product_count}.tif")
+        # Creating mask
+        call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
+        shutil.rmtree(product_name)
+        os.remove(f"{product_name}.zip")
+
+    def _mask_products(self) -> None:
+        for product_count, product in enumerate(self.products):
+            download_prouducts(self.products, product_count, product)
+            product_zip_name = product["name"]
+
+            if not extract_zip(product_zip_name):
                 continue
 
-            vv_img, vh_img, product_name = self._get_product_metadata(product['name'])
-
-            output = os.path.join(self.user.users_path, f"{product_name}_{i}.tif")
-            # Creating mask
-            call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
-            shutil.rmtree(product_name)
-            os.remove(f"{product_name}.zip")
+            self._mask_product(product_zip_name, product_count)
 
 
-def extract_zip(product_name):
+def extract_zip(product_zip_name):
     try:
-        with ZipFile(product_name, 'r') as zf:
+        with ZipFile(product_zip_name, 'r') as zf:
             zf.extractall()
         zf.close()
         return True
