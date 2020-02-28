@@ -15,6 +15,8 @@ from .model import ModelType, model_type, save_model
 from .asf_typing import History
 from .config import NETWORK_DEMS
 
+import json
+
 
 def train_model(
     model: Model,
@@ -61,6 +63,11 @@ def train_model(
 
         for key in model_history.keys():
             model_history[key] += history.history[key]
+
+        # fix type error: float32->float64
+        for index, number in enumerate(model_history['accuracy']):
+            number=np.dtype('float64').type(number)
+            model_history['accuracy'][index]=number
 
         save_model(model, f"e{epoch + epoch_prev}", history=model_history)
 
