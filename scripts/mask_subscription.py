@@ -11,7 +11,6 @@ import shutil
 import time
 from argparse import ArgumentParser, Namespace
 from subprocess import call
-from typing import List
 from zipfile import ZipFile
 
 from asf_hyp3 import API
@@ -49,7 +48,6 @@ class Mask:
         self.subscription_id = subscription["id"]
 
     def mask_subscription(self):
-        """ mask_sub masks a given subscription  """
         count = 0
         while True:
             print(f"Page: {count + 1}")
@@ -116,8 +114,7 @@ def remove_img(img_path):
         pass
 
 
-def main(args: Namespace, api: API) -> None:
-    """ main creates a vrt from a users subscription. """
+def create_mask(args: Namespace, api: API) -> None:
     start_time = time.time()
     user = User(args.name, args.model, api)
     mask = Mask(user)
@@ -132,7 +129,7 @@ if __name__ == '__main__':
 
     p.add_argument('model', help='Path to model')
     p.add_argument('name', help='Name of mask')
-    p.set_defaults(func=main)
+    p.set_defaults(func=create_mask)
 
     args = p.parse_args()
     if hasattr(args, 'func'):
