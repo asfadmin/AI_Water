@@ -89,3 +89,42 @@ def remove_img(img_path):
         return True
     except FileNotFoundError and IsADirectoryError:
         return False
+
+
+
+
+
+# def product_middle_time(product_name):
+#     """takes in product time; uses regex to take out the date/time of the file name
+#        then returns a date time object of middle time between the start and end times"""
+
+#     PRODUCT_REGEX = re.compile(r'S.*1SDV_(?P<start_year>\d{4})(?P<start_month>\d{2})(?P<start_day>\d{2})T(?P<start_hour>\d{2})(?P<start_minute>\d{2})(?P<start_second>\d{2})_(?P<end_year>\d{4})(?P<end_month>\d{2})(?P<end_day>\d{2})T(?P<end_hour>\d{2})(?P<end_minute>\d{2})(?P<end_second>\d{2})_[0-9]*_.*.zip')
+    
+#     m = re.match(PRODUCT_REGEX, product_name)
+#     dt = m.groupdict()
+
+#     # converts all dates/times values in dictionary from int to string
+#     for k, v in dt.items(): dt[k] = int(v)
+
+#     start = datetime(dt["start_year"], dt["start_month"], dt["start_day"],
+#                      dt["start_hour"], dt["start_minute"], dt["start_second"])
+            
+#     end = datetime(dt["end_year"], dt["end_month"], dt["end_day"],
+#                    dt["end_hour"], dt["end_minute"], dt["end_second"])  
+
+
+#     #calculates middle datetime
+#     middle = start + (end - start)/2
+
+
+#     return middle
+
+
+
+
+# def triage_products(products):
+#     """Takes list of dictionary (products), and then orders them from
+#        least to most recent based on their start time"""
+
+
+#     return sorted(products, key=lambda product: product_middle_time(product['name']))
