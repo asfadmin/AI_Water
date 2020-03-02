@@ -5,22 +5,19 @@
  This script creates a mask from an ASF HYP3 subscription. The user must
  already have a subscription in HYP3 with finished products.
 """
-import os
-import re
-import shutil
 import time
 from argparse import ArgumentParser, Namespace
-from subprocess import call
-from typing import List
-from zipfile import ZipFile
 
 from asf_hyp3 import API
 
 from scripts.make_vrt import main as vrt
-from src.api_functions import download_prouducts, grab_subscription, hyp3_login
+from src.api_functions import hyp3_login
+from src.user_class import User
+from src.mask_class import Mask
 
 from datetime import datetime
 
+<<<<<<< HEAD
 def make_dirs(dir: str) -> str:
     """ If not already created this function creates the mask directory,
         and the directory the user inputs. The mask directory will contain
@@ -104,11 +101,18 @@ def mask_sub(sub_id: str, dir: str, model: str,  api: API) -> None:
 
         mask_products(products, dir, model)
         count += 1
+=======
+def create_mask(args: Namespace, api: API) -> None:
+    start_time = time.time()
+>>>>>>> dmsorensen_dev
 
-        if not products:
-            break
+    user = User(args.name, args.model, api)
+    mask = Mask(user, args.name)
 
+    mask.mask_subscription()
+    vrt(mask.user.mask_path, f"{mask.mask_name}.vrt")
 
+<<<<<<< HEAD
 
 
 
@@ -162,6 +166,8 @@ def main(args: Namespace, api: API) -> None:
     dir = make_dirs(args.name)
     mask_sub(subscription['id'], dir, args.model, api)
     vrt(dir, f"{args.name}.vrt")
+=======
+>>>>>>> dmsorensen_dev
     end_time = time.time()
     print(end_time - start_time)
 
@@ -171,7 +177,7 @@ if __name__ == '__main__':
 
     p.add_argument('model', help='Path to model')
     p.add_argument('name', help='Name of mask')
-    p.set_defaults(func=main)
+    p.set_defaults(func=create_mask)
 
     args = p.parse_args()
     if hasattr(args, 'func'):
