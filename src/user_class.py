@@ -9,7 +9,7 @@ class User:
         self.mask_path = mask_path
         self.model_path = model_path
 
-        self._make_dirs(mask_path)
+        self._make_dirs()
         self.api = api
 
     def _make_dirs(self) -> str:
