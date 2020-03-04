@@ -38,7 +38,7 @@ def main(
     vv_tiles = tile_image(vv_array)
 
     # Get vh tiles
-    f = gdal.Open(vv_path)
+    f = gdal.Open(vh_path)
     vh_array = pad_image(f.ReadAsArray(), dems)
     
     vh_tiles = tile_image(vh_array)
