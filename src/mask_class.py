@@ -56,7 +56,7 @@ class Mask:
     def _mask_product(self, product_zip_name, product_count):
         vv_img, vh_img, product_name = self._get_product_metadata(product_zip_name)
 
-        output = os.path.join(self.user.users_path, f"{product_name}_{product_count}.tif")
+        output = os.path.join(self.user.mask_path, f"{product_name}_{product_count}.tif")
         # Creating mask
         call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
         shutil.rmtree(product_name)
