@@ -38,10 +38,8 @@ def main(
     vv_tiles = tile_image(vv_array)
 
     # Get vh tiles
-    f = gdal.Open(vv_path)
+    f = gdal.Open(vh_path)
     vh_array = pad_image(f.ReadAsArray(), dems)
-
-    f = None # this is how you kill a gdal file object
     
     vh_tiles = tile_image(vh_array)
 
@@ -58,6 +56,8 @@ def main(
 
     mask[invalid_pixels] = 0
     write_mask_to_file(mask, outfile, f.GetProjection(), f.GetGeoTransform())
+
+    f = None # this is how you kill a gdal file object
 
 
 def pad_image(image: np.ndarray, to: int) -> np.ndarray:
