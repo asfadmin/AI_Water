@@ -41,6 +41,8 @@ def main(
     f = gdal.Open(vh_path)
     vh_array = pad_image(f.ReadAsArray(), dems)
 
+    f = None # this is how you kill a gdal file object
+    
     vh_tiles = tile_image(vh_array)
 
     model = load_model(model_path)
