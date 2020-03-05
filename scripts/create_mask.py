@@ -57,7 +57,7 @@ def main(
     mask[invalid_pixels] = 0
     write_mask_to_file(mask, outfile, f.GetProjection(), f.GetGeoTransform())
 
-    f = None # this is how you kill a gdal file object
+    f = None
 
 
 def pad_image(image: np.ndarray, to: int) -> np.ndarray:
