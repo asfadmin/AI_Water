@@ -5,7 +5,7 @@ import shutil
 from subprocess import call
 from datetime import datetime
 
-from src.api_functions import download_prouducts, grab_subscription
+from src.api_functions import download_products, grab_subscription
 from src.user_class import User
 
 
@@ -69,7 +69,7 @@ class Mask:
 
     def _mask_products(self) -> None:
         for product_count, product in enumerate(self.products):
-            download_prouducts(self.products, product_count, product)
+            download_products(self.products, product_count, product)
             product_zip_name = product["name"]
 
             if not extract_zip(product_zip_name):
