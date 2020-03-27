@@ -17,18 +17,18 @@ from scripts.difference import mask_difference
 def test_mask_difference():
 
     x = np.array([[0, 0, 0, 0],
-                  [1, 1, 1, 0],
+                  [1, 0, 0, 0],
                   [1, 1, 1, 0]])
 
     y = np.array([[0, 0, 0, 0],
-                  [1, 0, 0, 0],
-                  [1, 1, 0, 0]])
+                  [1, 1, 1, 1],
+                  [1, 1, 1, 1]])
 
     t1 = mask_difference(x,y)
 
     out = np.array([[0, 0, 0, 0],
-                    [0, 1, 1, 0],
-                    [0, 0, 1, 0]])
+                    [0, 1, 1, 1],
+                    [0, 0, 0, 1]])
 
     assert np.array_equal(t1, out), "Test failed"
 
