@@ -9,14 +9,14 @@
 import pytest
 import numpy as np
 
-from scripts.mask_difference import mask_difference
+from scripts.mask_difference import water_added
 
 
 
 
 def test_water_added():
 
-    x = np.array([[0, 0, 0, 0],
+    x = np.array([[0, 0, 1, 1],
                   [1, 0, 0, 0],
                   [1, 1, 1, 0]])
 
@@ -26,7 +26,7 @@ def test_water_added():
 
     t1 = water_added(x,y)
 
-    out = np.array([[0, 0, 0, 0],
+    out = np.array([[0, 0, 2, 2],
                     [0, 1, 1, 1],
                     [0, 0, 0, 1]])
 

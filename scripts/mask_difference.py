@@ -1,3 +1,12 @@
+"""
+ Jason Herning
+ 03-01-20
+ mask_difference.py
+ Script creates a mask to show where water has been added or subtracted
+ over time.
+"""
+
+
 
 
 import os
@@ -17,7 +26,7 @@ def get_mask_array(mask_file: str) -> np.ndarray:
 
 
 
-#TODO set dimensions to the bigger mask!
+#TODO line up the dimensions to match eatchother. by cooridinates
 def water_added(mask_orig: np.ndarray, mask_new: np.ndarray) -> np.ndarray:
     """takes in two mask from same region, return mask of water added"""
 
@@ -28,7 +37,9 @@ def water_added(mask_orig: np.ndarray, mask_new: np.ndarray) -> np.ndarray:
         for j in range(mask_final.shape[1]):
             if mask_orig[i][j] == 0 and mask_new[i][j] == 1:
                 mask_final[i][j] = 1
-
+            if mask_orig[i][j] == 1 and mask_new[i][j] == 0:
+                mask_final[i][j] = 2
+    
     return mask_final
 
 
