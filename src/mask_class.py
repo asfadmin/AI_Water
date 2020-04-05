@@ -9,7 +9,6 @@ from src.api_functions import download_products, grab_subscription
 from src.user_class import User
 
 
-
 class Mask:
     def __init__(self, user: User, mask_name):
         self.ZIP_REGEX = re.compile(r'(.*).zip')  # Move these?
@@ -62,6 +61,7 @@ class Mask:
         vv_img, vh_img, product_name = self._get_product_metadata(product_zip_name)
 
         output = os.path.join(self.user.mask_path, f"{product_name}_{product_count}.tif")
+
         # Creating mask
         call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
         shutil.rmtree(product_name)
@@ -71,7 +71,6 @@ class Mask:
         for product_count, product in enumerate(self.products):
             download_products(self.products, product_count, product)
             product_zip_name = product["name"]
-
             if not extract_zip(product_zip_name):
                 continue
 
@@ -105,7 +104,6 @@ def triage_products(products):
     least to most recent based on their start time"""
 
     return sorted(products, key=lambda product: product_middle_time(product['name']))
-
 
 def extract_zip(product_zip_name):
     try:
