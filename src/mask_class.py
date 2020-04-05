@@ -1,11 +1,12 @@
 import os
 import re
-from zipfile import ZipFile
 import shutil
+from datetime import datetime
 from subprocess import call
+from zipfile import ZipFile
 
-from .api_functions import download_prouducts, grab_subscription
-from .user_class import User
+from src.api_functions import download_products, grab_subscription
+from src.user_class import User
 
 
 class Mask:
@@ -26,6 +27,9 @@ class Mask:
             self.products = self.user.api.get_products(
                 sub_id=self.subscription_id, page=count, page_size=500
             )
+
+            self.products = triage_products(self.products)
+
             self._mask_products()
             count += 1
 
@@ -55,8 +59,7 @@ class Mask:
 
     def _mask_product(self, product_zip_name, product_count):
         vv_img, vh_img, product_name = self._get_product_metadata(product_zip_name)
-
-        output = os.path.join(self.user.users_path, f"{product_name}_{product_count}.tif")
+        output = os.path.join(self.user.mask_path, f"{product_name}_{product_count}.tif")
         # Creating mask
         call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
         shutil.rmtree(product_name)
@@ -64,13 +67,42 @@ class Mask:
 
     def _mask_products(self) -> None:
         for product_count, product in enumerate(self.products):
-            download_prouducts(self.products, product_count, product)
+            download_products(self.products, product_count, product)
             product_zip_name = product["name"]
-
             if not extract_zip(product_zip_name):
                 continue
 
             self._mask_product(product_zip_name, product_count)
+
+
+def product_middle_time(product_name):
+    """takes in product time; uses regex to take out the date/time of the file name
+    then returns a date time object of middle time between the start and end times"""
+    PRODUCT_REGEX = re.compile(
+        r'S.*1SDV_(?P<start_year>\d{4})(?P<start_month>\d{2})(?P<start_day>\d{2})T(?P<start_hour>\d{2})(?P<start_minute>\d{2})(?P<start_second>\d{2})_(?P<end_year>\d{4})(?P<end_month>\d{2})(?P<end_day>\d{2})T(?P<end_hour>\d{2})(?P<end_minute>\d{2})(?P<end_second>\d{2})_[0-9]*_.*.zip')
+
+    m = re.match(PRODUCT_REGEX, product_name)
+    dt = m.groupdict()
+
+    # converts all dates/times values in dictionary from int to string
+    for k, v in dt.items(): dt[k] = int(v)
+
+    start = datetime(dt["start_year"], dt["start_month"], dt["start_day"],
+                     dt["start_hour"], dt["start_minute"], dt["start_second"])
+
+    end = datetime(dt["end_year"], dt["end_month"], dt["end_day"],
+                   dt["end_hour"], dt["end_minute"], dt["end_second"])
+
+    # calculates middle datetime
+    middle = start + (end - start) / 2
+
+    return middle
+
+
+def triage_products(products):
+    """Takes list of dictionary (products), and then orders them from
+    least to most recent based on their start time"""
+    return sorted(products, key=lambda product: product_middle_time(product['name']))
 
 
 def extract_zip(product_zip_name):

@@ -95,7 +95,7 @@ def make_dir(dir: str) -> str:
     return dir
 
 
-def download_prouducts(products: List, i: int, product) -> None:
+def download_products(products: List, i: int, product) -> None:
     """ download_products takes in a list of products, an index (i),
         and an individual product. The function uses the product variable to
         download the zip file. The function uses the list and index to display
