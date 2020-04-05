@@ -7,7 +7,6 @@ from subprocess import call
 from src.api_functions import download_prouducts, grab_subscription
 from src.user_class import User
 
-
 class Mask:
     def __init__(self, user: User, mask_name):
         self.ZIP_REGEX = re.compile(r'(.*).zip')  # Move these?
@@ -74,6 +73,7 @@ class Mask:
                 continue
 
             self._mask_product(product_zip_name, product_count)
+            
 
     def _product_middle_time(product_name):
         """takes in product time; uses regex to take out the date/time of the file name
@@ -106,7 +106,6 @@ class Mask:
         return sorted(products, key=lambda product: product_middle_time(product['name']))
 
 
-
 def extract_zip(product_zip_name):
     try:
         with ZipFile(product_zip_name, 'r') as zf:
@@ -124,6 +123,6 @@ def remove_img(img_path):
     except FileNotFoundError and IsADirectoryError:
         return False
 
-
-
-
+      
+      
+      
