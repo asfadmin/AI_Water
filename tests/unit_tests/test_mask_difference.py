@@ -1,21 +1,15 @@
 """
  Jason Herning
  03/02/2020
- test_differnce.py
- ---add summary---
+ test_mask_difference.py
+ unit test for mask_difference.py
 """
-
-
-import pytest
 import numpy as np
 
-from scripts.mask_difference import water_added
+from scripts.mask_difference import difference
 
 
-
-
-def test_water_added():
-
+def test_difference():
     x = np.array([[0, 0, 1, 1],
                   [1, 0, 0, 0],
                   [1, 1, 1, 0]])
@@ -24,16 +18,10 @@ def test_water_added():
                   [1, 1, 1, 1],
                   [1, 1, 1, 1]])
 
-    t1 = water_added(x,y)
+    t1 = difference(x, y)
 
     out = np.array([[0, 0, 2, 2],
                     [0, 1, 1, 1],
                     [0, 0, 0, 1]])
 
     assert np.array_equal(t1, out), "Test failed"
-
-
-
-
-
-
