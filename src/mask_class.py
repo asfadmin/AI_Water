@@ -1,9 +1,9 @@
 import os
 import re
-from zipfile import ZipFile
 import shutil
-from subprocess import call
 from datetime import datetime
+from subprocess import call
+from zipfile import ZipFile
 
 from src.api_functions import download_products, grab_subscription
 from src.user_class import User
@@ -59,9 +59,7 @@ class Mask:
 
     def _mask_product(self, product_zip_name, product_count):
         vv_img, vh_img, product_name = self._get_product_metadata(product_zip_name)
-
         output = os.path.join(self.user.mask_path, f"{product_name}_{product_count}.tif")
-
         # Creating mask
         call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
         shutil.rmtree(product_name)
@@ -80,11 +78,8 @@ class Mask:
 def product_middle_time(product_name):
     """takes in product time; uses regex to take out the date/time of the file name
     then returns a date time object of middle time between the start and end times"""
-
-    PRODUCT_REGEX = re.compile(r'S.*1SDV_(?P<start_year>\d{4})(?P<start_month>\d{2})(?P<start_day>\d{2})T('
-                               r'?P<start_hour>\d{2})(?P<start_minute>\d{2})(?P<start_second>\d{2})_(?P<end_year>\d{'
-                               r'4})(?P<end_month>\d{2})(?P<end_day>\d{2})T(?P<end_hour>\d{2})(?P<end_minute>\d{2})('
-                               r'?P<end_second>\d{2})_[0-9]*_.*.zip')
+    PRODUCT_REGEX = re.compile(
+        r'S.*1SDV_(?P<start_year>\d{4})(?P<start_month>\d{2})(?P<start_day>\d{2})T(?P<start_hour>\d{2})(?P<start_minute>\d{2})(?P<start_second>\d{2})_(?P<end_year>\d{4})(?P<end_month>\d{2})(?P<end_day>\d{2})T(?P<end_hour>\d{2})(?P<end_minute>\d{2})(?P<end_second>\d{2})_[0-9]*_.*.zip')
 
     m = re.match(PRODUCT_REGEX, product_name)
     dt = m.groupdict()
@@ -107,7 +102,6 @@ def product_middle_time(product_name):
 def triage_products(products):
     """Takes list of dictionary (products), and then orders them from
     least to most recent based on their start time"""
-
     return sorted(products, key=lambda product: product_middle_time(product['name']))
 
 

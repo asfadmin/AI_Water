@@ -18,5 +18,4 @@ class User:
         if not os.path.isdir(self.mask_path):
             os.mkdir(self.mask_path)
 
-            
-            
+
