@@ -14,9 +14,9 @@ mock = "*"
 matplotlib = "*"
 
 [packages]
+numpy = "*"
 tensorflow = "*"
 keras = "*"
-
 typing-extensions = "*"
 pyperclip = "*"
 asf_hyp3 = "*"
