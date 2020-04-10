@@ -14,7 +14,7 @@ mock = "*"
 matplotlib = "*"
 
 [packages]
-numpy = "*"
+pygdal = "==2.4.2.6"
 tensorflow = "*"
 keras = "*"
 typing-extensions = "*"

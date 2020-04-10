@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0b20ec62c3a656216d9ca4624dfe70e83a9d4df1a807acb0bb541fb794237a87"
+            "sha256": "d511690d8ea72d019c44b52f2fbc66252657610b66e873b797b99c57a300a713"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -268,6 +268,13 @@
                 "sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74"
             ],
             "version": "==0.2.8"
+        },
+        "pygdal": {
+            "hashes": [
+                "sha256:ff89d61c5981de2cd3a018f3ba8c3575ee2f3e08edc99abed4b10805c706223e"
+            ],
+            "index": "pypi",
+            "version": "==2.4.2.6"
         },
         "pygeoif": {
             "hashes": [
