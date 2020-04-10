@@ -8,7 +8,8 @@ phases:
       - apt-get update
       - apt-get install libgdal-dev --no-install-recommends -y
       - pip install pipenv
-      - pipenv sync --dev
+      - pipenv install --skip-lock --dev
+      - pipenv install pygdal=="`gdal-config --version`.*"
   build:
     commands:
       - echo Build started on `date`
