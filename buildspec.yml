@@ -9,8 +9,8 @@ phases:
       - apt-get install libgdal-dev --no-install-recommends -y
       - pip install pipenv
       - pipenv sync --dev
-      - pipinstall -e .
-      - pipenv install gdal==2.4.2
+      - pip install -e .
+      - pip install gdal==2.4.2
   build:
     commands:
       - echo Build started on `date`
