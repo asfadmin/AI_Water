@@ -6,7 +6,7 @@ phases:
       python: 3.7
     commands:
       - apt-get update
-      - apt-get install libgdal-dev
+      - apt-get install libgdal-dev -y
       - pip install pipenv
       - pipenv sync --dev
       - pip install - e .
