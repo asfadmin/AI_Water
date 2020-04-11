@@ -78,22 +78,22 @@ class Mask:
 def product_middle_time(product_name):
     """takes in product time; uses regex to take out the date/time of the file name
     then returns a date time object of middle time between the start and end times"""
-    PRODUCT_REGEX = re.compile(
+    product_time_regex = re.compile(
         r"S.*1SDV_(?P<start_year>\d{4})(?P<start_month>\d{2})(?P<start_day>\d{2})T(?P<start_hour>\d{2})("
         r"?P<start_minute>\d{2})(?P<start_second>\d{2})_(?P<end_year>\d{4})(?P<end_month>\d{2})(?P<end_day>\d{2})T("
         r"?P<end_hour>\d{2})(?P<end_minute>\d{2})(?P<end_second>\d{2})_[0-9]*_.*.zip")
 
-    m = re.match(PRODUCT_REGEX, product_name)
-    dt = m.groupdict()
+    regex_match = re.match(product_time_regex, product_name)
+    time_dict = regex_match.groupdict()
 
     # converts all dates/times values in dictionary from int to string
-    for k, v in dt.items(): dt[k] = int(v)
+    for k, v in time_dict.items(): time_dict[k] = int(v)
 
-    start = datetime(dt["start_year"], dt["start_month"], dt["start_day"],
-                     dt["start_hour"], dt["start_minute"], dt["start_second"])
+    start = datetime(time_dict["start_year"], time_dict["start_month"], time_dict["start_day"],
+                     time_dict["start_hour"], time_dict["start_minute"], time_dict["start_second"])
 
-    end = datetime(dt["end_year"], dt["end_month"], dt["end_day"],
-                   dt["end_hour"], dt["end_minute"], dt["end_second"])
+    end = datetime(time_dict["end_year"], time_dict["end_month"], time_dict["end_day"],
+                   time_dict["end_hour"], time_dict["end_minute"], time_dict["end_second"])
 
     # calculates middle datetime
     middle = start + (end - start) / 2
