@@ -16,13 +16,13 @@ def intersection(raster1, raster2):
     """Finds the intersection of 2 raster"""
     band1 = raster1.GetRasterBand(1)
     band2 = raster2.GetRasterBand(1)
-    gt1 = raster1.GetGeoTransform()
-    gt2 = raster2.GetGeoTransform()
+    geotransform1 = raster1.GetGeoTransform()
+    geotransform2 = raster2.GetGeoTransform()
 
     # find each image's bounding box
     # r1 has left, top, right, bottom of dataset's bounds in geospatial coordinates.
-    r1 = [gt1[0], gt1[3], gt1[0] + (gt1[1] * raster1.RasterXSize), gt1[3] + (gt1[5] * raster1.RasterYSize)]
-    r2 = [gt2[0], gt2[3], gt2[0] + (gt2[1] * raster2.RasterXSize), gt2[3] + (gt2[5] * raster2.RasterYSize)]
+    r1 = [geotransform1[0], geotransform1[3], geotransform1[0] + (geotransform1[1] * raster1.RasterXSize), geotransform1[3] + (geotransform1[5] * raster1.RasterYSize)]
+    r2 = [geotransform2[0], geotransform2[3], geotransform2[0] + (geotransform2[1] * raster2.RasterXSize), geotransform2[3] + (geotransform2[5] * raster2.RasterYSize)]
 
     # find intersection between bounding boxes
     intersection = [max(r1[0], r2[0]), min(r1[1], r2[1]), min(r1[2], r2[2]), max(r1[3], r2[3])]
@@ -36,15 +36,15 @@ def intersection(raster1, raster2):
         else:
             print(f"intersection: {intersection}")
 
-            left1 = int(round((intersection[0] - r1[0]) / gt1[1]))
-            top1 = int(round((intersection[1] - r1[1]) / gt1[5]))
-            col1 = int(round((intersection[2] - r1[0]) / gt1[1])) - left1
-            row1 = int(round((intersection[3] - r1[1]) / gt1[5])) - top1
+            left1 = int(round((intersection[0] - r1[0]) / geotransform1[1]))
+            top1 = int(round((intersection[1] - r1[1]) / geotransform1[5]))
+            col1 = int(round((intersection[2] - r1[0]) / geotransform1[1])) - left1
+            row1 = int(round((intersection[3] - r1[1]) / geotransform1[5])) - top1
 
-            left2 = int(round((intersection[0] - r2[0]) / gt2[1]))
-            top2 = int(round((intersection[1] - r2[1]) / gt2[5]))
-            col2 = int(round((intersection[2] - r2[0]) / gt2[1])) - left2
-            row2 = int(round((intersection[3] - r2[1]) / gt2[5])) - top2
+            left2 = int(round((intersection[0] - r2[0]) / geotransform2[1]))
+            top2 = int(round((intersection[1] - r2[1]) / geotransform2[5]))
+            col2 = int(round((intersection[2] - r2[0]) / geotransform2[1])) - left2
+            row2 = int(round((intersection[3] - r2[1]) / geotransform2[5])) - top2
 
             if col1 != col2 or row1 != row2:
                 print("ERROR: COLS and ROWS DO NOT MATCH")
