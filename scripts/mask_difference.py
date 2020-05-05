@@ -4,12 +4,13 @@
  mask_difference.py
  Script creates a mask to show where water has been added or subtracted
  over time.
- Sources: used https://sciience.tumblr.com/post/101722591382/finding-the-georeferenced-intersection-between-two
 """
 from argparse import ArgumentParser, Namespace
 
 import numpy as np
 from osgeo import gdal
+
+from scripts.mask_shape import raster_boundary2shape
 
 
 def intersection(raster1, raster2):
@@ -89,16 +90,21 @@ def create_mask(args: Namespace) -> None:
     mask2 = gdal.Open(args.second_mask)
 
     mask1_intersect, mask2_intersect, col, row, box_intersect = intersection(mask1, mask2)
-
     mask_difference = difference(mask1_intersect, mask2_intersect)
 
-    mask_difference_driver = gdal.GetDriverByName('GTiff').Create(args.name, col, row, bands=1)
-    mask_difference_driver.SetGeoTransform((box_intersect[0], mask1.GetGeoTransform()[1], 0, box_intersect[1], 0,
-                                            mask1.GetGeoTransform()[5]))
-    mask_difference_driver.SetProjection(mask1.GetProjection())
+    driver = gdal.GetDriverByName('GTiff')
+    output_raster = driver.Create(args.name, col, row, bands=1)
+    output_raster.SetGeoTransform((box_intersect[0], mask1.GetGeoTransform()[1], 0, box_intersect[1], 0,
+                                   mask1.GetGeoTransform()[5]))
+    output_raster.SetProjection(mask1.GetProjection())
 
-    mask_difference_driver.GetRasterBand(1).WriteArray(mask_difference)
-    mask_difference_driver.GetRasterBand(1).SetNoDataValue(0)
+    output_raster.GetRasterBand(1).WriteArray(mask_difference)
+    output_raster.GetRasterBand(1).SetNoDataValue(0)
+
+    output_raster.FlushCache()
+
+    if args.shape:
+        raster_boundary2shape(args.name, None, args.name, use_closing=False)
 
 
 if __name__ == '__main__':
@@ -107,6 +113,7 @@ if __name__ == '__main__':
     p.add_argument('first_mask', help='The older mask of the pair')
     p.add_argument('second_mask', help='The newer mask of the pair')
     p.add_argument('name', help='Name of the new mask')
+    p.add_argument('--shape', default=False, action='store_true', help='Also return a shape file')
     p.set_defaults(func=create_mask)
 
     args = p.parse_args()

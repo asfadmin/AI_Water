@@ -11,7 +11,6 @@ from osgeo import ogr, gdal, osr
 from scipy import ndimage
 
 
-
 def cut_blackfill(data, geoTrans):
     originX = geoTrans[0]
     originY = geoTrans[3]
