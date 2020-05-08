@@ -8,7 +8,7 @@ image: build/AI_Water.Dockerfile
 	docker build -f AI_Water.Dockerfile -t aiwater .
 
 
-container-shell:
+container-shell: image
 	docker run -it --rm \
 		-v ${PROJECT_ROOTDIR}:/AI_Water \
 		-v ~/.aws:/root/.aws \
