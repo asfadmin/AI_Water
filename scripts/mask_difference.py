@@ -13,6 +13,7 @@ from osgeo import gdal
 from scripts.mask_shape import raster_boundary2shape
 
 
+#TODO: add expected output
 def intersection(raster1, raster2):
     """Finds the intersection of 2 raster"""
     band1 = raster1.GetRasterBand(1)
@@ -63,6 +64,8 @@ def intersection(raster1, raster2):
     return array1, array2, col1, row1, intersection_between_bounding_boxes
 
 
+
+#TODO: function is not being used. Find a purpose for it or remove it!
 def get_mask_array(mask_file: str) -> np.ndarray:
     """Input mask TIFF file, returns nd.array"""
     f = gdal.Open(mask_file)
