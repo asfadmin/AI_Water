@@ -8,6 +8,7 @@ import re
 from enum import Enum
 from typing import Optional, Tuple
 
+import numpy as np
 from keras.models import Model
 from keras.models import load_model as kload_model
 
@@ -17,6 +18,18 @@ from ..asf_typing import History
 
 class ModelType(Enum):
     MASKED = 1
+
+
+class Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(Encoder, self).default(obj)
 
 
 def path_from_model_name(model_name: str) -> str:
@@ -95,7 +108,7 @@ def save_history_to_path(history: History, model_dir: str) -> None:
         os.makedirs(model_dir)
 
     with open(os.path.join(model_dir, "history.json"), 'w') as f:
-        json.dump(history, f)
+        json.dump(history, f, cls=Encoder)
 
 
 def load_history(model_name: str) -> History:
@@ -113,5 +126,3 @@ def load_history_from_path(model_dir: str) -> History:
 def model_type(model: Model, dem=NETWORK_DEMS) -> Optional[ModelType]:
     if model.output_shape == (None, dem, dem, 1):
         return ModelType.MASKED
-
-    return None

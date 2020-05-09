@@ -24,3 +24,7 @@ VV_*
 mask/*
 .idea*
 AI_Water.egg*
+
+# other
+.netrc
+differenceTest/
