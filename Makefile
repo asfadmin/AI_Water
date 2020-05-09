@@ -1,16 +1,16 @@
 
 .ONESHELL:
 
-.PHONY: container-shell
+.PHONY: container
 
 image: build/AI_Water.Dockerfile
 	cd build && \
 	docker build -f AI_Water.Dockerfile -t aiwater .
 
 
-container-shell: image
+container: image
 	docker run -it --rm \
-		-v ${PROJECT_ROOTDIR}:/AI_Water \
+		-v ${PWD}:/AI_Water \
 		-v ~/.aws:/root/.aws \
 		--name=AI_Water-dev \
 		--workdir="/AI_Water" \
