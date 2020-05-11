@@ -52,9 +52,9 @@ def fake_model_other() -> Model:
 @pytest.fixture
 def new_history() -> History:
     return {
-        "acc": [.25, .27, .30],
+        "accuracy": [.25, .27, .30],
         "loss": [1.3, 1.1, 1.0],
-        "val_acc": [.26, .29, .28],
+        "val_accuracy": [.26, .29, .28],
         "val_loss": [1.4, 0.8, 0.9]
     }
 
@@ -135,7 +135,7 @@ def test_save_model_no_dir(
 def test_load_history(model_name: str):
     history = load_history(model_name)
 
-    for key in ('acc', 'loss', 'val_acc', 'val_loss'):
+    for key in ('accuracy', 'loss', 'val_accuracy', 'val_loss'):
         assert key in history
 
 
