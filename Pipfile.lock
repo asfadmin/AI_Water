@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6c71c357278fe5a01e0453db5d82f67787c5c2a34d13109351976b70e8eff31c"
+            "sha256": "20489998e84b36eca23e18243dcf945113b7bf5f30e0c73797eb6022e27c987b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -21,10 +21,6 @@
                 "sha256:75e737d6ce7723d9ff9b7aa1ba3233c34be62ef18d5859e706b8fdc828989830"
             ],
             "version": "==0.9.0"
-        },
-        "ai-water": {
-            "editable": true,
-            "path": "."
         },
         "asf-hyp3": {
             "hashes": [
@@ -281,6 +277,13 @@
                 "sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74"
             ],
             "version": "==0.2.8"
+        },
+        "pygdal": {
+            "hashes": [
+                "sha256:ff89d61c5981de2cd3a018f3ba8c3575ee2f3e08edc99abed4b10805c706223e"
+            ],
+            "index": "pypi",
+            "version": "==2.4.2.6"
         },
         "pygeoif": {
             "hashes": [
