@@ -62,7 +62,7 @@ def path_from_model_name_tag(name: str, tag: str) -> str:
 
 
 def save_model(
-    model: Model, model_tag: str, history: Optional[History] = None
+        model: Model, model_tag: str, history: Optional[History] = None
 ) -> None:
     """ Creates a .h5 file (HDF5) with the architecture, weights,
     training configuration, and the state of the optimizer. """
