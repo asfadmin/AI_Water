@@ -43,7 +43,7 @@ def edit_predictions(
         _edit_m_btn = edit_mask_button(f_path)
         _edit_p_btn = edit_pred_button(f_path, pred, dem)
         _dltbtn = delete_button(f_path)
-        maximize_plot()
+        # maximize_plot()
 
         plt.show()
 

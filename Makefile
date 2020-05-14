@@ -12,6 +12,7 @@ container: image
 	docker run -it --rm \
 		-v ${PWD}:/AI_Water \
 		-v ~/.aws:/root/.aws \
+		-v ~/Downloads:/root/Downloads \
 		--name=AI_Water-dev \
 		--workdir="/AI_Water" \
 		aiwater:latest
