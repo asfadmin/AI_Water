@@ -5,8 +5,8 @@
 
 image: build/AI_Water.Dockerfile
 	cd build && \
+	xhost + && \
 	docker build -f AI_Water.Dockerfile -t aiwater .
-
 
 container: image
 	docker run -it --rm \
@@ -15,6 +15,7 @@ container: image
 		-v ~/Downloads:/root/Downloads \
 		--name=AI_Water-dev \
 		--workdir="/AI_Water" \
+		--net=host \
+		-e DISPLAY \
+		-v ${HOME}/.Xauthority:/home/user/.Xauthority \
 		aiwater:latest
-
-
