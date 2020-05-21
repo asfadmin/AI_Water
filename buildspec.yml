@@ -6,14 +6,10 @@ phases:
       python: latest
     commands:
       - apt-get update
-      - apt-get install libgdal-dev --no-install-recommends -y
-      - pip install pipenv
-      - pipenv install --skip-lock --dev
-      - pipenv install pygdal=="`gdal-config --version`.*"
   build:
     commands:
       - echo Build started on `date`
-      - pipenv run tests
+      - pytest --cov-report term-missing --cov=src
   post_build:
     commands:
       - echo Build completed on `date`
