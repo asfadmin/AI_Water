@@ -44,9 +44,9 @@ def view_filters_wrapper(args):
 
 def plot_history(model_name, history):
     plt.subplot(1, 2, 1)
-    plt.plot(history['acc'])
-    plt.plot(history['val_acc'])
-    plt.title(f'{model_name} accuraccy')
+    plt.plot(history['accuracy'])
+    plt.plot(history['val_accuracy'])
+    plt.title(f'{model_name} accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epochs')
     plt.legend(['Train', 'Test'], loc='lower right')
