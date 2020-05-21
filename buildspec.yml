@@ -2,8 +2,12 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: latest
     commands:
       - apt-get update
+      - pip install pipenv
+      - pipenv install --skip-lock --dev
   build:
     commands:
       - echo Build started on `date`
