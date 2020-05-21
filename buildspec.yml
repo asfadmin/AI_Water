@@ -2,8 +2,6 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: latest
     commands:
       - apt-get update
   build:
