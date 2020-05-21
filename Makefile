@@ -19,3 +19,6 @@ container: image
 		-e DISPLAY \
 		-v ${HOME}/.Xauthority:/home/user/.Xauthority \
 		ai-water:latest
+
+test:
+	pytest --cov-report term-missing --cov=src
