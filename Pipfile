@@ -19,7 +19,6 @@ keras = "*"
 typing-extensions = "*"
 pyperclip = "*"
 asf_hyp3 = "*"
-pygdal = "==2.4.2.*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.7"

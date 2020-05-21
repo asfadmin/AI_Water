@@ -4,6 +4,7 @@ RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --fix-missing --no-install-recommends \
     python3.7 \
     python3-pip \
+    python3-tk \
     make \
     nano
 
@@ -18,9 +19,6 @@ RUN pip3 install \
     mock \
     typing-extensions \
     asf_hyp3
-
-
-
 
 
 
