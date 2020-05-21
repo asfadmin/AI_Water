@@ -6,6 +6,7 @@ import os
 import re
 from typing import Any, Callable, List, Optional
 
+import matplotlib
 import pyperclip
 from keras.preprocessing.image import Iterator
 from matplotlib import pyplot as plt
@@ -13,13 +14,14 @@ from matplotlib.widgets import Button
 
 from mask_editor import interactive_editor
 from scripts.identify_water import write_mask_to_file
-
 from .config import DATASETS_DIR, NETWORK_DEMS
 from .gdal_wrapper import gdal_open
 
+matplotlib.use('tkagg')
+
 
 def edit_predictions(
-    predictions, test_iter: Iterator, dataset: List[str], dem=NETWORK_DEMS
+        predictions, test_iter: Iterator, dataset: List[str], dem=NETWORK_DEMS
 ) -> None:
     done = False
     REG_EX = re.compile(r'(.*)_(.*)/(train|test)(.*)')
@@ -43,13 +45,13 @@ def edit_predictions(
         _edit_m_btn = edit_mask_button(f_path)
         _edit_p_btn = edit_pred_button(f_path, pred, dem)
         _dltbtn = delete_button(f_path)
-        maximize_plot()
+        # maximize_plot()
 
         plt.show()
 
 
 def plot_predictions(
-    predictions, test_iter: Iterator
+        predictions, test_iter: Iterator
 ) -> None:
     """ Plots the Neural Nets predictions, the mask images and sar images """
     done = False
