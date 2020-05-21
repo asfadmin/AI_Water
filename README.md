@@ -51,12 +51,7 @@ $ gdal-config --version
 
 Next run this command:
 ```terminal
-$ pip install gdal==(**YOUR VERSION***)
-```
-
-If an error appears try running the following command:
-```terminal
-$ pip install pygdal==(**YOUR VERSION***)
+$ pipenv install pygdal=="`gdal-config --version`.*"
 ```
 
 ### Tiling tif Images

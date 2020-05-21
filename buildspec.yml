@@ -3,16 +3,13 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.7
+      python: latest
     commands:
       - apt-get update
-      - apt-get install libgdal-dev --no-install-recommends -y
-      - pip install pipenv
-      - pipenv sync --dev
   build:
     commands:
       - echo Build started on `date`
-      - pipenv run tests
+      - pytest --cov-report term-missing --cov=src
   post_build:
     commands:
       - echo Build completed on `date`
