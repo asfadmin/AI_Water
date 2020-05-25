@@ -18,7 +18,8 @@ container: image
 		--net=host \
 		-e DISPLAY \
 		-v ${HOME}/.Xauthority:/home/user/.Xauthority \
-		ai-water:latest
+		ai-water:latest \
+		bash -c "pip3 install -e . ; bash"
 
 test:
 	pytest --cov-report term-missing --cov=src
