@@ -2,7 +2,7 @@ USER_DISPLAY := {$DISPLAY}
 
 .ONESHELL:
 
-.PHONY: container set-mac-display
+.PHONY: container
 
 image: build/AI_Water.Dockerfile
 	cd build && \
