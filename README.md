@@ -45,9 +45,7 @@ and then try running xeyes again.
 $ xhost +
 ```
 
-
-
-###Pipenv
+### Pipenv
 This is no longer the recommended installation method, but can be used in conjunction with Docker.
 Installing dependencies is straight forward with pipenv. First install the
 GDAL dev libraries:

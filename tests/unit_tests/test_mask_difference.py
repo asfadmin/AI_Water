@@ -27,14 +27,15 @@ def supply_intersection():
 
     return intersection(raster1, raster2)
 
+
 def test_intersection_array1(supply_intersection):
     array1 = np.load(path_dataset + "intersect_kodiak_spring.npy")
     assert np.array_equal(supply_intersection[0], array1), "array1 intersections do not match"
 
+
 def test_intersection_array2(supply_intersection):
     array1 = np.load(path_dataset + "intersect_kodiak_summer.npy")
     assert np.array_equal(supply_intersection[1], array1), "array2 intersections do not match"
-
 
 
 def test_intersection_col(supply_intersection):
@@ -46,9 +47,11 @@ def test_intersection_row(supply_intersection):
     row = 8114
     assert supply_intersection[3] == row, "rows do not match"
 
+
 def test_intersection_bounds(supply_intersection):
     bounds = [402000.0, 6466200.0, 690000.0, 6222780.0]
     assert supply_intersection[4] == bounds, "Bounding box does not match"
+
 
 # test bank
 
