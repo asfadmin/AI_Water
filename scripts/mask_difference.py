@@ -6,11 +6,9 @@
  over time.
 """
 from argparse import ArgumentParser, Namespace
-
 import numpy as np
 from osgeo import gdal
-
-from scripts.mask_shape import raster_boundary2shape
+from hyp3lib.raster_boundary2shape import raster_boundary2shape
 
 
 def get_bounds(raster):
@@ -53,11 +51,6 @@ def intersection(raster1, raster2):
     array2 = band2.ReadAsArray(left2, top2, col2, row2)
 
     return array1, array2, col1, row1, intersection
-
-
-
-
-
 
 
 # TODO: function is not being used. Find a purpose for it or remove it!
