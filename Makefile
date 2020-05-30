@@ -14,7 +14,7 @@ container-mac: image
 		-v ${PWD}:/AI_Water \
 		-v ~/.aws:/root/.aws \
 		-v ~/Downloads:/root/Downloads \
-		--name=AI_Water-test \
+		--name=AI_Water-dev \
 		--workdir="/AI_Water" \
 		--net=host \
 		-e DISPLAY=host.docker.internal:0 \
