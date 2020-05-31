@@ -30,7 +30,7 @@ container: image
 		--name=AI_Water-dev \
 		--workdir="/AI_Water" \
 		--net=host \
-		-e ${DISPLAY}:${DISPLAY} \
+		-e DISPLAY \
 		-v ~/Xauthority:/home/user/.Xauthority \
 		ai-water:latest \
 		bash -c "pip3 install -e . ; bash"
