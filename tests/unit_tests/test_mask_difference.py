@@ -23,9 +23,9 @@ def supply_intersection():
     raster1 = gdal.Open(raster1_path, GA_ReadOnly)
     raster2 = gdal.Open(raster2_path, GA_ReadOnly)
 
-    for x in intersection(raster1, raster2): print(f"======{x}")
+    # for x in intersection(raster1, raster2): print(f"======{x}")
 
-    return intersection(raster1, raster2)
+    return intersection(raster1_path, raster2_path)
 
 
 def test_intersection_array1(supply_intersection):
@@ -34,8 +34,8 @@ def test_intersection_array1(supply_intersection):
 
 
 def test_intersection_array2(supply_intersection):
-    array1 = np.load(path_dataset + "intersect_kodiak_summer.npy")
-    assert np.array_equal(supply_intersection[1], array1), "array2 intersections do not match"
+    array2 = np.load(path_dataset + "intersect_kodiak_summer.npy")
+    assert np.array_equal(supply_intersection[1], array2), "array2 intersections do not match"
 
 
 def test_intersection_col(supply_intersection):
@@ -49,7 +49,7 @@ def test_intersection_row(supply_intersection):
 
 
 def test_intersection_bounds(supply_intersection):
-    bounds = [402000.0, 6466200.0, 690000.0, 6222780.0]
+    bounds = (402000.0, 690000.0, 6222780.0, 6466200.0)
     assert supply_intersection[4] == bounds, "Bounding box does not match"
 
 
@@ -57,7 +57,7 @@ def test_intersection_bounds(supply_intersection):
 
 # Test 1
 test_1_lin = np.array([[0, 0, 1, 1],
-                       [1, 0, 0, 0],
+                       [1, 0, 0, 0],    
                        [1, 1, 1, 0]])
 
 test_1_rin = np.array([[0, 0, 0, 0],

@@ -8,49 +8,111 @@
 from argparse import ArgumentParser, Namespace
 import numpy as np
 from osgeo import gdal
+
 from hyp3lib.raster_boundary2shape import raster_boundary2shape
+from hyp3lib.asf_geometry import overlap_indices, geotiff_overlap, overlapMask, raster_meta
+from hyp3lib.saa_func_lib import getCorners
+from osgeo.gdalconst import GA_ReadOnly
 
 
-def get_bounds(raster):
-    left, pixel_width, _, top, _, pixel_height = raster.GetGeoTransform()
-    right = left + (raster.RasterXSize * pixel_width)
-    bottom = top + (raster.RasterYSize * pixel_height)
-    return left, top, right, bottom
 
 
-# TODO: add expected output
-# TODO: move to sperate "tools/utility" file
+
+
+
+
+
+
+
+
 def intersection(raster1, raster2):
-    """Finds the intersection of 2 raster"""
-    band1 = raster1.GetRasterBand(1)
-    band2 = raster2.GetRasterBand(1)
-    transform1 = raster1.GetGeoTransform()
-    transform2 = raster2.GetGeoTransform()
 
-    # find each image's bounding box
-    bounds1 = get_bounds(raster1)
-    bounds2 = get_bounds(raster2)
 
-    intersection = [max(bounds1[0], bounds2[0]), min(bounds1[1], bounds2[1]),
-                    min(bounds1[2], bounds2[2]), max(bounds1[3], bounds2[3])]
+    raster1_ds = gdal.Open(raster1)
+    raster2_ds = gdal.Open(raster2)
 
-    if (intersection[2] < intersection[0]) or (intersection[1] < intersection[3]):
-        intersection = None
+    band1 = raster1_ds.GetRasterBand(1)
+    band2 = raster2_ds.GetRasterBand(1)
 
-    left1 = int(round((intersection[0] - bounds1[0]) / transform1[1]))
-    top1 = int(round((intersection[1] - bounds1[1]) / transform1[5]))
-    col1 = int(round((intersection[2] - bounds1[0]) / transform1[1])) - left1
-    row1 = int(round((intersection[3] - bounds1[1]) / transform1[5])) - top1
+    firstPolygon, secondPolygon, overlap, proj, pixelSize = geotiff_overlap(raster1, raster2, 'intersection')
+    xOff1, yOff1, xCount1, yCount1 = overlap_indices(firstPolygon, overlap, pixelSize)
+    xOff2, yOff2, xCount2, yCount2 = overlap_indices(secondPolygon, overlap, pixelSize)
 
-    left2 = int(round((intersection[0] - bounds2[0]) / transform2[1]))
-    top2 = int(round((intersection[1] - bounds2[1]) / transform2[5]))
-    col2 = int(round((intersection[2] - bounds2[0]) / transform2[1])) - left2
-    row2 = int(round((intersection[3] - bounds2[1]) / transform2[5])) - top2
+    col1 = xCount1
+    row1 = yCount1
 
-    array1 = band1.ReadAsArray(left1, top1, col1, row1)
-    array2 = band2.ReadAsArray(left2, top2, col2, row2)
 
-    return array1, array2, col1, row1, intersection
+
+    array1 = band1.ReadAsArray(xOff1, yOff1, xCount1, yCount2)
+    array2 = band2.ReadAsArray(xOff2, yOff2, xCount2, yCount2)
+
+    return array1, array2, col1, row1, overlap.GetEnvelope()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def get_bounds(raster):
+#     left, pixel_width, _, top, _, pixel_height = raster.GetGeoTransform()
+#     right = left + (raster.RasterXSize * pixel_width)
+#     bottom = top + (raster.RasterYSize * pixel_height)
+#     return left, top, right, bottom
+#
+#
+# # TODO: add expected output
+# # TODO: move to sperate "tools/utility" file
+# def intersection(raster1, raster2):
+#     """Finds the intersection of 2 raster"""
+#     band1 = raster1.GetRasterBand(1)
+#     band2 = raster2.GetRasterBand(1)
+#     transform1 = raster1.GetGeoTransform()
+#     transform2 = raster2.GetGeoTransform()
+#
+#     # find each image's bounding box
+#     bounds1 = get_bounds(raster1)
+#     bounds2 = get_bounds(raster2)
+#
+#     intersection = [max(bounds1[0], bounds2[0]), min(bounds1[1], bounds2[1]),
+#                     min(bounds1[2], bounds2[2]), max(bounds1[3], bounds2[3])]
+#
+#     if (intersection[2] < intersection[0]) or (intersection[1] < intersection[3]):
+#         intersection = None
+#
+#     left1 = int(round((intersection[0] - bounds1[0]) / transform1[1]))
+#     top1 = int(round((intersection[1] - bounds1[1]) / transform1[5]))
+#     col1 = int(round((intersection[2] - bounds1[0]) / transform1[1])) - left1
+#     row1 = int(round((intersection[3] - bounds1[1]) / transform1[5])) - top1
+#
+#     left2 = int(round((intersection[0] - bounds2[0]) / transform2[1]))
+#     top2 = int(round((intersection[1] - bounds2[1]) / transform2[5]))
+#     col2 = int(round((intersection[2] - bounds2[0]) / transform2[1])) - left2
+#     row2 = int(round((intersection[3] - bounds2[1]) / transform2[5])) - top2
+#
+#     array1 = band1.ReadAsArray(left1, top1, col1, row1)
+#     array2 = band2.ReadAsArray(left2, top2, col2, row2)
+#
+#     return array1, array2, col1, row1, intersection
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # TODO: function is not being used. Find a purpose for it or remove it!
