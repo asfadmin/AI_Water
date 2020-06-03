@@ -36,7 +36,7 @@ container: image
 		bash -c "pip3 install -e . ; bash"
 
 test:
-	pytest --cov-report term-missing --cov=src
+	pytest -v --cov-report term-missing --cov=src
 
 test-gui:
 	apt-get install x11-apps -y; xeyes
