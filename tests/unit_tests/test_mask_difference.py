@@ -6,14 +6,9 @@
 """
 import numpy as np
 import pytest
-
-from osgeo import gdal
-from osgeo.gdalconst import GA_ReadOnly
-
 from scripts.mask_difference import difference, intersection
 
 path_ds = "tests/unit_tests/dataset/"
-
 
 @pytest.fixture
 def supply_intersection():
