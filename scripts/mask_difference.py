@@ -10,118 +10,25 @@ import numpy as np
 from osgeo import gdal
 
 from hyp3lib.raster_boundary2shape import raster_boundary2shape
-from hyp3lib.asf_geometry import overlap_indices, geotiff_overlap, overlapMask, raster_meta
-from hyp3lib.saa_func_lib import getCorners
-from osgeo.gdalconst import GA_ReadOnly
+from hyp3lib.asf_geometry import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data
 
 
-
-
-
-
-
-
-
-
-
-
-def intersection(raster1, raster2):
-
+def intersection(raster1: str, raster2: str):
+    """Takes in the path of 2 GeoTiff raster's. Then returns the intersection between them"""
 
     raster1_ds = gdal.Open(raster1)
     raster2_ds = gdal.Open(raster2)
-
     band1 = raster1_ds.GetRasterBand(1)
     band2 = raster2_ds.GetRasterBand(1)
 
-    firstPolygon, secondPolygon, overlap, proj, pixelSize = geotiff_overlap(raster1, raster2, 'intersection')
-    xOff1, yOff1, xCount1, yCount1 = overlap_indices(firstPolygon, overlap, pixelSize)
-    xOff2, yOff2, xCount2, yCount2 = overlap_indices(secondPolygon, overlap, pixelSize)
+    raster1_polygon, raster2_polygon, overlap, _, pixel_size = geotiff_overlap(raster1, raster2, 'intersection')
+    x1, y1, col1, row1 = overlap_indices(raster1_polygon, overlap, pixel_size)
+    x2, y2, col2, row2 = overlap_indices(raster2_polygon, overlap, pixel_size)
 
-    col1 = xCount1
-    row1 = yCount1
-
-
-
-    array1 = band1.ReadAsArray(xOff1, yOff1, xCount1, yCount2)
-    array2 = band2.ReadAsArray(xOff2, yOff2, xCount2, yCount2)
+    array1 = band1.ReadAsArray(x1, y1, col1, row1)
+    array2 = band2.ReadAsArray(x2, y2, col2, row2)
 
     return array1, array2, col1, row1, overlap.GetEnvelope()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def get_bounds(raster):
-#     left, pixel_width, _, top, _, pixel_height = raster.GetGeoTransform()
-#     right = left + (raster.RasterXSize * pixel_width)
-#     bottom = top + (raster.RasterYSize * pixel_height)
-#     return left, top, right, bottom
-#
-#
-# # TODO: add expected output
-# # TODO: move to sperate "tools/utility" file
-# def intersection(raster1, raster2):
-#     """Finds the intersection of 2 raster"""
-#     band1 = raster1.GetRasterBand(1)
-#     band2 = raster2.GetRasterBand(1)
-#     transform1 = raster1.GetGeoTransform()
-#     transform2 = raster2.GetGeoTransform()
-#
-#     # find each image's bounding box
-#     bounds1 = get_bounds(raster1)
-#     bounds2 = get_bounds(raster2)
-#
-#     intersection = [max(bounds1[0], bounds2[0]), min(bounds1[1], bounds2[1]),
-#                     min(bounds1[2], bounds2[2]), max(bounds1[3], bounds2[3])]
-#
-#     if (intersection[2] < intersection[0]) or (intersection[1] < intersection[3]):
-#         intersection = None
-#
-#     left1 = int(round((intersection[0] - bounds1[0]) / transform1[1]))
-#     top1 = int(round((intersection[1] - bounds1[1]) / transform1[5]))
-#     col1 = int(round((intersection[2] - bounds1[0]) / transform1[1])) - left1
-#     row1 = int(round((intersection[3] - bounds1[1]) / transform1[5])) - top1
-#
-#     left2 = int(round((intersection[0] - bounds2[0]) / transform2[1]))
-#     top2 = int(round((intersection[1] - bounds2[1]) / transform2[5]))
-#     col2 = int(round((intersection[2] - bounds2[0]) / transform2[1])) - left2
-#     row2 = int(round((intersection[3] - bounds2[1]) / transform2[5])) - top2
-#
-#     array1 = band1.ReadAsArray(left1, top1, col1, row1)
-#     array2 = band2.ReadAsArray(left2, top2, col2, row2)
-#
-#     return array1, array2, col1, row1, intersection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# TODO: function is not being used. Find a purpose for it or remove it!
-def get_mask_array(mask_file: str) -> np.ndarray:
-    """Input mask TIFF file, returns nd.array"""
-    f = gdal.Open(mask_file)
-    mask_array = f.ReadAsArray()
-
-    return mask_array
 
 
 def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
@@ -139,22 +46,12 @@ def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
 
 
 def create_mask(args: Namespace) -> None:
-    mask1 = gdal.Open(args.first_mask)
-    mask2 = gdal.Open(args.second_mask)
-
-    mask1_intersect, mask2_intersect, col, row, box_intersect = intersection(mask1, mask2)
+    """main function to generate difference mask and optionally shape"""
+    data, mask1_transform, projection, epsg, data_type, no_data = geotiff2data(args.first_mask)
+    mask1_intersect, mask2_intersect, col, row, bounds = intersection(args.first_mask, args.second_mask)
     mask_difference = difference(mask1_intersect, mask2_intersect)
-
-    driver = gdal.GetDriverByName('GTiff')
-    output_raster = driver.Create(args.name, col, row, bands=1)
-    output_raster.SetGeoTransform((box_intersect[0], mask1.GetGeoTransform()[1], 0, box_intersect[1], 0,
-                                   mask1.GetGeoTransform()[5]))
-    output_raster.SetProjection(mask1.GetProjection())
-
-    output_raster.GetRasterBand(1).WriteArray(mask_difference)
-    output_raster.GetRasterBand(1).SetNoDataValue(0)
-
-    output_raster.FlushCache()
+    transform = (bounds[0], mask1_transform[1], 0, bounds[3], 0, mask1_transform[5])
+    data2geotiff(mask_difference, transform, projection, data_type, 0, args.name)
 
     if args.shape:
         raster_boundary2shape(args.name, None, args.name, use_closing=False)
