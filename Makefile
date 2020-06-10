@@ -30,13 +30,13 @@ container: image
 		--name=AI_Water-dev \
 		--workdir="/AI_Water" \
 		--net=host \
-		-e ${DISPLAY}:${DISPLAY} \
+		-e DISPLAY \
 		-v ~/Xauthority:/home/user/.Xauthority \
 		ai-water:latest \
 		bash -c "pip3 install -e . ; bash"
 
 test:
-	pytest --cov-report term-missing --cov=src
+	pytest -v --cov-report term-missing --cov=src
 
 test-gui:
 	apt-get install x11-apps -y; xeyes
