@@ -38,14 +38,14 @@ def get_stats(dataset: str):
 
     return {
         "original": stats[0]['original'],
-        "groomed": stats[1]['groomed']
+        "groomed": stats[1]['groomed'],
+        "total": stats[0]['original'] + stats[1]['groomed']
     }
 
 
 def main(dataset: str):
     stats = get_stats(dataset)
-    total = stats['groomed'] + stats['original']
-    print(f"You've done {stats['groomed']} out of {total}")
+    print(f"You've done {stats['groomed']} out of {stats['total']}")
 
 
 if __name__ == "__main__":
