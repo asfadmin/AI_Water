@@ -2,7 +2,7 @@ import os
 from argparse import ArgumentParser
 
 
-def get_paths(dataset):
+def get_paths(dataset: str):
     dataset_path = os.path.join("datasets", dataset)
     dataset_path_groomed = f"{dataset_path}_Groomed"
     return {
@@ -17,7 +17,7 @@ def get_paths(dataset):
     }
 
 
-def get_path_stats(individual_paths, key):
+def get_path_stats(individual_paths: str, key: str):
     count = 0
     for path in individual_paths:
         for file in os.listdir(individual_paths[path]):
@@ -30,7 +30,7 @@ def get_path_stats(individual_paths, key):
     }
 
 
-def get_stats(dataset):
+def get_stats(dataset: str):
     paths = get_paths(dataset)
     stats = []
     for key in paths:
