@@ -40,3 +40,9 @@ test:
 
 test-gui:
 	apt-get install x11-apps -y; xeyes
+
+setup-gdal:
+	wget http://download.osgeo.org/gdal/2.4.3/gdal-2.4.3.tar.gz && \
+	tar -xvzf gdal-2.4.3.tar.gz && \
+	./configure --prefix=/usr && \
+	make
