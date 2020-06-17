@@ -2,7 +2,7 @@ import os
 from argparse import ArgumentParser
 
 
-def get_paths(dataset: str):
+def get_paths(dataset):
     dataset_path = os.path.join("datasets", dataset)
     dataset_path_groomed = f"{dataset_path}_Groomed"
     return {
