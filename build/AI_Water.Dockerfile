@@ -1,4 +1,4 @@
-FROM osgeo/gdal:ubuntu-full-latest
+FROM ubuntu
 
 ENV S3_PYPI_HOST="hyp3-pypi.s3-website-us-east-1.amazonaws.com"
 
