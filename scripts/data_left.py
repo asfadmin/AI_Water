@@ -43,7 +43,7 @@ def get_stats(dataset: str):
     }
 
 
-def main(dataset: str):
+def from_terminal(dataset: str):
     stats = get_stats(dataset)
     print(f"You've done {stats['groomed']} out of {stats['total']}")
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     p = ArgumentParser()
 
     p.add_argument("dataset", help="name of dataset")
-    p.set_defaults(func=main)
+    p.set_defaults(func=from_terminal)
 
     args = p.parse_args()
     if hasattr(args, 'func'):
