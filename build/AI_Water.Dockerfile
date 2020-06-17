@@ -8,7 +8,8 @@ RUN apt-get update -y && \
     python3-pip \
     python3-tk \
     make \
-    nano
+    nano \
+    wget
 
 RUN pip3 install \
     keras \
