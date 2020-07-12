@@ -16,6 +16,9 @@ keras = "*"
 typing-extensions = "*"
 pyperclip = "*"
 asf_hyp3 = "*"
+ai-water = {path = ".",editable = true}
+ipython = "*"
+pygdal = "==3.0.4.*"
 
 [requires]
 python_version = "3.7"
