@@ -31,7 +31,20 @@ container: image
 		--workdir="/AI_Water" \
 		--net=host \
 		-e DISPLAY \
-		-v ~/Xauthority:/home/user/.Xauthority \
+		-v ~/.Xauthority:/home/user/.Xauthority \
+		ai-water:latest \
+		bash -c "pip3 install -e . ; bash"
+
+container-aws: image
+	docker run -it --rm \
+		-v ${PWD}:/AI_Water \
+		-v ~/.aws:/root/.aws \
+		-v ~/Downloads:/root/Downloads \
+		--name=AI_Water-dev \
+		--workdir="/AI_Water" \
+		--net=host \
+		-e DISPLAY \
+		-v ~/.Xauthority:/root/.Xauthority \
 		ai-water:latest \
 		bash -c "pip3 install -e . ; bash"
 
