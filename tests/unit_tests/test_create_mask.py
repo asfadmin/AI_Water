@@ -26,3 +26,11 @@ def test_pad_image_shape():
     input = pad_image(np.eye(2000, 2000), 512).shape
     expected = np.eye(2048, 2048).shape
     assert input == expected, f"shape does not match | {input.shape} != {expected.shape}"
+
+
+# tests for get_tile_dimensions()
+def test_get_tile_dimensions():
+    """Compare dimensions returned"""
+    input = get_tile_dimensions(2000, 2000, 512)
+    expected = (4, 4)
+    assert input == expected, "dimensions do not match"
