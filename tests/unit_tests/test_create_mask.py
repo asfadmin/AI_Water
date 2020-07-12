@@ -18,3 +18,11 @@ def test_tile_image_shape(input_shape, output_shape):
     input = tile_image(np.eye(*input_shape)).shape
     expected = output_shape
     assert input == expected, f"{input} != {expected}"
+
+
+# tests for pad_image()
+def test_pad_image_shape():
+    """Comparing shape of the np.ndarray returned by pad_image"""
+    input = pad_image(np.eye(2000, 2000), 512).shape
+    expected = np.eye(2048, 2048).shape
+    assert input == expected, f"shape does not match | {input.shape} != {expected.shape}"
