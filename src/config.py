@@ -15,7 +15,8 @@ DATASETS_DIR = os.path.join(PROJECT_DIR, 'datasets')
 MODELS_DIR = os.path.join(PROJECT_DIR, 'models')
 NETWORK_DEMS = 512
 
+
 VH_REGEX = re.compile(r'(.*)_([0-9]+).vh.tif')
 VV_REGEX = re.compile(r'(.*)_([0-9]+).vv.tif')
-
+ZIP_REGEX = re.compile(r'S1(A|B)_IW(.*)-rtc-gamma\.zip')
 
