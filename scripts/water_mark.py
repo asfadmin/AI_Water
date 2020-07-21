@@ -50,7 +50,7 @@ from typing import Dict, Tuple
 
 from osgeo import gdal
 
-from identify_water import main as idw_main
+from scripts.identify_water import main as idw_main
 from src.config import NETWORK_DEMS as dems
 
 
