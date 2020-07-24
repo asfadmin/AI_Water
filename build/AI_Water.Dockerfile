@@ -21,5 +21,4 @@ RUN pip3 install \
     pytest-mock \
     mock \
     typing-extensions \
-    asf_hyp3 \
-    git+https://github.com/asfadmin/hyp3-lib.git@aiwater#egg=hyp3lib
+    asf_hyp3
