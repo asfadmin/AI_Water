@@ -4,21 +4,21 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+ai-water = {path = ".",editable = true}
 pytest = "*"
 hypothesis = "*"
 pytest-cov = "*"
+pytest-datadir = "*"
 mock = "*"
-matplotlib = "*"
 
 [packages]
-tensorflow = "*"
+tensorflow = {versions = "2.2.0"}
 keras = "*"
-typing-extensions = "*"
-pyperclip = "*"
-asf_hyp3 = "*"
-ai-water = {path = ".",editable = true}
-ipython = "*"
-pygdal = "==3.0.4.*"
+matplotlib = {versions = "3.2.2"}
+typing-extensions = {versions = "3.7.4.2"}
+pyperclip = {versions = "1.8.0"}
+asf_hyp3 = {versions = "3.0.3"}
+hyp3lib = {ref = "aiwater",git = "https://github.com/asfadmin/hyp3-lib.git",editable = true}
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
