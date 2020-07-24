@@ -4,7 +4,8 @@ phases:
   install:
     commands:
       - apt-get update
-      - pip3 install -r requirements.txt
+      -  pip3 install pipenv
+      - pipenv install --skip-lock --dev
   build:
     commands:
       - echo Build started on `date`
