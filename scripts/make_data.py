@@ -195,7 +195,7 @@ if __name__ == '__main__':
     mk_data.add_argument('model', help='Neural network for generating masks')
     mk_data.add_argument('dataset', help='Name of dataset')
     mk_data.add_argument('directory', help='Directory to store dataset in')
-    mk_data.add_argument('size', type=int, help='side of imgaes')
+    mk_data.add_argument('size', type=int, help='side of images')
     mk_data.add_argument(
         '-e',
         '--environment',
@@ -208,7 +208,6 @@ if __name__ == '__main__':
     )
     compress.add_argument('directory', help='Name of directory')
     compress.add_argument(
-        '-h',
         '--holdout',
         type=float,
         default=.2,
