@@ -4,7 +4,7 @@ phases:
   install:
     commands:
       - apt-get update
-      -  pip3 install pipenv
+      - pip3 install pipenv
       - pipenv install --skip-lock --dev
   build:
     commands:
