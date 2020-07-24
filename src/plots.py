@@ -17,7 +17,7 @@ from scripts.identify_water import write_mask_to_file
 from .config import DATASETS_DIR, NETWORK_DEMS
 from .gdal_wrapper import gdal_open
 
-matplotlib.use('tkagg')
+# matplotlib.use('tkagg')
 
 
 def edit_predictions(
