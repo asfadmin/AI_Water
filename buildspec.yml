@@ -1,11 +1,9 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      python: latest
     commands:
       - apt-get update
+      - pip3 install -r requirements.txt
   build:
     commands:
       - echo Build started on `date`
