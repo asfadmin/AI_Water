@@ -9,8 +9,7 @@ from argparse import ArgumentParser, Namespace
 import numpy as np
 from osgeo import gdal
 
-from hyp3lib.raster_boundary2shape import raster_boundary2shape
-from hyp3lib.asf_geometry import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data
+from src.tools import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
 
 
 def intersection(raster1: str, raster2: str):

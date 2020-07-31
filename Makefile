@@ -49,7 +49,7 @@ container-aws: image
 		bash -c "pip3 install -e . ; bash"
 
 test:
-	pytest -v --cov-report term-missing --cov=src
+	pytest -v --cov-report term-missing --cov=src --cov=scripts
 
 test-gui:
 	apt-get install x11-apps -y; xeyes

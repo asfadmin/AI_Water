@@ -1,18 +1,104 @@
+"""
+ Created By:   ???
+ Date Started: ???
+ Last Updated: 07-21-2020
+ File Name:    make_data.py
+ Description:  scripts for creating and compressing datasets
+"""
+
 import os
 import random
 import re
 import shutil
 from argparse import ArgumentParser, Namespace
 from datetime import date
+from itertools import groupby
 
-from etl_water_mark import main as etl_wm
-from prepare_data import move_imgs, prepare_data
+from scripts.etl_water_mark import main as etl_wm
+from scripts.prepare_data import move_imgs, prepare_data
 from src.asf_cnn import test_model_masked
 from src.model import load_model
 from src.plots import edit_predictions
-from water_mark import setup_data
+from scripts.water_mark import setup_data
+from pathlib import Path
+from src.asf_typing import sar_set
+from src.config import TYPE_REGEX, DATASETS_DIR
 
 
+def list_sar_directory(directory_path: str) -> list:
+    """Recursively generates list of all mask, vh, vv .tif files."""
+    path_generator = Path(directory_path).rglob('*.tif')
+    return sorted([path.name for path in path_generator if path.is_file()])
+
+
+def get_sar_paths(directory_path: str) -> list:
+    """returns a list of namedTuples (sar_sets) that store vv, vh, and mask paths"""
+    dataset_path = Path(directory_path)
+
+    path_generator = dataset_path.rglob('*.tif')
+    paths = sorted([path for path in path_generator if path.is_file()])
+    return [sar_set(*g) for k, g in groupby(paths, key=lambda path: re.match(TYPE_REGEX, path.name)[2])]
+
+
+def remove_subdirectories(root_directory: str) -> None:
+    """removes sub directories """
+    root_path = Path(root_directory)
+    subdirectories = [path for path in root_path.iterdir() if path.is_dir()]
+    for subdirectory in subdirectories:
+        if subdirectory.name not in ['test', 'train']:
+            try:
+                shutil.rmtree(subdirectory)
+            except OSError as e:
+                print(f"Error: {subdirectory} : {e.strerror}")
+
+
+def make_directory_dataset(directory_path: str) -> None:
+    """Creates a new dataset directory along with the test and train folders.
+       If directory already exist then only the test and train folders will be created."""
+    dataset_path = Path(directory_path)
+    test_path = dataset_path / 'test'
+    train_path = dataset_path / 'train'
+
+    if not dataset_path.is_dir():
+        dataset_path.mkdir()
+
+    if not test_path.is_dir():
+        test_path.mkdir()
+
+    if not train_path.is_dir():
+        train_path.mkdir()
+
+
+def divide_sar_files(dataset_path: Path, sar_sets: list, holdout: float) -> None:
+    for sar in sar_sets:
+        test_or_train = 'train' if random.random() > holdout else 'test'
+
+        mask_path_new = dataset_path.joinpath(test_or_train, sar.mask.name)
+        vh_path_new = dataset_path.joinpath(test_or_train, sar.vh.name)
+        vv_path_new = dataset_path.joinpath(test_or_train, sar.vv.name)
+
+        if not mask_path_new.exists():
+            sar.mask.replace(mask_path_new)
+
+        if not vh_path_new.exists():
+            sar.vh.replace(vh_path_new)
+
+        if not vv_path_new.exists():
+            sar.vv.replace(vv_path_new)
+
+
+def compress_datasets(directory_path: str, holdout: float) -> None:
+    """compresses all datasets into the input parent directory.
+       Sar files are divided into the test and train folders"""
+
+    dataset_path = Path(directory_path)
+    sar_sets = get_sar_paths(directory_path)
+    make_directory_dataset(directory_path)
+    divide_sar_files(dataset_path, sar_sets, holdout)
+    remove_subdirectories(directory_path)
+
+
+# TODO: does the exact same thing as prepare_mask_data in prepare_data!!!; STAY DRY
 def div_imgs(dir_path: str, holdout: int) -> None:
     """ Creates a test and train folder. The image names need
     to be cleaned up unlike the prepare_data function in prepare_data.py """
@@ -53,7 +139,6 @@ def div_imgs(dir_path: str, holdout: int) -> None:
 
 
 def mkdata_wrapper(args: Namespace) -> None:
-
     etl_wm()
     setup_data(args.size)
     dataset_fpath = f"syntheticTriainingData{date.isoformat(date.today())}"
@@ -97,26 +182,9 @@ def mkdata_wrapper(args: Namespace) -> None:
 
 
 def compress_wrapper(args: Namespace) -> None:
-    ENV_REG_EX = re.compile(r'(.*)_([0-9]+)_(.*)_Groomed/train')
-    env = ''
-    f_path = os.path.join('datasets', args.directory)
-    for root, dirs, files in os.walk(f_path, topdown=False):
-        m = re.match(ENV_REG_EX, root)
-        if not m:
-            continue
-        _, _, env = m.groups()
-        print(env)
-        for img in files:
-            os.rename(
-                os.path.join(root, img),
-                os.path.join(f_path, f'{env}_{img}')
-            )
-
-    for file in os.listdir(f_path):
-        path = os.path.join(f_path, file)
-        if os.path.isdir(path):
-            shutil.rmtree(path)
-    div_imgs(f_path, .2)
+    """Wrapper for script compress_datasets."""
+    directory_path = os.path.join(DATASETS_DIR, args.directory)
+    compress_datasets(directory_path, args.holdout)
 
 
 if __name__ == '__main__':
@@ -127,7 +195,7 @@ if __name__ == '__main__':
     mk_data.add_argument('model', help='Neural network for generating masks')
     mk_data.add_argument('dataset', help='Name of dataset')
     mk_data.add_argument('directory', help='Directory to store dataset in')
-    mk_data.add_argument('size', type=int, help='side of imgaes')
+    mk_data.add_argument('size', type=int, help='side of images')
     mk_data.add_argument(
         '-e',
         '--environment',
@@ -139,6 +207,13 @@ if __name__ == '__main__':
         'compress', help='Compress all datasets in directory into one'
     )
     compress.add_argument('directory', help='Name of directory')
+    compress.add_argument(
+        '--holdout',
+        type=float,
+        default=.2,
+        help='Proportion of data between test and train. EX: -h .2 would yield a test folder with 80% of that data, '
+             'and a train folder with 20%. '
+    )
     compress.set_defaults(func=compress_wrapper)
 
     args = p.parse_args()

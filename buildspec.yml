@@ -2,14 +2,14 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: latest
     commands:
       - apt-get update
+      - pip3 install pipenv
+      - pipenv install --skip-lock --dev
   build:
     commands:
       - echo Build started on `date`
-      - pytest --cov-report term-missing --cov=src
+      - pytest -v --cov-report term-missing --cov=src --cov=scripts
   post_build:
     commands:
       - echo Build completed on `date`
