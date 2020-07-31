@@ -9,11 +9,13 @@ pytest = "*"
 hypothesis = "*"
 pytest-cov = "*"
 pytest-datadir = "*"
-mock = "*"
+pytest-mock = "*"
+pytest-sugar = "*"
 
 [packages]
+scipy = {versions = "1.4.1"}
 tensorflow = {versions = "2.2.0"}
-keras = "*"
+keras = {versions = "2.4.3"}
 matplotlib = {versions = "3.2.2"}
 typing-extensions = {versions = "3.7.4.2"}
 pyperclip = {versions = "1.8.0"}
