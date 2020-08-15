@@ -54,16 +54,19 @@ from scripts.identify_water import main as idw_main
 from src.config import NETWORK_DEMS as dems
 
 
+
+
+# TODO: THIS IS BAD. CHANGE ALL OF THIS
 def make_database() -> Dict[str, Tuple[str, str]]:
     data_list = sorted([fname for fname in os.listdir('inputs') if fname.endswith('.tif')])  # TODO: Update with ReGEX
     '''Take every pair of consecutive file names and add them to
     data under a common key. This assumes that each pair of files
     shares a common prefix and that there are no stray unpaired images
-    in the directory.'''
+    in the directory.''' # TODO: cannot assume this without tests
     data = {}
     for i in range(0, len(data_list), 2):
         sar_name = data_list[i]
-        sar_name = sar_name[:-7]
+        sar_name = sar_name[:-7] # TODO: why?
         vv = data_list[i+1]
         vh = data_list[i]
         data[sar_name] = (vv, vh)
