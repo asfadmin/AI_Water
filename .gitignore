@@ -27,6 +27,10 @@ mask/*
 .idea*
 AI_Water.egg*
 
+# scratch files
+scratch*
+
 # other
 .netrc
 differenceTest/
+synthetic*
