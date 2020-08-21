@@ -6,11 +6,9 @@
 """
 
 import os
-import xml.etree.ElementTree as ET
 from getpass import getpass
 from subprocess import PIPE, call
 from typing import Dict, List
-import requests
 
 from asf_hyp3 import API, LoginError
 
@@ -104,21 +102,12 @@ def download_products(products: List, i: int, product) -> None:
         how many products have finished. """
 
     print(f'Downloading {i+1} granule of {len(products)}')
+
+    # TODO: duplicate to get_netrc_credentials in product_download_api.py
     with open('.netrc', 'r') as f:
         contents = f.read()
     username = contents.split(' ')[3]
     password = contents.split(' ')[5].split('\n')[0]
     args = ['wget', '-c', '-q', '--show-progress', f"--http-user={username}", f"--http-password={password}", product['url']]
     call(args, stdout=PIPE)
-
-
-def metalink_to_list(metalink_path: str) -> List:
-    """Takes path to metalink file as input, returns a list of urls of zip files to be downloaded.
-       Designed to work with metalink downloaded from hyp3. The current
-       file name convention from hype is simply 'products.metalink'. """
-    tree = ET.parse(metalink_path)
-    zip_urls = [url.text for url in tree.findall(".//*[@type='http']")]
-    return zip_urls
-
-
 
