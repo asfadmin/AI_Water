@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='ASCII'?>
+<metalink version="3.0" xmlns="http://www.metalinker.org/">
+  <files>
+    <file name="S1A_IW_GRDH_1SDV_20200531T224609_20200531T224628_032815_03CD12_DF4F-RESORB-30m-power-rtc-gamma.zip">
+      <resources>
+        <url type="http">https://hyp3-download.asf.alaska.edu/asf/data/S1A_IW_GRDH_1SDV_20200531T224609_20200531T224628_032815_03CD12_DF4F-RESORB-30m-power-rtc-gamma.zip</url>
+      </resources>
+      <verification>
+        <hash type="sha512">438d531d9f04a01a0d3b46acae86515ae34b65f8f491f68af2423eea55e3af834e4ed6b8246a630bc164f7cda1cc7b40f40ce25313fa209d9010940a6fd928e3</hash>
+      </verification>
+      <size>328590573</size>
+    </file>
+    <file name="S1B_IW_GRDH_1SDV_20200525T224442_20200525T224507_021744_02944E_73B3-RESORB-30m-power-rtc-gamma.zip">
+      <resources>
+        <url type="http">https://hyp3-download.asf.alaska.edu/asf/data/S1B_IW_GRDH_1SDV_20200525T224442_20200525T224507_021744_02944E_73B3-RESORB-30m-power-rtc-gamma.zip</url>
+      </resources>
+      <verification>
+        <hash type="sha512">5cd84cd5789e3eb4fde1b0dae79821cdbf3721e609ebab7c26c607911e9c459fa4da680e026b8bad6bb233293c0d4114da5f8f80ccc16032775121f4e8b9e986</hash>
+      </verification>
+      <size>459077309</size>
+    </file>
+  </files>
+</metalink>
