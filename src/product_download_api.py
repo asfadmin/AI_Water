@@ -19,7 +19,7 @@ from subprocess import PIPE, call
 
 
 @dataclass
-class ProductZipFile:
+class MetalinkProduct:
     """Object to hold data for each file in a products.metalink file."""
     name: str
     url: str
@@ -39,7 +39,7 @@ def metalink_to_list(metalink_path: str) -> List:
     return zip_urls
 
 
-def metalink_product_generator(metalink_path: Path) -> ProductZipFile:
+def metalink_product_generator(metalink_path: Path) -> MetalinkProduct:
     """Takes in a Path to a metalink file (products.metalink).
        Generates ProductZipFiles objects that holds the
        metadata for each product."""
@@ -55,7 +55,7 @@ def metalink_product_generator(metalink_path: Path) -> ProductZipFile:
         hash = file.find('verification/hash', ns).text
         size = int(file.find('size', ns).text)
 
-        yield ProductZipFile(name, url, hash, size)
+        yield MetalinkProduct(name, url, hash, size)
 
 
 # TODO: add path to .netrc (Just in case)
