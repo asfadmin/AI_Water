@@ -71,6 +71,7 @@ def get_netrc_credentials() -> credentials:
 
 # TODO: Get rid of gross subprocess call! (request was far too complicated)
 # TODO: add credentials as input
+# TODO: Create pytest!
 def download_product(product_url: str, save_directory: Path = Path.cwd()) -> None:
     """Downloads the the file from the given ProductZipFile. saves to save_directory Path"""
 
