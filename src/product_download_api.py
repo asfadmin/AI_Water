@@ -60,7 +60,6 @@ def metalink_product_generator(metalink_path: Path) -> MetalinkProduct:
 
 # TODO: add path to .netrc (Just in case)
 # TODO: Split into get_pw and get_un function
-# TODO: Make Unit test!
 def get_netrc_credentials() -> credentials:
     """Returns credentials from .netrc file."""
     with open('.netrc', 'r') as f:
@@ -82,5 +81,5 @@ def download_product(product_url: str, save_directory: Path = Path.cwd()) -> Non
     call(args, stdout=PIPE)
 
 # TODO: Build Function!
-def download_products():
+def download_metafile_products():
     return None
