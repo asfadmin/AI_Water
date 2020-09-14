@@ -9,7 +9,7 @@ from argparse import ArgumentParser, Namespace
 import numpy as np
 from osgeo import gdal
 
-from src.tools import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
+from src.hyp3lib_functions import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
 
 
 def intersection(raster1: str, raster2: str):
@@ -37,7 +37,7 @@ def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
     for i in range(mask_final.shape[0]):
         for j in range(mask_final.shape[1]):
             if first_mask[i][j] == 0 and second_mask[i][j] == 1:
-                mask_final[i][j] = 1
+                mask_final[i][j]
             if first_mask[i][j] == 1 and second_mask[i][j] == 0:
                 mask_final[i][j] = 2
 
@@ -46,7 +46,7 @@ def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
 
 def create_mask(args: Namespace) -> None:
     """main function to generate difference mask and optionally shape"""
-    data, mask1_transform, projection, epsg, data_type, no_data = geotiff2data(args.first_mask)
+    _, mask1_transform, projection, epsg, data_type, no_data = geotiff2data(args.first_mask)
     mask1_intersect, mask2_intersect, col, row, bounds = intersection(args.first_mask, args.second_mask)
     mask_difference = difference(mask1_intersect, mask2_intersect)
     transform = (bounds[0], mask1_transform[1], 0, bounds[3], 0, mask1_transform[5])
