@@ -6,7 +6,7 @@ from collections import Counter
 
 from osgeo import gdal
 
-PROJECTION = re.compile(r'AUTHORITY\["([A-Z]+)","([0-9]+)"\]')
+PROJECTION = re.compile(r'ID\[\"([A-Z]+)\",([0-9]+)\]')
 
 
 def main(path: str, vrtname: str):
