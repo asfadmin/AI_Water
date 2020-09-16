@@ -37,7 +37,7 @@ def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
     for i in range(mask_final.shape[0]):
         for j in range(mask_final.shape[1]):
             if first_mask[i][j] == 0 and second_mask[i][j] == 1:
-                mask_final[i][j]
+                mask_final[i][j] = 1
             if first_mask[i][j] == 1 and second_mask[i][j] == 0:
                 mask_final[i][j] = 2
 
