@@ -110,14 +110,3 @@ def download_products(products: List, i: int, product) -> None:
     password = contents.split(' ')[5].split('\n')[0]
     args = ['wget', '-c', '-q', '--show-progress', f"--http-user={username}", f"--http-password={password}", product['url']]
     call(args, stdout=PIPE)
-
-
-def metalink_to_list(metalink_path: str) -> List:
-    """Takes path to metalink file as input, returns a list of urls of zip files to be downloaded.
-       Designed to work with metalink downloaded from hyp3. The current
-       file name convention from hype is simply 'products.metalink'. """
-    tree = ET.parse(metalink_path)
-    zip_urls = [url.text for url in tree.findall(".//*[@type='http']")]
-    return zip_urls
-
-
