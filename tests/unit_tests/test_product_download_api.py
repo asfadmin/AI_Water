@@ -74,7 +74,7 @@ def test_metalink_product_generator():
 # Tests for get_netrc_credentials
 @pytest.mark.usefixtures("supply_datadir_cwd")
 def test_get_netrc_credentials():
-    test_creds = get_netrc_credentials()
+    test_creds = get_netrc_credentials('test_netrc')
     expected_creds = credentials('dummy_user', 'dummy_password')
     assert test_creds == expected_creds, f"test:{test_creds} != expected:{expected_creds}"
 

@@ -60,9 +60,9 @@ def metalink_product_generator(metalink_path: Path):
 
 # TODO: add path to .netrc (Just in case)
 # TODO: Split into get_pw and get_un function
-def get_netrc_credentials() -> credentials:
+def get_netrc_credentials(name: str = '.netrc') -> credentials:
     """Returns credentials from .netrc file."""
-    with open('.netrc', 'r') as f:
+    with open(name, 'r') as f:
         contents = f.read()
     username = contents.split(' ')[3]
     password = contents.split(' ')[5].split('\n')[0]

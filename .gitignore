@@ -31,10 +31,13 @@ AI_Water.egg*
 scratch*
 
 # other
-.netrc
+/.netrc
 differenceTest/
 synthetic*
 
 # Notebook
 notebooks/*
 .ipynb_checkpoints/*
+
+# exceptions
+!tests/unit_tests/test_product_download_api/test_netrc
