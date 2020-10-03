@@ -8,10 +8,8 @@
 import pytest
 from src.product_download_api import metalink_to_list, download_product, MetalinkProduct, metalink_product_generator, \
     get_netrc_credentials, credentials, download_metalink_products
-import src.product_download_api
 from pathlib import Path
 import responses
-import requests
 from unittest.mock import mock_open, patch, MagicMock
 import functools
 
