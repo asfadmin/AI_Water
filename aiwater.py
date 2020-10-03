@@ -49,10 +49,18 @@ def create_mask(model_path, vv_path, vh_path, outfile, verbose):
     OUTFILE    Name of the generated mask
     """
     gu.create_water_mask(model_path, vv_path, vh_path, outfile, verbose)
-    click.echo("NEEDS TO BE IMPLEMENTED!")
+
 
 
 # SCRIPTS TO ADD/CREATE
+
+# TODO: MUST create vv/vh tiles along with their statistical water mask
+# TODO: Can take products.metalink file as input
+# TODO: store in proper dataset folder unless told otherwise
+# TODO: Generates a metadata.json file with info on the dataset
+@cli.command()
+def create_dataset():
+    click.echo("NEEDS TO BE IMPLEMENTED!")
 
 # TODO: Combine with download_metalink
 """
@@ -95,6 +103,14 @@ def list():
     """List various data from project. Products, masks, datasets, models"""
     click.echo("NEEDS TO BE IMPLEMENTED!")
 
+# MAY not end up needing
+@cli.command()
+def compress_datasets():
+    click.echo("NEEDS TO BE IMPLEMENTED!")
+# def compress_wrapper(args: Namespace) -> None:
+#     """Wrapper for script compress_datasets."""
+#     directory_path = os.path.join(DATASETS_DIR, args.directory)
+#     compress_datasets(directory_path, args.holdout)
 
 
 if __name__ == '__main__':
