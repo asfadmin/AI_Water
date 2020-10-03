@@ -9,9 +9,7 @@ import xml.etree.ElementTree as ET
 from typing import List
 from pathlib import Path
 from dataclasses import dataclass
-import xmltodict
 from collections import namedtuple
-from subprocess import PIPE, call
 import requests
 
 
