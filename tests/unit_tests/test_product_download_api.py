@@ -6,8 +6,7 @@
 """
 
 import pytest
-from src.product_download_api import metalink_to_list, download_product, MetalinkProduct, metalink_product_generator, \
-    get_netrc_credentials, credentials, download_metalink_products
+from src.product_download_api import metalink_to_list, download_product, MetalinkProduct, metalink_product_generator, get_netrc_credentials, credentials, download_metalink_products
 from pathlib import Path
 import responses
 from unittest.mock import mock_open, patch, MagicMock
@@ -15,13 +14,20 @@ import functools
 
 
 # TODO: Move to conftest.py because DRY.
+# @pytest.fixture(scope="function")
+# def supply_datadir_cwd(datadir, monkeypatch):
+#     """Fixture to patch current working directory to datadir."""
+#     current_file_name = Path(__file__).stem
+#     monkeypatch.chdir(datadir)
+#     test_cwd = Path(f'../{current_file_name}').resolve()
+#     monkeypatch.chdir(test_cwd)
+
 @pytest.fixture(scope="function")
 def supply_datadir_cwd(datadir, monkeypatch):
     """Fixture to patch current working directory to datadir."""
-    current_file_name = Path(__file__).stem
     monkeypatch.chdir(datadir)
-    test_cwd = Path(f'../{current_file_name}').resolve()
-    monkeypatch.chdir(test_cwd)
+    test_make_data_path = Path(f'../test_product_download_api').resolve()
+    monkeypatch.chdir(test_make_data_path)
 
 
 # Expected list from metadata
