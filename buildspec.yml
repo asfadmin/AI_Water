@@ -6,7 +6,7 @@ phases:
       - apt-get update
       - pip3 install pipenv
       - pip3 install virtualenv
-      - virtualenv --no-site-packages env
+      - virtualenv env
       - gdal-config --version
       - env/bin/pip install pygdal=="`gdal-config --version`.*"
       - . env/bin/activate
