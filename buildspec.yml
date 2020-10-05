@@ -8,6 +8,7 @@ phases:
       - pip3 install virtualenv
       - virtualenv env
       - . env/bin/activate
+      - pipenv install pygdal=="`gdal-config --version`.*"
       - pipenv install --skip-lock --dev
   build:
     commands:
