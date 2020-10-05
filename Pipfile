@@ -12,6 +12,7 @@ pytest-datadir = "*"
 pytest-mock = "*"
 pytest-sugar = "*"
 responses = "*"
+mock = "*"
 
 [packages]
 scipy = {versions = "1.4.1"}
