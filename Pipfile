@@ -11,7 +11,7 @@ pytest-cov = "*"
 pytest-datadir = "*"
 pytest-mock = "*"
 pytest-sugar = "*"
-responses = "*"
+pytest-responses = "*"
 
 [packages]
 scipy = {versions = "1.4.1"}
