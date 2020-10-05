@@ -29,6 +29,8 @@ def supply_datadir_cwd(datadir, monkeypatch):
     test_make_data_path = Path(f'../test_product_download_api').resolve()
     monkeypatch.chdir(test_make_data_path)
 
+test_creds = credentials('dummy_user', 'dummy_password')
+
 
 # Expected list from metadata
 metalink_list_1 = [
@@ -74,7 +76,7 @@ def test_metalink_product_generator():
 # Tests for get_netrc_credentials
 @pytest.mark.usefixtures("supply_datadir_cwd")
 def test_get_netrc_credentials():
-    test_creds = get_netrc_credentials('test_netrc')
+    test_creds = get_netrc_credentials()
     expected_creds = credentials('dummy_user', 'dummy_password')
     assert test_creds == expected_creds, f"test:{test_creds} != expected:{expected_creds}"
 
@@ -110,9 +112,12 @@ def test_download_product():
         responses.add(responses.GET, url=test_product_1.url, status=401)
         responses.add(responses.GET, status=200)
 
-        download_product(test_product_1.url, save_directory)
+        # CHANGE SO CREDS ARE INPUT VIA THIRD VARIABLE
+        download_product(test_product_1.url, save_directory, test_creds)
 
     open_mock.assert_called_with(expected_name, "wb")
+
+
 
 
 
@@ -125,7 +130,7 @@ def test_download_metalink_products():
 
     download_mock = MagicMock()
     with patch("src.product_download_api.download_product", download_mock):
-        download_metalink_products(input_matalink_path, save_directory_path)
+        download_metalink_products(input_matalink_path, save_directory_path, test_creds)
 
     download_mock.assert_called()
 

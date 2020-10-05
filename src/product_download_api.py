@@ -60,9 +60,9 @@ def metalink_product_generator(metalink_path: Path):
 
 # TODO: add path to .netrc (Just in case)
 # TODO: Split into get_pw and get_un function
-def get_netrc_credentials(name: str = '.netrc') -> credentials:
+def get_netrc_credentials() -> credentials:
     """Returns credentials from .netrc file."""
-    with open(name, 'r') as f:
+    with open('.netrc', 'r') as f:
         contents = f.read()
     username = contents.split(' ')[3]
     password = contents.split(' ')[5].split('\n')[0]
@@ -79,7 +79,8 @@ def get_redirect_url(url: str) -> str:
 # TODO: MetalinkProduct class as input to get file size for print log???
 # TODO: Add progress bar (TQDM)
 # TODO: Split function. creates get_redirect
-def download_product(product_url: str, save_directory: Path, creds: credentials = get_netrc_credentials()) -> None:
+# TODO: *************REMINDER***************************** have creds input normally. Not with function call !!! THATS THE FIX
+def download_product(product_url: str, save_directory: Path, creds: credentials) -> None:
     """Download sar product from given url."""
 
     filename = product_url.split('/')[-1]
@@ -101,8 +102,7 @@ def download_product(product_url: str, save_directory: Path, creds: credentials 
         f.close()
 
 
-# TODO: Build Function!
-def download_metalink_products(metalink_path: Path, save_directory_path: Path):
+def download_metalink_products(metalink_path: Path, save_directory_path: Path, creds: credentials):
     """Download all products from metalink file (products.metalink)."""
     for product in metalink_product_generator(metalink_path):
-        download_product(product.url, save_directory_path)
+        download_product(product.url, save_directory_path, creds)
