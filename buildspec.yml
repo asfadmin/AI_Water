@@ -10,7 +10,7 @@ phases:
       - pip3 install virtualenv
       - virtualenv env
       - gdal-config --version
-      - env/bin/pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
+      - env/bin/pip install GDAL==3.1.3 --global-option=build_ext --global-option="-I/usr/include/gdal"
       - . env/bin/activate
       - pipenv install --skip-lock --dev
   build:
