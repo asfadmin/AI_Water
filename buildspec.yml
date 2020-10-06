@@ -4,11 +4,13 @@ phases:
   install:
     commands:
       - apt-get update
+      - DEBIAN_FRONTEND=noninteractive apt-get install gdal-bin
+      - DEBIAN_FRONTEND=noninteractive apt-get install libgdal-dev libgdal1h
       - pip3 install pipenv
       - pip3 install virtualenv
       - virtualenv env
       - gdal-config --version
-      - env/bin/pip install pygdal=="`gdal-config --version`.*"
+      - env/bin/pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
       - . env/bin/activate
       - pipenv install --skip-lock --dev
   build:
