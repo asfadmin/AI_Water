@@ -10,7 +10,7 @@ phases:
       - . env/bin/activate
       - pipenv install --skip-lock --dev
       - gdal-config --version
-      - pip install GDAL==3.2.0 --global-option=build_ext --global-option="-I/usr/include/gdal"
+      - pip install GDAL --global-option=build_ext --global-option="-I/usr/include/gdal"
 
 
   build:
