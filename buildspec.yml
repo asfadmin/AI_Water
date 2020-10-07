@@ -12,7 +12,7 @@ phases:
       - gdal-config --version
       - export CPLUS_INCLUDE_PATH=/usr/include/gdal
       - export C_INCLUDE_PATH=/usr/include/gdal
-      - pip install GDAL
+      - pip install pygdal
 
 
   build:
