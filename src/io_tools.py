@@ -1,20 +1,43 @@
 """
  Created By:   Jason Herning
- Date Started: 10-01-2020
  File Name:    io_tools.py
  Description:  Various functions for i/o handling
 """
 
-import os
 import random
 import re
 import shutil
 from itertools import groupby
 from pathlib import Path
+import zipfile
 
 from src.asf_typing import sar_set
 from src.config import SENTINEL_DIR, SHAPEFILE_DIR, MODEL_WEIGHTS_DIR, TILES_DIR, WATER_MASKS_DIR, LABELS_DIR, \
     TENSORBOARD_DIR, TYPE_REGEX, DATASETS_DIR
+from tempfile import TemporaryDirectory
+
+
+
+
+def extract_from_product(product_path, output_dir):
+    product_name = Path(product_path).stem
+    sar_regex = re.compile(r"(S1[A|B])_(.{2})_(.*)_(VV|VH)(.tif)")
+
+    with zipfile.ZipFile(product_path, "r") as zip_ref:
+        with TemporaryDirectory() as tmpdir_name:
+            for file_info in zip_ref.infolist():
+                if re.fullmatch(sar_regex,file_info.filename):
+                    zip_ref.extract(file_info,path=tmpdir_name)
+                    shutil.move(f"{tmpdir_name}/{file_info.filename}", output_dir)
+                    # pprint(f"moved {file_info.filename} from {tmpdir_name} to {output_dir}")
+
+
+
+
+
+
+
+
 
 
 
@@ -28,7 +51,7 @@ def create_directories() -> None:
 
 
 def list_sar_directory(directory_path: str) -> list:
-    """Recursively generates list of all mask, vh, vv .tif files."""
+    """Generates list of all mask, vh, vv .tif files."""
     path_generator = Path(directory_path).rglob('*.tif')
     return sorted([path.name for path in path_generator if path.is_file()])
 
