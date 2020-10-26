@@ -1,25 +1,25 @@
-[scripts]
-tests = "pytest --cov-report term-missing --cov=src"
-
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+ai-water = {path = ".",editable = true}
 pytest = "*"
 hypothesis = "*"
 pytest-cov = "*"
-mock = "*"
-matplotlib = "*"
+pytest-datadir = "*"
+pytest-mock = "*"
+pytest-sugar = "*"
 
 [packages]
-tensorflow = "*"
-keras = "*"
-pygdal = "==2.2.3.3"
-typing-extensions = "*"
-pyperclip = "*"
-asf_hyp3 = "*"
+scipy = {versions = "1.4.1"}
+tensorflow = {versions = "2.2.0"}
+keras = {versions = "2.4.3"}
+matplotlib = {versions = "3.2.2"}
+typing-extensions = {versions = "3.7.4.2"}
+pyperclip = {versions = "1.8.0"}
+asf_hyp3 = {versions = "3.0.3"}
 
 [requires]
-python_version = "3.6"
+python_version = "3.8"

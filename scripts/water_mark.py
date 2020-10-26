@@ -50,7 +50,7 @@ from typing import Dict, Tuple
 
 from osgeo import gdal
 
-from identify_water import main as idw_main
+from scripts.identify_water import main as idw_main
 from src.config import NETWORK_DEMS as dems
 
 
@@ -78,7 +78,7 @@ def make_output_dir(out_dir: str, data_dict: Dict[str, Tuple[str, str]]) -> None
     for sar in data_dict:
         os.mkdir(os.path.join(out_dir, sar))
 
-
+# TODO add REGEX
 def delete_junk(target_dir):
     for f_name in os.listdir(target_dir):
         if ('.shp') in f_name:

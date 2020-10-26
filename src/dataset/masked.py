@@ -59,12 +59,7 @@ def load_replace_data(
     # Load the entire dataset into memory
     x_replace = []
     y_replace = []
-    for img, mask in generate_from_metadata(
-        metadata,
-        edit=True,
-        clip_range=(0, 2),
-        dems=dems
-    ):
+    for img, mask in generate_from_metadata(metadata, edit=True, clip_range=(0, 2), dems=dems):
         x_replace.append(img)
         y_replace.append(mask)
 
