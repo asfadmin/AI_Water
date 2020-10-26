@@ -36,7 +36,6 @@ differenceTest/
 synthetic*
 
 # Notebook
-notebooks/*
 .ipynb_checkpoints/*
 
 # exceptions
