@@ -1,15 +1,11 @@
 """
  Created By:   Jason Herning
- Date Started: 09-20-2020
  File Name:    geo_utility.py
  Description:  Toolbox of functions to help process GeoTIFFs.
 """
 
 import os
 import itertools
-from typing import Generator, Tuple, Any
-
-from src.config import NETWORK_DEMS as dems
 from osgeo import gdal
 from src.model import load_model
 from src.config import NETWORK_DEMS as dems
@@ -19,7 +15,7 @@ import numpy as np
 
 # TODO: sepearte translate as sperate function that can be tested. (maybe)
 def write_tiles(input_tif: str, output_directory: str, tile_size: int, name: str):
-    """TODO: Add description"""
+    """Creates tiles of given dimension out of input tif file"""
     input_image = gdal.Open(input_tif)
 
     array = input_image.ReadAsArray()
