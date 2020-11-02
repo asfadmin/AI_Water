@@ -14,6 +14,7 @@ import requests
 import getpass
 from src.config import PROJECT_ROOT
 
+
 # TODO: Move functions into a Class
 
 
@@ -64,17 +65,11 @@ def metalink_product_generator(metalink_path: Path):
 def get_netrc_credentials() -> credentials:
     """Returns credentials from .netrc file."""
 
-    netrc_path = PROJECT_ROOT / '.netrc'
+    with open('.netrc', 'r') as f:
+        contents = f.read()
+    username = contents.split(' ')[3]
+    password = contents.split(' ')[5].split('\n')[0]
 
-    if netrc_path.exists():
-        with open('.netrc', 'r') as f:
-            contents = f.read()
-        username = contents.split(' ')[3]
-        password = contents.split(' ')[5].split('\n')[0]
-    else:
-        print("Input earthdata credentials")
-        username = input("username: ")
-        password = getpass.getpass(prompt="password: ")
 
     return credentials(username, password)
 
