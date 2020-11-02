@@ -80,6 +80,7 @@ def get_redirect_url(url: str) -> str:
 # TODO: Add progress bar (TQDM)
 # TODO: Split function. creates get_redirect
 # TODO: *************REMINDER***************************** have creds input normally. Not with function call !!! THATS THE FIX
+# TODO: Should not overrite existing files. Instead tack on a (1), (2), etc
 def download_product(product_url: str, save_directory: Path, creds: credentials) -> None:
     """Download sar product from given url."""
 
