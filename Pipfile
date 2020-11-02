@@ -23,6 +23,7 @@ typing-extensions = {versions = "3.7.4.2"}
 pyperclip = {versions = "1.8.0"}
 asf_hyp3 = {versions = "3.0.3"}
 shapely = "*"
+click = "*"
 
 [requires]
 python_version = "3.8"
