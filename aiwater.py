@@ -24,8 +24,16 @@ def cli():
 @click.argument('output_directory')
 def download_metalink(metalink_path, output_directory):
     """Download files from products.metalink"""
+    netrc_path = PROJECT_ROOT / '.netrc'
 
-    creds = pda.get_netrc_credentials()
+    if netrc_path.exists():
+        creds = pda.get_netrc_credentials()
+    else:
+        print("Input earthdata credentials")
+        username = input("username: ")
+        password = getpass.getpass(prompt="password: ")
+        creds = username, password
+
     pda.download_metalink_products(Path(metalink_path), Path(output_directory), creds)
 
 
