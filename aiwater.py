@@ -5,11 +5,14 @@
  Description:  Main file holding all the argparse
 """
 
+import getpass
 import click
 from pathlib import Path
 import src.product_download_api as pda
 import src.geo_utility as gu
 from tempfile import TemporaryDirectory
+from src.config import PROJECT_ROOT
+
 
 
 @click.group()
@@ -24,6 +27,7 @@ def cli():
 @click.argument('output_directory')
 def download_metalink(metalink_path, output_directory):
     """Download files from products.metalink"""
+
     netrc_path = PROJECT_ROOT / '.netrc'
 
     if netrc_path.exists():
@@ -32,7 +36,7 @@ def download_metalink(metalink_path, output_directory):
         print("Input earthdata credentials")
         username = input("username: ")
         password = getpass.getpass(prompt="password: ")
-        creds = username, password
+        creds = pda.credentials(username, password)
 
     pda.download_metalink_products(Path(metalink_path), Path(output_directory), creds)
 
