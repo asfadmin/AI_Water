@@ -24,7 +24,9 @@ def cli():
 @click.argument('output_directory')
 def download_metalink(metalink_path, output_directory):
     """Download files from products.metalink"""
-    pda.download_metalink_products(Path(metalink_path), Path(output_directory))
+
+    creds = pda.get_netrc_credentials()
+    pda.download_metalink_products(Path(metalink_path), Path(output_directory), creds)
 
 
 # TODO: create default file name as granule name with _MASK or _mask appended.
