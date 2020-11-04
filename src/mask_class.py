@@ -28,7 +28,7 @@ class Mask:
                 sub_id=self.subscription_id, page=count, page_size=500
             )
 
-            self.products = triage_products(self.products)
+            # self.products = triage_products(self.products)
 
             self._mask_products()
             count += 1
