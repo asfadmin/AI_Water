@@ -95,6 +95,8 @@ def create_dataset_metalink(source, name):
 def create_mask():
     click.echo("NEEDS TO BE IMPLEMENTED!")
 
+
+# TODO: FIX make VRT
 @create_mask.command()
 @click.argument('model')
 @click.argument('name', type=str)
@@ -106,7 +108,7 @@ def subscription(name, model):
     mask = Mask(user, name)
 
     mask.mask_subscription()
-    vrt(mask.user.mask_path, f"{mask.mask_name}.vrt")
+    # vrt(mask.user.mask_path, f"{mask.mask_name}.vrt")
 
 cli.add_command(create_mask)
 
