@@ -15,6 +15,13 @@ from src.config import PROJECT_ROOT
 
 
 
+from scripts.make_vrt import main as vrt
+from src.api_functions import hyp3_login
+from src.user_class import User
+from src.mask_class import Mask
+
+
+
 @click.group()
 def cli():
     pass
@@ -50,7 +57,7 @@ def download_metalink(metalink_path, output_directory):
 @click.argument('vh_path')
 @click.argument('outfile')
 @click.option('-v', '--verbose', help="keras verbosity", default=1, type=int)
-def create_mask(model_path, vv_path, vh_path, outfile, verbose):
+def create_mask_vvvh(model_path, vv_path, vh_path, outfile, verbose):
     """Create a water mask for an image.
     The image must be dual pol (VV + VH) and must be calibrated. ****** NOTE ******
     create_mask.py contains a memory leak. Use a subprocess call when using main in a loop to prevent memory issues.
@@ -82,6 +89,43 @@ def create_dataset_metalink(source, name):
         pda.download_metalink_products(source, Path(tmpdir_name), netrc_creds)
 
     click.echo("NEEDS TO BE IMPLEMENTED!")
+
+
+@click.group()
+def create_mask():
+    click.echo("NEEDS TO BE IMPLEMENTED!")
+
+@create_mask.command()
+@click.argument('model')
+@click.argument('name', type=str)
+def subscription(name, model):
+
+
+    api = hyp3_login()
+    user = User(name, model, api)
+    mask = Mask(user, name)
+
+    mask.mask_subscription()
+    vrt(mask.user.mask_path, f"{mask.mask_name}.vrt")
+
+cli.add_command(create_mask)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
