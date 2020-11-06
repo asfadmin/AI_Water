@@ -23,7 +23,7 @@ def create_mask(args: Namespace, api: API) -> None:
     mask = Mask(user, args.name)
 
     mask.mask_subscription()
-    vrt(mask.user.mask_path, f"{mask.mask_name}.vrt")
+    # vrt(mask.user.mask_path, f"{mask.mask_name}.vrt")
 
     end_time = time.time()
     print(end_time - start_time)

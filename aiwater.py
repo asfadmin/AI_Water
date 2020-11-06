@@ -16,6 +16,8 @@ from src.api_functions import hyp3_login, grab_subscription
 from asf_hyp3 import API
 from datetime import date
 
+from src.mask_class import Mask
+from src.user_class import User
 
 
 @click.group()
@@ -85,6 +87,26 @@ def create_dataset_metalink(source, name):
         pda.download_metalink_products(source, Path(tmpdir_name), netrc_creds)
 
     click.echo("NEEDS TO BE IMPLEMENTED!")
+
+@cli.command()
+@click.argument('model', type=str)
+@click.argument('name', type=str)
+@click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
+@click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
+def mask_subscription(model, name, date_start, date_end):
+    api = hyp3_login()
+
+    # date_start = date_start.date()
+    # date_end = date_end.date()
+
+    user = User(name, model, api)
+    mask = Mask(user, name, date_start, date_end)
+
+    mask.mask_subscription()
+    click.echo(f"Start: {date_start}, End: {date_end} ")
+
+
+
 
 
 
