@@ -12,6 +12,9 @@ import src.product_download_api as pda
 import src.geo_utility as gu
 from tempfile import TemporaryDirectory
 from src.config import PROJECT_ROOT
+from src.api_functions import hyp3_login, grab_subscription
+from asf_hyp3 import API
+from datetime import date
 
 
 
@@ -82,6 +85,21 @@ def create_dataset_metalink(source, name):
         pda.download_metalink_products(source, Path(tmpdir_name), netrc_creds)
 
     click.echo("NEEDS TO BE IMPLEMENTED!")
+
+
+
+@cli.command()
+@click.argument('model', type=str)
+@click.argument('name', type=str)
+@click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
+@click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
+def mask_hyp3(model, name, date_start, date_end):
+    api = hyp3_login()
+    subscription = grab_subscription(api)
+    sub_id = subscription['id']
+    date_start = date_start.date()
+    date_end = date_end.date()
+    click.echo(f"Start: {date_start}, End: {date_end} ")
 
 
 
