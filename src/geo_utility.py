@@ -87,10 +87,8 @@ def pad_image(image: np.ndarray, to: int) -> np.ndarray:
     return padded
 
 
-# TODO: Cut edge fill on final mask (make it more pretty!
-# TODO: FIX VV/VH ISSUE. ONLY WORKS WITH VV RIGHT NOW!
-# TODO: Split get vv/vh tiles into functions
-# TODO: Try differnt tiling method (not strided)
+# TODO: Cut edge fill on final mask (make it more pretty!)
+# TODO: SHould use pathlib as inputs
 def create_water_mask(
         model_path: str, vv_path: str, vh_path: str, outfile: str, verbose: int = 0
 ):
