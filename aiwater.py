@@ -15,6 +15,7 @@ from src.config import PROJECT_ROOT
 from src.api_functions import hyp3_login, grab_subscription
 from asf_hyp3 import API
 from datetime import date
+import src.io_tools as io
 
 from src.mask_class import Mask
 from src.user_class import User
@@ -69,7 +70,33 @@ def create_mask(model_path, vv_path, vh_path, outfile, verbose):
     gu.create_water_mask(model_path, vv_path, vh_path, outfile, verbose)
 
 
-# SCRIPTS TO ADD/CREATE
+
+# TODO: Create vrt file
+@cli.command()
+@click.argument('model', type=str)
+@click.argument('source_dir', type=click.Path())
+@click.argument('output_dir', type=click.Path())
+@click.argument('name', type=str)
+def mask_directory(model, source_dir, output_dir, name):
+    """Creates mask of all products in given directory.
+       Products must be in original zipfile format."""
+
+    product_list = io.list_products(source_dir)
+    print(f"{len(product_list)} products in directory")
+
+    mask_save_directory = Path(output_dir) / name
+    if not mask_save_directory.is_dir():
+        mask_save_directory.mkdir()
+
+    for product in product_list:
+        print(f"Masking {product.name}")
+        with TemporaryDirectory() as tmpdir_name:
+            vv_path, vh_path = io.extract_from_product(product, Path(tmpdir_name))
+            output_file = mask_save_directory / f"{product.stem}.tif"
+            gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
+            print(f"Mask for {product.name} is finished")
+
+
 
 
 # TODO: MUST create vv/vh tiles along with their statistical water mask
@@ -107,9 +134,6 @@ def mask_subscription(model, name, date_start, date_end):
 
 
 
-
-
-
 @cli.command()
 @click.argument('model', type=str)
 @click.argument('name', type=str)
@@ -125,56 +149,8 @@ def mask_hyp3(model, name, date_start, date_end):
 
 
 
-# # TODO: Combine with download_metalink
-# """
-#     Options/flags to add:
-#         - date/time
-#         - frame
-#         - path
-# """
-# @cli.command()
-# def download_subscription():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-#
-# @cli.command()
-# def train():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-# @cli.command()
-# def test():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-# # tiles the dataset
-# @cli.command()
-# def create_dataset():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-# # use matplot lib to groom the mask images
-# @cli.command()
-# def groom_dataset():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-#
-# # print stats found in info_model
-# @cli.command()
-# def model_info():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-# @cli.command()
-# def list():
-#     """List various data from project. Products, masks, datasets, models"""
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-#
-# # MAY not end up needing
-# @cli.command()
-# def compress_datasets():
-#     click.echo("NEEDS TO BE IMPLEMENTED!")
-# # def compress_wrapper(args: Namespace) -> None:
-# #     """Wrapper for script compress_datasets."""
-# #     directory_path = os.path.join(DATASETS_DIR, args.directory)
-# #     compress_datasets(directory_path, args.holdout)
 
+    
 
 if __name__ == '__main__':
     cli()
