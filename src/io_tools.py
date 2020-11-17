@@ -24,13 +24,24 @@ def extract_from_product(product_path, output_dir):
     """Extract vv and vh tifs from product"""
     product_name = Path(product_path).stem
     sar_regex = re.compile(r"(S1[A|B])_(.{2})_(.*)_(VV|VH)(.tif)")
+    vv_regex = re.compile(r"S.*.VV.tif")
+    vh_regex = re.compile(r"S.*.VH.tif")
+
+    vv = ""
+    vh = ""
 
     with zipfile.ZipFile(product_path, "r") as zip_ref:
+
         with TemporaryDirectory() as tmpdir_name:
             for file_info in zip_ref.infolist():
                 if re.fullmatch(sar_regex,file_info.filename):
+                    if re.match(vv_regex, file_info.filename):
+                        vv = output_dir / Path(file_info.filename).name
+                    if re.match(vh_regex, file_info.filename):
+                        vh = output_dir / Path(file_info.filename).name
                     zip_ref.extract(file_info,path=tmpdir_name)
                     shutil.move(f"{tmpdir_name}/{file_info.filename}", output_dir)
+    return vv, vh
 
 
 
@@ -38,6 +49,9 @@ def extract_from_product(product_path, output_dir):
 
 
 
+def list_products(dir_path: Path) -> list:
+    product_glob = Path(dir_path).glob('*.zip')
+    return [product for product in product_glob]
 
 
 
