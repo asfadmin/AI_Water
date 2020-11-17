@@ -10,6 +10,7 @@ import shutil
 from itertools import groupby
 from pathlib import Path
 import zipfile
+from pprint import pprint
 
 from src.asf_typing import sar_set
 from src.config import SENTINEL_DIR, SHAPEFILE_DIR, MODEL_WEIGHTS_DIR, TILES_DIR, WATER_MASKS_DIR, LABELS_DIR, \
@@ -20,6 +21,7 @@ from tempfile import TemporaryDirectory
 
 
 def extract_from_product(product_path, output_dir):
+    """Extract vv and vh tifs from product"""
     product_name = Path(product_path).stem
     sar_regex = re.compile(r"(S1[A|B])_(.{2})_(.*)_(VV|VH)(.tif)")
 
@@ -29,7 +31,6 @@ def extract_from_product(product_path, output_dir):
                 if re.fullmatch(sar_regex,file_info.filename):
                     zip_ref.extract(file_info,path=tmpdir_name)
                     shutil.move(f"{tmpdir_name}/{file_info.filename}", output_dir)
-                    # pprint(f"moved {file_info.filename} from {tmpdir_name} to {output_dir}")
 
 
 
