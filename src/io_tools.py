@@ -21,32 +21,35 @@ from tempfile import TemporaryDirectory
 
 
 def extract_from_product(product_path, output_dir):
-    """Extract vv and vh tifs from product"""
-    product_name = Path(product_path).stem
-    sar_regex = re.compile(r"(S1[A|B])_(.{2})_(.*)_(VV|VH)(.tif)")
-    vv_regex = re.compile(r"S.*.VV.tif")
-    vh_regex = re.compile(r"S.*.VH.tif")
+    """Extract vv and vh tifs from product.
+       returns VV & VH file paths"""
 
-    vv = ""
-    vh = ""
+    sar_regex = re.compile(r"(S1[A|B])_(.{2})_(.*)_(VV|VH)(.tif)")
 
     with zipfile.ZipFile(product_path, "r") as zip_ref:
-
         with TemporaryDirectory() as tmpdir_name:
-            for file_info in zip_ref.infolist():
-                if re.fullmatch(sar_regex,file_info.filename):
-                    if re.match(vv_regex, file_info.filename):
-                        vv = output_dir / Path(file_info.filename).name
-                    if re.match(vh_regex, file_info.filename):
-                        vh = output_dir / Path(file_info.filename).name
-                    zip_ref.extract(file_info,path=tmpdir_name)
-                    shutil.move(f"{tmpdir_name}/{file_info.filename}", output_dir)
+            for archive_name in zip_ref.namelist():
+                file_name = archive_name.split('/')[1]
+                if m := re.match(sar_regex, file_name):
+                    if m.group(4) == 'VV':
+                        vv = output_dir / file_name
+                    if m.group(4) == 'VH':
+                        vh = output_dir / file_name
+                    zip_ref.extract(archive_name,path=tmpdir_name)
+                    shutil.move(f"{tmpdir_name}/{archive_name}", output_dir)
     return vv, vh
 
 
 
-
-
+# with ZipFile(product_path, "r") as zip_ref:
+#     for full_name in zip_ref.namelist():
+#         file_name = full_name.split('/')[1]
+#         if m := re.match(sar_regex, file_name):
+#             if m.group(4) == 'VV':
+#                 print(file_name)
+#             if m.group(4) == 'VH':
+#                 print(file_name)
+#
 
 
 def list_products(dir_path: Path) -> list:
