@@ -11,10 +11,8 @@ from pathlib import Path
 import src.product_download_api as pda
 import src.geo_utility as gu
 from tempfile import TemporaryDirectory
-from src.config import PROJECT_ROOT
+from src.config import PROJECT_DIR
 from src.api_functions import hyp3_login, grab_subscription
-from asf_hyp3 import API
-from datetime import date
 import src.io_tools as io
 
 from src.mask_class import Mask
@@ -25,6 +23,12 @@ from src.user_class import User
 def cli():
     pass
 
+@cli.command()
+def setup():
+    """Create data directories"""
+    io.create_directories()
+    click.echo("Data directory created")
+
 
 # TODO: Add default output_directory and make option.
 # TODO: Add loading bar.
@@ -34,7 +38,7 @@ def cli():
 def download_metalink(metalink_path, output_directory):
     """Download files from products.metalink"""
 
-    netrc_path = PROJECT_ROOT / '.netrc'
+    netrc_path = PROJECT_DIR / '.netrc'
 
     if netrc_path.exists():
         creds = pda.get_netrc_credentials()

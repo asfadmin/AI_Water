@@ -13,11 +13,8 @@ import zipfile
 from pprint import pprint
 
 from src.asf_typing import sar_set
-from src.config import SENTINEL_DIR, SHAPEFILE_DIR, MODEL_WEIGHTS_DIR, TILES_DIR, WATER_MASKS_DIR, LABELS_DIR, \
-    TENSORBOARD_DIR, TYPE_REGEX, DATASETS_DIR
+from src.config import PRODUCTS_DIR, AOI_DIR, DATASETS_DIR, MODEL_DIR, MASK_DIR, TENSORBOARD_DIR, TYPE_REGEX
 from tempfile import TemporaryDirectory
-
-
 
 
 def extract_from_product(product_path, output_dir):
@@ -62,7 +59,7 @@ def list_products(dir_path: Path) -> list:
 # TODO: check that directories exist
 def create_directories() -> None:
     """Creates the directories for storing our data"""
-    directories = [SENTINEL_DIR, SHAPEFILE_DIR, MODEL_WEIGHTS_DIR, TILES_DIR, WATER_MASKS_DIR, LABELS_DIR, TENSORBOARD_DIR]
+    directories = [PRODUCTS_DIR, AOI_DIR, DATASETS_DIR, MODEL_DIR, MASK_DIR, TENSORBOARD_DIR]
     for directory in directories:
         directory.mkdir(parents=True)
 
