@@ -98,7 +98,7 @@ def mask_directory(model, source_dir, output_dir, name):
             vv_path, vh_path = io.extract_from_product(product, Path(tmpdir_name))
             output_file = mask_save_directory / f"{product.stem}.tif"
             gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
-            print(f"Mask for {product.name} is finished")
+            print(f"Mask for {product.stem} is finished")
 
 
 

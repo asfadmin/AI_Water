@@ -55,3 +55,5 @@ VV_REGEX = re.compile(r'(.*)_([0-9]+).vv.tif')
 ZIP_REGEX = re.compile(r'S1(A|B)_IW(.*)-rtc-gamma\.zip')
 BAND_REGEX = re.compile(r"(.*)(VV|VH|MASK)(.*)")
 TYPE_REGEX = re.compile(r"(.*)_([0-9]+).(vv|vh|mask).(tiff|tif|TIFF|TIF)")
+# For getting vv/vh from product directory
+SAR_REGEX = re.compile(r"(S1[A|B])_(.{2})_(.*)_(VV|VH)(.tif)")

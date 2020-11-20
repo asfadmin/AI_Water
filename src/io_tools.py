@@ -27,7 +27,7 @@ def extract_from_product(product_path, output_dir):
         with TemporaryDirectory() as tmpdir_name:
             for archive_name in zip_ref.namelist():
                 file_name = archive_name.split('/')[1]
-                if m := re.match(sar_regex, file_name):
+                if m := re.fullmatch(sar_regex, file_name):
                     if m.group(4) == 'VV':
                         vv = output_dir / file_name
                     if m.group(4) == 'VH':
