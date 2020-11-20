@@ -35,7 +35,7 @@ DATA_DIR = PROJECT_DIR / "data"
 # Input data subdirectory path configs
 INPUT_DIR = DATA_DIR / "input"
 PRODUCTS_DIR = INPUT_DIR / "products"
-AOI_DIR = INPUT_DIR / "AOI"
+AOI_DIR = INPUT_DIR / "aoi"
 
 # TODO: test directory?
 # Working data subdirectory path configs

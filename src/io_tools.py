@@ -37,18 +37,6 @@ def extract_from_product(product_path, output_dir):
     return vv, vh
 
 
-
-# with ZipFile(product_path, "r") as zip_ref:
-#     for full_name in zip_ref.namelist():
-#         file_name = full_name.split('/')[1]
-#         if m := re.match(sar_regex, file_name):
-#             if m.group(4) == 'VV':
-#                 print(file_name)
-#             if m.group(4) == 'VH':
-#                 print(file_name)
-#
-
-
 def list_products(dir_path: Path) -> list:
     product_glob = Path(dir_path).glob('*.zip')
     return [product for product in product_glob]
