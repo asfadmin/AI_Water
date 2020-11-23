@@ -2,7 +2,7 @@
 """
  Created By:   Jason Herning
  File Name:    aiwater.py
- Description:  Main file holding all the argparse
+ Description:  CLI Interface
 """
 
 import getpass
@@ -23,9 +23,22 @@ from src.user_class import User
 def cli():
     pass
 
+# TODO: Should work if some dirs already created
 @cli.command()
 def setup():
-    """Create data directories"""
+    """
+    Create data directories
+    data/
+    -input/
+        -products
+        -aoi
+    -working/
+        -datasets
+    -output/
+        -models
+        -mask
+        -tensorboard
+    """
     io.create_directories()
     click.echo("Data directory created")
 
@@ -103,53 +116,53 @@ def mask_directory(model, source_dir, output_dir, name):
 
 
 
-# TODO: MUST create vv/vh tiles along with their statistical water mask
-# TODO: Can take products.metalink file as input
-# TODO: store in proper dataset folder unless told otherwise
-# TODO: Generates a metadata.json file with info on the dataset
-@cli.command()
-@click.argument('source', type=click.Path())
-@click.argument('name', type=str)
-def create_dataset_metalink(source, name):
-    netrc_creds = pda.get_netrc_credentials()
+# # TODO: MUST create vv/vh tiles along with their statistical water mask
+# # TODO: Can take products.metalink file as input
+# # TODO: store in proper dataset folder unless told otherwise
+# # TODO: Generates a metadata.json file with info on the dataset
+# @cli.command()
+# @click.argument('source', type=click.Path())
+# @click.argument('name', type=str)
+# def create_dataset_metalink(source, name):
+#     netrc_creds = pda.get_netrc_credentials()
 
-    with TemporaryDirectory() as tmpdir_name:
-        print(f'created temporary directory: {tmpdir_name}')
-        pda.download_metalink_products(source, Path(tmpdir_name), netrc_creds)
+#     with TemporaryDirectory() as tmpdir_name:
+#         print(f'created temporary directory: {tmpdir_name}')
+#         pda.download_metalink_products(source, Path(tmpdir_name), netrc_creds)
 
-    click.echo("NEEDS TO BE IMPLEMENTED!")
+#     click.echo("NEEDS TO BE IMPLEMENTED!")
 
-@cli.command()
-@click.argument('model', type=str)
-@click.argument('name', type=str)
-@click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
-@click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
-def mask_subscription(model, name, date_start, date_end):
-    api = hyp3_login()
+# @cli.command()
+# @click.argument('model', type=str)
+# @click.argument('name', type=str)
+# @click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
+# @click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
+# def mask_subscription(model, name, date_start, date_end):
+#     api = hyp3_login()
 
-    # date_start = date_start.date()
-    # date_end = date_end.date()
+#     # date_start = date_start.date()
+#     # date_end = date_end.date()
 
-    user = User(name, model, api)
-    mask = Mask(user, name, date_start, date_end)
+#     user = User(name, model, api)
+#     mask = Mask(user, name, date_start, date_end)
 
-    mask.mask_subscription()
-    click.echo(f"Start: {date_start}, End: {date_end} ")
+#     mask.mask_subscription()
+#     click.echo(f"Start: {date_start}, End: {date_end} ")
 
 
 
-@cli.command()
-@click.argument('model', type=str)
-@click.argument('name', type=str)
-@click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
-@click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
-def mask_hyp3(model, name, date_start, date_end):
-    api = hyp3_login()
-    subscription = grab_subscription(api)
-    sub_id = subscription['id']
-    date_start = date_start.date()
-    date_end = date_end.date()
-    click.echo(f"Start: {date_start}, End: {date_end} ")
+# @cli.command()
+# @click.argument('model', type=str)
+# @click.argument('name', type=str)
+# @click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
+# @click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
+# def mask_hyp3(model, name, date_start, date_end):
+#     api = hyp3_login()
+#     subscription = grab_subscription(api)
+#     sub_id = subscription['id']
+#     date_start = date_start.date()
+#     date_end = date_end.date()
+#     click.echo(f"Start: {date_start}, End: {date_end} ")
 
 
 

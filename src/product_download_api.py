@@ -15,9 +15,6 @@ import getpass
 from src.config import PROJECT_DIR
 
 
-# TODO: Move functions into a Class
-
-
 @dataclass
 class MetalinkProduct:
     """Object to hold data for each file in a products.metalink file."""
