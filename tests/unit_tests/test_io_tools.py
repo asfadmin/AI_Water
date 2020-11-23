@@ -24,13 +24,12 @@ def test_extract_from_product():
     input_path = Path('S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9.zip')
     output_path = input_path.parent
     vv, vh = extract_from_product(input_path, output_path)
-    expected_list = ['S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9_VH.tif', 
+    expected_set = {'S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9_VH.tif', 
                      'S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9_VV.tif',
-                     'S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9.zip'
-                ]
+                     'S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9.zip'}
     expected_vv = output_path / 'S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9_VV.tif'
     expected_vh = output_path / 'S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9_VH.tif'
-    actual_list = os.listdir()
-    assert expected_list == actual_list, f"EXPECTED={expected_list}, GOT={actual_list}"
+    actual_set = set(os.listdir())
+    assert expected_set == actual_set, f"EXPECTED={expected_set}, GOT={actual_set}"
     assert expected_vv == vv, f"EXPECTED={expected_vv}, GOT={vv}"
     assert expected_vh == vh, f"EXPECTED={expected_vh}, GOT={vh}"
