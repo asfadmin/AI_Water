@@ -8,6 +8,8 @@ __pycache__/
 
 # Environments
 .venv
+.devcontainer
+.vscode
 
 # Neural Network Stuff
 /datasets/
@@ -24,3 +26,7 @@ VV_*
 mask/*
 .idea*
 AI_Water.egg*
+
+# other
+.netrc
+differenceTest/

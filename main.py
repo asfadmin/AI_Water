@@ -30,7 +30,7 @@ def train_wrapper(args: Namespace) -> None:
             return
 
         model = create_model_masked(model_name)
-        history = {"loss": [], "acc": [], "val_loss": [], "val_acc": []}
+        history = {"loss": [], "accuracy": [], "val_loss": [], "val_accuracy": []}
 
     train_model(model, history, args.dataset, args.epochs)
 

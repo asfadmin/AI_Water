@@ -20,7 +20,33 @@ test
     - [Mask Subscriptions](#Mask-Subscription)
     - [Create Mask](#Create-Mask)
     - [Make Data](#Make-Data)
-## Installation
+# Installation
+
+##Docker (recommended)
+The recommended installation method is by using Docker.
+Which can be done by using Make commands.
+while in the AI_Water directory, run the following command:
+```terminal
+$ make container
+```
+There can sometimes be issues getting the GUI to output from the container.
+To test this run the following while in the container:
+```terminal
+$ apt-get install x11-apps -y; xeyes
+```
+You should see the following:
+
+![xeyes screnshot](xeyes.png?raw=true "xeyes")
+
+If you do not see xeyes (the googly eyes) then any script with a GUI will most likely not work.
+run the following command on the host machine (not in the container),
+and then try running xeyes again.
+```terminal
+$ xhost +
+```
+
+### Pipenv
+This is no longer the recommended installation method, but can be used in conjunction with Docker.
 Installing dependencies is straight forward with pipenv. First install the
 GDAL dev libraries:
 ```terminal
@@ -39,7 +65,7 @@ The last step is to run the following command in the terminal:
 $ pip install -e .
 ```
 
-### Installing Gdal
+#### Installing Gdal
 NOTE: *If you have trouble installing PyGDAL make sure that the package version
 in `Pipfile` corresponds to the version of your GDAL installation, or run the commands below.*
 
@@ -51,12 +77,7 @@ $ gdal-config --version
 
 Next run this command:
 ```terminal
-$ pip install gdal==(**YOUR VERSION***)
-```
-
-If an error appears try running the following command:
-```terminal
-$ pip install pygdal==(**YOUR VERSION***)
+$ pipenv install pygdal=="`gdal-config --version`.*"
 ```
 
 ### Tiling tif Images
@@ -191,13 +212,9 @@ AI_Water
 
 ## Running Unit Tests
 This project uses `pytest` for unit testing. The easiest way to run the tests is
-with pipenv. Make sure you have installed the development dependencies with:
+with this make command:
 ```terminal
-$ pipenv install --dev
-```
-Then you can run the tests and get the full report with:
-```terminal
-$ pipenv run tests
+$ make test
 ```
 
 ## Training a Neural Network

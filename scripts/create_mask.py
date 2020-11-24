@@ -56,8 +56,9 @@ def main(
 
     mask[invalid_pixels] = 0
     write_mask_to_file(mask, outfile, f.GetProjection(), f.GetGeoTransform())
-    
+
     f = None
+
 
 def pad_image(image: np.ndarray, to: int) -> np.ndarray:
     height, width = image.shape

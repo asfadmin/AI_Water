@@ -1,6 +1,6 @@
 {
-  "acc": [],
+  "accuracy": [],
   "loss": [],
-  "val_acc": [],
+  "val_accuracy": [],
   "val_loss": []
 }
