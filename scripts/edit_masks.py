@@ -6,10 +6,72 @@
 import re
 from argparse import ArgumentParser
 import os
+from typing import Tuple
+
 from src.plots import edit_predictions
 from src.asf_cnn import test_model_masked
 from src.model import load_model
-from src.prepare_64_data import break_up_images
+from src.config import PROJECT_DIR
+from osgeo import gdal
+from src.config import NETWORK_DEMS as dems
+
+def make_tiles(ifname: str,
+               tile_size: Tuple[int, int],
+               folder: str) -> None:
+    """ Takes a .tiff file and breaks it into smaller .tiff files. """
+
+    img_fpath = os.path.join(PROJECT_DIR, ifname, folder)
+
+    datafile = gdal.Open(img_fpath)
+    try:
+        if datafile.RasterXSize > 2048:
+            return
+    except Exception:
+        return
+
+    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
+    step_x, step_y = tile_size
+
+    xsize = datafile.RasterXSize
+    ysize = datafile.RasterYSize
+
+    for x in range(0, xsize, step_x):
+        for y in range(0, ysize, step_y):
+            gdal.Translate(
+                f'{iftitle}.x{x}_y{y}.{ifext}',
+                img_fpath,
+                srcWin=[x, y, step_x, step_y],
+                format="GTiff"
+            )
+
+
+def break_up_images(dir: str) -> None:
+    """ Breaks an image down to 64 x 64 """
+    dir_fpath = os.path.join(PROJECT_DIR, dir)
+    IMG_FOLDER = re.compile(f'(.*){dir}(.*)')
+    for root, dirs, imgs in os.walk(dir_fpath):
+        for img in imgs:
+            m = re.match(IMG_FOLDER, root)
+            if not m:
+                continue
+
+            if img.endswith('.xml'):
+                os.remove(img)
+
+            _, folder = m.groups()
+            try:
+                img_path = os.path.join(root, img)
+                make_tiles(dir, (dems, dems), img_path)
+            except FileNotFoundError:
+                pass
+
+            try:
+                os.remove(os.path.join(dir, folder, img))
+            except FileNotFoundError:
+                pass
+
+
+
 
 
 def remove_64(folder: str) -> None:

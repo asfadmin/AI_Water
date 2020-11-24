@@ -22,15 +22,90 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
     - [Make Data](#Make-Data)
 # Installation
 
-##Docker (recommended)
-The recommended installation method is by using Docker.
-Which can be done by using Make commands.
-while in the AI_Water directory, run the following command:
+## Requirements
+- python3.8
+- GDAL
+
+
+
+## GDAL
+
+First install the
+GDAL dev libraries:
+```terminal
+$ sudo apt install libgdal-dev
+```
+
+
+## Pipenv
+We are using pipenv to track dependicies instead of a requirements.txt file.
+So `pipenv` will have to be installed.
+```terminal
+$ pip3 install pipenv
+```
+
+Then create a new virtual environment inside of the AI_Water directory.
+
+```terminal
+$ virtualenv .venv --python=python3.8
+```
+
+
+Then enter the new virtual environment:
+```terminal
+$ pipenv shell
+```
+
+
+Install the python packages from the pipfile:
+```terminal
+$ pipenv install --dev
+```
+Specifying the `--dev` flag will also install dependencies you will need to run
+the training and unit tests.
+
+Finally run setup.py:
+```terminal
+$ pip3 install -e .
+```
+
+
+
+## Installing pygdal
+
+GDAL can take some troubleshooting to get working properly in a virtual environment.
+This is why we use the pygdal wrapper.
+
+NOTE: *pygdal must have the same version as GDAL to work!*
+
+To find GDALs package version run the following command:
+```terminal
+$ gdal-config --version
+```
+
+Next run this command, inputing your version of GDAL:
+```terminal
+$ pip3 install pygdal==<Your GDAL version>
+```
+
+or you can also try this:
+```terminal
+$ pip3 install pygdal=="`gdal-config --version`.*"
+```
+
+
+
+
+## Docker
+
+To run the container version with proper volume mounting run the make command:
 ```terminal
 $ make container
 ```
+
 There can sometimes be issues getting the GUI to output from the container.
 To test this run the following while in the container:
+NOTE: *Outputing gui via container is expiremental. It may not work as expected.*
 ```terminal
 $ apt-get install x11-apps -y; xeyes
 ```
@@ -45,40 +120,9 @@ and then try running xeyes again.
 $ xhost +
 ```
 
-### Pipenv
-This is no longer the recommended installation method, but can be used in conjunction with Docker.
-Installing dependencies is straight forward with pipenv. First install the
-GDAL dev libraries:
-```terminal
-$ sudo apt-get install libgdal-dev
-```
-
-Then install the python packages:
-```terminal
-$ pipenv install --dev
-```
-Specifying the `--dev` flag will also install dependencies you will need to run
-the training and unit tests.
-
-The last step is to run the following command in the terminal:
-```terminal
-$ pip install -e .
-```
-
-#### Installing Gdal
-NOTE: *If you have trouble installing PyGDAL make sure that the package version
-in `Pipfile` corresponds to the version of your GDAL installation, or run the commands below.*
 
 
-To find GDALs package version run the following command:
-```terminal
-$ gdal-config --version
-```
 
-Next run this command:
-```terminal
-$ pipenv install pygdal=="`gdal-config --version`.*"
-```
 
 ### Tiling tif Images
 To tile your tif image create a folder in the same directory as

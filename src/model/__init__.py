@@ -12,7 +12,7 @@ import numpy as np
 from keras.models import Model
 from keras.models import load_model as kload_model
 
-from ..config import MODELS_DIR, NETWORK_DEMS
+from ..config import MODEL_DIR, NETWORK_DEMS
 from ..asf_typing import History
 
 
@@ -58,7 +58,7 @@ def name_tag_from_model_name(model_name: str) -> Tuple[str, str]:
 
 
 def path_from_model_name_tag(name: str, tag: str) -> str:
-    return os.path.join(MODELS_DIR, name, f"{tag}.h5")
+    return os.path.join(MODEL_DIR, name, f"{tag}.h5")
 
 
 def save_model(

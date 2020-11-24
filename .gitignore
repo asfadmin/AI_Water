@@ -27,6 +27,17 @@ mask/*
 .idea*
 AI_Water.egg*
 
+# scratch files
+scratch*
+
 # other
-.netrc
+/.netrc
 differenceTest/
+synthetic*
+
+# Notebook
+.ipynb_checkpoints/*
+
+# exceptions
+!tests/unit_tests/test_product_download_api/test_netrc
+!tests/unit_tests/test_io_tools/S1A_IW_20191203T224518_DVP_RTC10_G_gpuned_54B9.zip

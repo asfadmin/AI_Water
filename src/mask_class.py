@@ -4,15 +4,18 @@ import shutil
 from datetime import datetime
 from subprocess import call
 from zipfile import ZipFile
+from src.geo_utility import create_water_mask
 
 from src.api_functions import download_products, grab_subscription
 from src.user_class import User
 
 
 class Mask:
-    def __init__(self, user: User, mask_name):
+    def __init__(self, user: User, mask_name, start_time, end_time):
         self.ZIP_REGEX = re.compile(r'(.*).zip')  # Move these?
         self.SAR_REGEX = re.compile(r'(.*)_(VH|VV).tif')  # Move these?
+        self.start_time = start_time
+        self.end_time = end_time
 
         self.user = user
         self.mask_name = mask_name
@@ -24,11 +27,16 @@ class Mask:
         count = 0
         while True:
             print(f"Page: {count + 1}")
-            self.products = self.user.api.get_products(
+            response = self.user.api.get_products(
                 sub_id=self.subscription_id, page=count, page_size=500
             )
 
-            self.products = triage_products(self.products)
+            for product in response:
+                if product_in_time_bounds(product['granule'], self.start_time, self.end_time):
+                    self.products.append(product)
+
+
+            # self.products = triage_products(self.products)
 
             self._mask_products()
             count += 1
@@ -61,7 +69,8 @@ class Mask:
         vv_img, vh_img, product_name = self._get_product_metadata(product_zip_name)
         output = os.path.join(self.user.mask_path, f"{product_name}_{product_count}.tif")
         # Creating mask
-        call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
+        # call(f"python scripts/create_mask.py {self.user.model_path} {vv_img} {vh_img} {output}".split())
+        create_water_mask(self.user.model_path, vv_img, vh_img, output)
         shutil.rmtree(product_name)
         os.remove(f"{product_name}.zip")
 
@@ -123,3 +132,31 @@ def remove_img(img_path):
         return True
     except FileNotFoundError and IsADirectoryError:
         return False
+
+def product_time(product_name):
+    product_time_regex = re.compile(
+        r"S.*1SDV_(?P<start_year>\d{4})(?P<start_month>\d{2})(?P<start_day>\d{2})T(?P<start_hour>\d{2})("
+        r"?P<start_minute>\d{2})(?P<start_second>\d{2})_(?P<end_year>\d{4})(?P<end_month>\d{2})(?P<end_day>\d{2})T("
+        r"?P<end_hour>\d{2})(?P<end_minute>\d{2})(?P<end_second>\d{2})_*")
+
+    regex_match = re.match(product_time_regex, product_name)
+    time_dict = regex_match.groupdict()
+
+    # converts all dates/times values in dictionary from int to string
+    for k, v in time_dict.items():
+        time_dict[k] = int(v)
+
+    start = datetime(time_dict["start_year"], time_dict["start_month"], time_dict["start_day"],
+                     time_dict["start_hour"], time_dict["start_minute"], time_dict["start_second"])
+
+    end = datetime(time_dict["end_year"], time_dict["end_month"], time_dict["end_day"],
+                   time_dict["end_hour"], time_dict["end_minute"], time_dict["end_second"])
+
+
+    return start, end
+
+
+def product_in_time_bounds(product_name, start, end):
+    prod_start, prod_end = product_time(product_name)
+
+    return prod_start > start and prod_end < end

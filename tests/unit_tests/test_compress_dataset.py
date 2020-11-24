@@ -1,16 +1,15 @@
 """
  Created By:   Jason Herning
- Date Started: 07-05-2020
+ Date Started: 08-07-2020
  File Name:    test_config.py
- Description:  unit test for make_data.py
+ Description:  unit test for compressing datasets
 """
 
 import os
 
 import pytest
-from scripts.make_data import remove_subdirectories, compress_datasets, get_sar_paths, make_directory_dataset, \
+from src.io_tools import remove_subdirectories, compress_datasets, get_sar_paths, make_directory_dataset, \
     list_sar_directory
-
 from pathlib import Path
 from src.asf_typing import sar_set
 import random
@@ -20,7 +19,7 @@ import random
 def supply_datadir_cwd(datadir, monkeypatch):
     """Fixture to patch current working directory to datadir."""
     monkeypatch.chdir(datadir)
-    test_make_data_path = Path('../test_make_data').resolve()
+    test_make_data_path = Path(f'../test_compress_dataset').resolve()
     monkeypatch.chdir(test_make_data_path)
 
 
@@ -153,7 +152,4 @@ def test_compress_datasets(input_path, expected_sars, expected_random_calls, moc
     assert spy_random.call_count == expected_random_calls, f"got {spy_random} random calls, expected {expected_random_calls}. "
     assert os.listdir(input_path) == ['train', 'test'], f"tree: {tree(Path(input_path))}"
     assert total_sars == expected_sars, f"rglob: {list_sar_directory(input_path)}"
-
-
-
 

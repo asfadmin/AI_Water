@@ -8,7 +8,7 @@ from hypothesis import given
 from keras.layers import Dense, Flatten
 from keras.models import Model, Sequential
 
-from src.config import PROJECT_DIR
+from src.config import PROJECT_DIR, MODEL_DIR
 from src.model import (
     ModelType, load_history, load_model, model_type, path_from_model_name,
     save_history, save_model
@@ -25,7 +25,7 @@ def model_name(tmpdir: py.path.local):
     shutil.copytree(
         "tests/data/models/sample_model", temp_model_dir.join(model)
     )
-    with mock.patch("src.model.MODELS_DIR", temp_model_dir):
+    with mock.patch("src.model.MODEL_DIR", temp_model_dir):
         yield model
 
 
@@ -66,14 +66,18 @@ def test_create_model():
 
 
 def test_path_from_model_name():
+    
     assert path_from_model_name("example_net") == os.path.join(
-        PROJECT_DIR, "models", "example_net", "latest.h5"
+        MODEL_DIR, "example_net", "latest.h5"
+    )    
+    assert path_from_model_name("example_net") == os.path.join(
+        MODEL_DIR, "example_net", "latest.h5"
     )
     assert path_from_model_name("example_net:latest") == os.path.join(
-        PROJECT_DIR, "models", "example_net", "latest.h5"
+        MODEL_DIR, "example_net", "latest.h5"
     )
     assert path_from_model_name("example_net:epoch1") == os.path.join(
-        PROJECT_DIR, "models", "example_net", "epoch1.h5"
+        MODEL_DIR, "example_net", "epoch1.h5"
     )
     with pytest.raises(ValueError):
         path_from_model_name("A\nB")
@@ -82,7 +86,7 @@ def test_path_from_model_name():
 @given(model_component(), model_component())
 def test_fuzz_path_from_model_name(network_name, tag):
     assert path_from_model_name(f"{network_name}:{tag}") == os.path.join(
-        PROJECT_DIR, "models", network_name, f"{tag}.h5"
+        MODEL_DIR, network_name, f"{tag}.h5"
     )
 
 

@@ -102,6 +102,8 @@ def download_products(products: List, i: int, product) -> None:
         how many products have finished. """
 
     print(f'Downloading {i+1} granule of {len(products)}')
+
+    # TODO: duplicate to get_netrc_credentials in product_download_api.py
     with open('.netrc', 'r') as f:
         contents = f.read()
     username = contents.split(' ')[3]
