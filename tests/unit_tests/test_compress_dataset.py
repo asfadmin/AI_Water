@@ -150,6 +150,6 @@ def test_compress_datasets(input_path, expected_sars, expected_random_calls, moc
     compress_datasets(input_path, holdout=.2)
 
     assert spy_random.call_count == expected_random_calls, f"got {spy_random} random calls, expected {expected_random_calls}. "
-    assert os.listdir(input_path) == ['train', 'test'], f"tree: {tree(Path(input_path))}"
+    assert set(os.listdir(input_path)) == {'train', 'test'}, f"tree: {tree(Path(input_path))}"
     assert total_sars == expected_sars, f"rglob: {list_sar_directory(input_path)}"
 
