@@ -18,6 +18,12 @@ import src.io_tools as io
 from src.mask_class import Mask
 from src.user_class import User
 
+from src.asf_cnn import test_model_masked, train_model
+from src.model import load_model, path_from_model_name
+from src.model.architecture.masked import create_model_masked
+from src.plots import edit_predictions, plot_predictions
+
+
 
 @click.group()
 def cli():
@@ -113,6 +119,18 @@ def mask_directory(model, source_dir, output_dir, name):
             gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
             print(f"Mask for {product.stem} is finished")
 
+
+@cli.command()
+@click.argument('model', type=str)
+@click.argument('dataset', type=str)
+@click.option('-e', '--epochs', default=10, type=int)
+def train(model, dataset, epochs):
+    # model_path = path_from_model_name(model)
+
+    model = create_model_masked(model)
+    history = {"loss": [], "accuracy": [], "val_loss": [], "val_accuracy": []}
+
+    train_model(model, history, dataset, epochs)
 
 
 
