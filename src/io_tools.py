@@ -7,14 +7,27 @@
 import random
 import re
 import shutil
+import zipfile
+import json
+from osgeo import ogr
 from itertools import groupby
 from pathlib import Path
-import zipfile
-from pprint import pprint
+from shapely.geometry import Polygon
+from tempfile import TemporaryDirectory
 
 from src.asf_typing import sar_set
 from src.config import PRODUCTS_DIR, AOI_DIR, DATASETS_DIR, MODEL_DIR, MASK_DIR, TENSORBOARD_DIR, TYPE_REGEX
-from tempfile import TemporaryDirectory
+
+
+def polygon_from_shapefile(shp_path: Path) -> Polygon:
+    """Take Path to shapefile and return shapely Polygon"""
+    file = ogr.Open(str(shp_path))
+    layer = file.GetLayer(0)
+    feature = layer.GetFeature(0)
+    first = feature.ExportToJson()
+    first = json.loads(first)
+    shp_geom = Polygon([tuple(coords) for coords in first['geometry']['coordinates'][0]])
+    return shp_geom
 
 
 def extract_from_product(product_path, output_dir):
@@ -32,7 +45,7 @@ def extract_from_product(product_path, output_dir):
                         vv = output_dir / file_name
                     if m.group(4) == 'VH':
                         vh = output_dir / file_name
-                    zip_ref.extract(archive_name,path=tmpdir_name)
+                    zip_ref.extract(archive_name, path=tmpdir_name)
                     shutil.move(f"{tmpdir_name}/{archive_name}", output_dir)
     return vv, vh
 
@@ -42,15 +55,12 @@ def list_products(dir_path: Path) -> list:
     return [product for product in product_glob]
 
 
-
-
 # TODO: check that directories exist
 def create_directories() -> None:
     """Creates the directories for storing our data"""
     directories = [PRODUCTS_DIR, AOI_DIR, DATASETS_DIR, MODEL_DIR, MASK_DIR, TENSORBOARD_DIR]
     for directory in directories:
         directory.mkdir(parents=True)
-
 
 
 def list_sar_directory(directory_path: str) -> list:
@@ -124,4 +134,3 @@ def compress_datasets(directory_path: str, holdout: float) -> None:
     make_directory_dataset(directory_path)
     divide_sar_files(dataset_path, sar_sets, holdout)
     remove_subdirectories(directory_path)
-
