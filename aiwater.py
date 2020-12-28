@@ -23,7 +23,7 @@ from src.model import load_model, path_from_model_name
 from src.model.architecture.masked import create_model_masked
 from src.plots import edit_predictions, plot_predictions
 
-from src.geo_utility import difference, intersection
+from src.geo_utility import difference, intersection, make_tiles
 from src.hyp3lib_functions import data2geotiff, geotiff2data
 
 
@@ -145,6 +145,12 @@ def mask_difference(first_mask, second_mask, name):
     mask_difference = difference(mask1_intersect, mask2_intersect)
     transform = (bounds[0], mask1_transform[1], 0, bounds[3], 0, mask1_transform[5])
     data2geotiff(mask_difference, transform, projection, data_type, 0, name)
+
+@cli.command()
+@click.argument('image', type=str)
+@click.argument('tile_size', default=512, type=int)
+def tile_image(image, tile_size):
+    make_tiles(image, (tile_size, tile_size))
 
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
