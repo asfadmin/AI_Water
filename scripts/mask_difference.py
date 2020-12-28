@@ -34,13 +34,14 @@ def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
     """takes in two mask,  return mask with a 1 for water added,
        and 2 for water removed. """
     mask_final = np.zeros(first_mask.shape)
-    for i in range(mask_final.shape[0]):
-        for j in range(mask_final.shape[1]):
-            if first_mask[i][j] == 0 and second_mask[i][j] == 1:
-                mask_final[i][j] = 1
-            if first_mask[i][j] == 1 and second_mask[i][j] == 0:
-                mask_final[i][j] = 2
-
+    gained = np.where(
+        np.logical_and(first_mask == 0, second_mask == 1)
+    )
+    lost = np.where(
+        np.logical_and(first_mask == 1, second_mask == 0)
+    )
+    mask_final[gained] = 1
+    mask_final[lost] = 2
     return mask_final
 
 
