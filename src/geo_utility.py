@@ -12,6 +12,7 @@ from src.config import NETWORK_DEMS as dems
 from pathlib import Path
 import numpy as np
 
+from src.hyp3lib_functions import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
 
 # TODO: sepearte translate as sperate function that can be tested. (maybe)
 def write_tiles(input_tif: str, output_directory: str, tile_size: int, name: str):
@@ -133,3 +134,35 @@ def create_water_mask(
 
     # Needed?
     f = None
+
+def intersection(raster1: str, raster2: str):
+    """Takes in the path of 2 GeoTiff raster's. Then returns the intersection between them"""
+
+    raster1_ds = gdal.Open(raster1)
+    raster2_ds = gdal.Open(raster2)
+    band1 = raster1_ds.GetRasterBand(1)
+    band2 = raster2_ds.GetRasterBand(1)
+
+    raster1_polygon, raster2_polygon, overlap, _, pixel_size = geotiff_overlap(raster1, raster2, 'intersection')
+    x1, y1, col1, row1 = overlap_indices(raster1_polygon, overlap, pixel_size)
+    x2, y2, col2, row2 = overlap_indices(raster2_polygon, overlap, pixel_size)
+
+    array1 = band1.ReadAsArray(x1, y1, col1, row1)
+    array2 = band2.ReadAsArray(x2, y2, col2, row2)
+
+    return array1, array2, col1, row1, overlap.GetEnvelope()
+
+
+def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
+    """takes in two mask,  return mask with a 1 for water added,
+       and 2 for water removed. """
+    mask_final = np.zeros(first_mask.shape)
+    gained = np.where(
+        np.logical_and(first_mask == 0, second_mask == 1)
+    )
+    lost = np.where(
+        np.logical_and(first_mask == 1, second_mask == 0)
+    )
+    mask_final[gained] = 1
+    mask_final[lost] = 2
+    return mask_final
