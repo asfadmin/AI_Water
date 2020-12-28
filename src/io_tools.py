@@ -6,6 +6,7 @@
 
 import random
 import re
+import os
 import shutil
 from itertools import groupby
 from pathlib import Path
@@ -125,3 +126,45 @@ def compress_datasets(directory_path: str, holdout: float) -> None:
     divide_sar_files(dataset_path, sar_sets, holdout)
     remove_subdirectories(directory_path)
 
+def prepare_mask_data(directory: str, holdout: float) -> None:
+    """ Renames and moves mask and tile images. """
+    EXT = "tiff|tif|TIFF|TIF"
+    TILE_REGEX = re.compile(f"(.*)_VH_(.*)\\.({EXT})")
+
+    for file in os.listdir(directory):
+        m = re.match(TILE_REGEX, file)
+        if not m:
+            continue
+
+        pre, num, ext = m.groups()
+        new_vh_name = f"{pre}_{num}.vh.{ext}".lower()
+        mask_name = f"{pre}_MASK_{num}.{ext}"
+        new_mask_name = f"{pre}_{num}.mask.{ext}".lower()
+        vv_name = f"{pre}_VV_{num}.{ext}"
+        new_vv_name = f"{pre}_{num}.vv.{ext}".lower()
+
+        if not os.path.isfile(os.path.join(directory, mask_name)):
+            print(f"Tile: {file} is missing a mask {mask_name}!")
+            continue
+
+        if not os.path.isfile(os.path.join(directory, vv_name)):
+            print(f"Tile: {file} is missing {vv_name}!")
+            continue
+
+        test_or_train = 'train' if random.random() > holdout else 'test'
+
+        folder = os.path.join(directory, test_or_train)
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+
+        os.rename(
+            os.path.join(directory, file), os.path.join(folder, new_vh_name)
+        )
+        os.rename(
+            os.path.join(directory, vv_name),
+            os.path.join(folder, new_vv_name)
+        )
+        os.rename(
+            os.path.join(directory, mask_name),
+            os.path.join(folder, new_mask_name)
+        )
