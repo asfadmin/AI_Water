@@ -11,7 +11,9 @@ import os
 from scipy import ndimage
 from osgeo.gdalconst import GA_ReadOnly
 from osgeo import gdal, ogr, osr
+from typing import Tuple
 import numpy as np
+
 
 
 def overlap_indices(polygon, boundary, pixelSize):
@@ -399,3 +401,15 @@ def cut_blackfill(data, geoTrans):
     geoTrans = (originX, pixelSize, 0, originY, 0, -pixelSize)
 
     return (data, colFirst, rowFirst, geoTrans)
+
+def check_dependencies(deps: Tuple[str, ...]) -> bool:
+    global_vars = globals()
+
+    for dep in deps:
+        if dep not in global_vars:
+            print(
+                f"This function requires {dep}. "
+                "Please install it in the current shell and try again."
+            )
+            return False
+    return True
