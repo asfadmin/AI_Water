@@ -23,6 +23,8 @@ from src.model import load_model, path_from_model_name
 from src.model.architecture.masked import create_model_masked
 from src.plots import edit_predictions, plot_predictions
 
+from src.geo_utility import difference, intersection
+from src.hyp3lib_functions import data2geotiff, geotiff2data
 
 
 @click.group()
@@ -132,6 +134,17 @@ def train(model, dataset, epochs):
 
     train_model(model, history, dataset, epochs)
 
+@cli.command()
+@click.argument('first_mask', type=str)
+@click.argument('second_mask', type=str)
+@click.argument('name', type=str)
+def mask_difference(first_mask, second_mask, name):
+    """main function to generate difference mask and optionally shape"""
+    _, mask1_transform, projection, epsg, data_type, no_data = geotiff2data(first_mask)
+    mask1_intersect, mask2_intersect, col, row, bounds = intersection(first_mask, second_mask)
+    mask_difference = difference(mask1_intersect, mask2_intersect)
+    transform = (bounds[0], mask1_transform[1], 0, bounds[3], 0, mask1_transform[5])
+    data2geotiff(mask_difference, transform, projection, data_type, 0, name)
 
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
@@ -181,11 +194,6 @@ def train(model, dataset, epochs):
 #     date_start = date_start.date()
 #     date_end = date_end.date()
 #     click.echo(f"Start: {date_start}, End: {date_end} ")
-
-
-
-
     
-
 if __name__ == '__main__':
     cli()
