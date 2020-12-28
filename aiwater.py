@@ -25,6 +25,7 @@ from src.plots import edit_predictions, plot_predictions
 
 from src.geo_utility import difference, intersection, make_tiles
 from src.hyp3lib_functions import data2geotiff, geotiff2data
+from src.io_tools import prepare_mask_data
 
 
 @click.group()
@@ -139,7 +140,7 @@ def train(model, dataset, epochs):
 @click.argument('second_mask', type=str)
 @click.argument('name', type=str)
 def mask_difference(first_mask, second_mask, name):
-    """main function to generate difference mask and optionally shape"""
+    """generate difference mask"""
     _, mask1_transform, projection, epsg, data_type, no_data = geotiff2data(first_mask)
     mask1_intersect, mask2_intersect, col, row, bounds = intersection(first_mask, second_mask)
     mask_difference = difference(mask1_intersect, mask2_intersect)
@@ -150,7 +151,15 @@ def mask_difference(first_mask, second_mask, name):
 @click.argument('image', type=str)
 @click.argument('tile_size', default=512, type=int)
 def tile_image(image, tile_size):
+    """tile tif image to tiles of tile_size with padding"""
     make_tiles(image, (tile_size, tile_size))
+
+@cli.command()
+@click.argument('directory', type=str)
+@click.argument('holdout', default=0.2, type=float)
+def divide_dataset(directory, holdout):
+    """divide dataset into test and train directories based on holdout"""
+    prepare_mask_data(directory, holdout)
 
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
