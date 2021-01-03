@@ -131,13 +131,9 @@ def _show_plot(tif_array, file, image_labels, close):
     pyplot.show()
 
 
-def prepare_data(directory: str, holdout: float):
-    """ Moves images to the correct directory structure. """
-    prepare_mask_data(directory, holdout)
-
 # TODO: does the exact same thing as div_imgs in make_data!!!; STAY DRY
 def prepare_mask_data(directory: str, holdout: float) -> None:
-    """ Renames and moves mask and tile images. """
+    """ Renames and moves mask and tile images to train and test directories"""
     TILE_REGEX = re.compile(f"(.*)_VH_(.*)\\.({EXT})")
 
     for file in os.listdir(directory):
