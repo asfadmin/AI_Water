@@ -23,10 +23,10 @@ from src.model import load_model, path_from_model_name
 from src.model.architecture.masked import create_model_masked
 from src.plots import edit_predictions, plot_predictions
 
-from src.geo_utility import difference, intersection, make_tiles
+from src.geo_utility import difference, intersection
 from src.hyp3lib_functions import data2geotiff, geotiff2data
-from src.io_tools import prepare_mask_data
 
+from src.prepare_data import make_tiles, prepare_mask_data
 
 @click.group()
 def cli():

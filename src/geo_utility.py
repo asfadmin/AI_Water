@@ -16,7 +16,7 @@ import src.config as config
 from pathlib import Path
 import numpy as np
 
-from src.hyp3lib_functions import check_dependencies, overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
+from src.hyp3lib_functions import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
 
 
 # TODO: sepearte translate as sperate function that can be tested. (maybe)
@@ -171,33 +171,3 @@ def difference(first_mask: np.ndarray, second_mask: np.ndarray) -> np.ndarray:
     mask_final[gained] = 1
     mask_final[lost] = 2
     return mask_final
-
-def make_tiles(ifname: str,
-               tile_size: Tuple[int, int],
-               folder='prep_tiles') -> None:
-    """ Takes a .tiff file and breaks it into smaller .tiff files. """
-    EXT = "tiff|tif|TIFF|TIF"
-    FILENAME_REGEX = re.compile(f'.*_ulx_.*\\.(?:{EXT})')
-    
-    if folder == "prep_tiles":
-        img_fpath = os.path.join(config.PROJECT_DIR, folder, ifname)
-    else:
-        img_fpath = os.path.join(config.PROJECT_DIR, ifname, folder)
-    if not check_dependencies(('gdal', )):
-        return
-
-    datafile = gdal.Open(img_fpath)
-    iftitle, ifext = re.match(r'(.*)\.(tiff|tif)', img_fpath).groups()
-    step_x, step_y = tile_size
-
-    xsize = datafile.RasterXSize
-    ysize = datafile.RasterYSize
-
-    for x in range(0, xsize, step_x):
-        for y in range(0, ysize, step_y):
-            gdal.Translate(
-                f'{iftitle}_ulx_{x}_uly_{y}.{ifext}',
-                img_fpath,
-                srcWin=[x, y, step_x, step_y],
-                format="GTiff"
-            )

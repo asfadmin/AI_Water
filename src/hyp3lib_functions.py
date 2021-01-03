@@ -401,15 +401,3 @@ def cut_blackfill(data, geoTrans):
     geoTrans = (originX, pixelSize, 0, originY, 0, -pixelSize)
 
     return (data, colFirst, rowFirst, geoTrans)
-
-def check_dependencies(deps: Tuple[str, ...]) -> bool:
-    global_vars = globals()
-
-    for dep in deps:
-        if dep not in global_vars:
-            print(
-                f"This function requires {dep}. "
-                "Please install it in the current shell and try again."
-            )
-            return False
-    return True
