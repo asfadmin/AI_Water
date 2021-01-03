@@ -26,7 +26,7 @@ from src.plots import edit_predictions, plot_predictions
 from src.geo_utility import difference, intersection
 from src.hyp3lib_functions import data2geotiff, geotiff2data
 
-from src.prepare_data import make_tiles, prepare_mask_data
+from src.prepare_data import make_tiles, prepare_mask_data, groom_imgs, move_imgs
 
 @click.group()
 def cli():
@@ -161,6 +161,20 @@ def divide_dataset(directory, holdout):
     """divide dataset into test and train directories based on holdout"""
     prepare_mask_data(directory, holdout)
 
+
+@cli.command()
+@click.argument('directory', type=str)
+@click.argument('holdout', default=0.2, type=float)
+def groom_images(directory, holdout):
+    """groom images to remove inaccurate masks"""
+    groom_imgs(directory)
+
+@cli.command()
+@click.argument('directory', type=str)
+@click.argument('new_directory', type=str)
+def move_images(directory, new_directory):
+    """groom images to remove inaccurate masks"""
+    move_imgs(directory, new_directory)
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
 # # TODO: Can take products.metalink file as input
