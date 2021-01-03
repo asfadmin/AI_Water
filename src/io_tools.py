@@ -126,8 +126,10 @@ def compress_datasets(directory_path: str, holdout: float) -> None:
     divide_sar_files(dataset_path, sar_sets, holdout)
     remove_subdirectories(directory_path)
 
-def prepare_mask_data(directory: str, holdout: float) -> None:
+
+def prepare_data(directory: str, holdout: float) -> None:
     """ Renames and moves mask and tile images. """
+
     EXT = "tiff|tif|TIFF|TIF"
     TILE_REGEX = re.compile(f"(.*)_VH_(.*)\\.({EXT})")
 
