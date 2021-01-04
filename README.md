@@ -14,13 +14,6 @@ Using Convolutional Neural Networks to generate water masks from SAR data.
 - [Training a Neural Network](#Training-a-Neural-Network)
     - [Examples](#Examples)
     - [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics)
-- [Scripts](#Scripts)
-    - [Identify Water](#Identify-Water)
-    - [Info Model](#Info-Model)
-    - [Mask Subscriptions](#Mask-Subscription)
-    - [Create Mask](#Create-Mask)
-    - [Make Data](#Make-Data)
-# Installation
 
 ## Requirements
 - python3.8
@@ -141,13 +134,12 @@ running this command:
 $ python aiwater.py divide-dataset directory_path holdout
 ```
 
-### Making Water Mask without Neural Network
-**Making Water Mask:**
+## Making Water Mask without Neural Network
 
 First follow the instructions in the [Preparing Data](#Preparing-Data) section.
-
-To create a water mask download, you will need both a VV and VH granule.
-Once you have them move them into a directory and run this command:
+`identify-water` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
+Simply drag the filter bar down to make the detection less sensitive until the results are close. There is also the option to draw a polygon
+around misidentified water to remove it by clicking around the area. 
 
 ```terminal
 $ python aiwater.py identify-water vv_image_path vh_image_path
@@ -207,6 +199,12 @@ $ python3 aiwater.py train awesome_net awesome_dataset --epochs 20 --continue
 
 NOTE: *`awesome_net` and `awesome_dataset` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
 
+## Creating a Mask with the Neural Network
+First, you'll need the VV and VH images. Then enter this command:
+```terminal
+$ python3 aiwater.py create-mask model_path vv_image_path vh_image_path mask_name.tif
+```
+
 ## Getting Descriptive Information and Metrics
 You can view information about a model's performance with `model_info.py`. This
 includes a summary of model parameters, a visualization of convolutional
@@ -220,13 +218,4 @@ $ python3 aiwater.py model-filters awesome_net
 ```
 NOTE: *`awesome_net` must be in a directory named `models` that lives in `AI_Water`.*
 
-### Identify Water
-`identify-water` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
-Simply drag the filter bar down to make the detection less sensitive until the results are close. There is also the option to draw a polygon
-around misidentified water to remove it by clicking around the area. 
-
-Example command:
- ```terminal
-$ python aiwater.py identify-water full_path_to_vv_img full_path_to_vh_img
-```
 
