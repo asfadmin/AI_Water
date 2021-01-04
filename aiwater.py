@@ -7,6 +7,7 @@
 
 import getpass
 import click
+import time
 from pathlib import Path
 import src.product_download_api as pda
 import src.geo_utility as gu
@@ -27,6 +28,7 @@ from src.geo_utility import difference, intersection
 from src.hyp3lib_functions import data2geotiff, geotiff2data
 
 from src.prepare_data import make_tiles, prepare_mask_data, groom_imgs, move_imgs
+import src.identify_water as iw
 
 @click.group()
 def cli():
@@ -134,6 +136,15 @@ def train(model, dataset, epochs):
     history = {"loss": [], "accuracy": [], "val_loss": [], "val_accuracy": []}
 
     train_model(model, history, dataset, epochs)
+
+@cli.command()
+@click.argument('vv_image_path', type=str)
+@click.argument('vh_image_path', type=str)
+@click.argument('mask_name', type=str)
+def identify_water(vv_image_path, vh_image_path, mask_name):
+    """identify water using numeric method for training"""
+    prod = iw.Product(vv_image_path, vh_image_path)
+    iw.show_mask(prod, iw.create_mask(prod.vv_image, prod.vh_image, 0.01))
 
 @cli.command()
 @click.argument('first_mask', type=str)

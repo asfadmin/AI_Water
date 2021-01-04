@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 from matplotlib.widgets import Button
 
 from scripts.mask_editor import interactive_editor
-from scripts.identify_water import write_mask_to_file
+from src.identify_water import write_mask_to_file
 from .config import DATASETS_DIR, NETWORK_DEMS
 from .gdal_wrapper import gdal_open
 
