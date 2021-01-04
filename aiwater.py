@@ -211,7 +211,7 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
             mask_save_directory.mkdir()
 
         with TemporaryDirectory() as tmpdir_name:
-            temp_product_dir = Path(tmpdir_name) / 'products'
+            temp_product_dir = Path(tmpdir_name)
             for product in products:
                 print(f"Downloading {product.url}")
                 pda.download_product(product.url, temp_product_dir, creds)
