@@ -205,11 +205,27 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
             password = getpass.getpass(prompt="password: ")
             creds = pda.credentials(username, password)
 
+
+        mask_save_directory = Path(output_dir) / name
+        if not mask_save_directory.is_dir():
+            mask_save_directory.mkdir()
+
         with TemporaryDirectory() as tmpdir_name:
+            temp_product_dir = Path(tmpdir_name) / 'products'
             for product in products:
                 print(f"Downloading {product.url}")
-                pda.download_product(product.url, Path(tmpdir_name), creds)
-            mask_directory(model, tmpdir_name, output_dir, name)
+                pda.download_product(product.url, temp_product_dir, creds)
+
+                product_path = temp_product_dir / product.name
+                vv_path, vh_path = io.extract_from_product(product_path, temp_product_dir)
+                output_file = mask_save_directory / f"{product_path.stem}.tif"
+                gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
+                print(f"Mask for {product_path.stem} is finished")
+
+
+
+
+
 
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
