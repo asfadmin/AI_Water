@@ -175,10 +175,18 @@ $ make test
 ```
 
 ## Training a Neural Network
-1. Make sure your dataset is in the `dataset` folder.
-2. If you’re loading in weights run `python aiwater.py train --continue ...`
+Make sure your dataset is in the `dataset` folder, and your model is in the `models` folder.
+Then run this command:
+```terminal
+$ python3 aiwater.py train model_path dataset_path
+```
+
+If you’re loading in weights the `--continue` argument can be used.
 If you’re not loading them in and you're restarting the training of the CNN you
-will need to run `python aiwater.py --overwrite ...`
+will need to use the `-overwrite` argument.
+
+You can also specify the number of epochs with ```--epochs```
+
 
 ### Examples
 
