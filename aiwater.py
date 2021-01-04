@@ -20,9 +20,9 @@ from src.mask_class import Mask
 from src.user_class import User
 
 from src.asf_cnn import test_model_masked, train_model
-from src.model import load_model, path_from_model_name
+from src.model import load_model, load_history, path_from_model_name
 from src.model.architecture.masked import create_model_masked
-from src.plots import edit_predictions, plot_predictions
+from src.plots import edit_predictions, plot_predictions, print_summary, view_filters, plot_history
 
 from src.geo_utility import difference, intersection
 from src.hyp3lib_functions import data2geotiff, geotiff2data
@@ -186,6 +186,24 @@ def groom_images(directory, holdout):
 def move_images(directory, new_directory):
     """groom images to remove inaccurate masks"""
     move_imgs(directory, new_directory)
+
+@cli.command()
+@click.argument('model', type=str)
+def model_history(model):
+    """groom images to remove inaccurate masks"""
+    plot_history(model, load_history(model))
+
+@cli.command()
+@click.argument('model', type=str)
+def model_filters(model):
+    """groom images to remove inaccurate masks"""
+    view_filters(model)
+
+@cli.command()
+@click.argument('model', type=str)
+def model_summary(model):
+    """groom images to remove inaccurate masks"""
+    print_summary(model)
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
 # # TODO: Can take products.metalink file as input
