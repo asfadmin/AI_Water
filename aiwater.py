@@ -209,7 +209,7 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
             for product in products:
                 print(f"Downloading {product.url}")
                 pda.download_product(product.url, Path(tmpdir_name), creds)
-            mask_directory(model, Path(tmpdir_name), output_dir, name)
+            mask_directory(model, tmpdir_name, output_dir, name)
 
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
