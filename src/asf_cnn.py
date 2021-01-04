@@ -50,7 +50,7 @@ def train_model(
         if verbose > 0:
             print(f"Epoch {epoch}/{epochs}")
 
-        history = model.fit_generator(
+        history = model.fit(
             training_set,
             steps_per_epoch=step_size_training,
             epochs=1,

@@ -6,6 +6,7 @@
 
 import random
 import re
+import os
 import shutil
 from itertools import groupby
 from pathlib import Path
@@ -124,4 +125,3 @@ def compress_datasets(directory_path: str, holdout: float) -> None:
     make_directory_dataset(directory_path)
     divide_sar_files(dataset_path, sar_sets, holdout)
     remove_subdirectories(directory_path)
-

@@ -7,6 +7,7 @@
 
 import getpass
 import click
+import time
 from pathlib import Path
 import src.product_download_api as pda
 import src.geo_utility as gu
@@ -18,6 +19,16 @@ import src.io_tools as io
 from src.mask_class import Mask
 from src.user_class import User
 
+from src.asf_cnn import test_model_masked, train_model
+from src.model import load_model, load_history, path_from_model_name
+from src.model.architecture.masked import create_model_masked
+from src.plots import edit_predictions, plot_predictions, print_summary, view_filters, plot_history
+
+from src.geo_utility import difference, intersection
+from src.hyp3lib_functions import data2geotiff, geotiff2data
+
+from src.prepare_data import make_tiles, prepare_mask_data, groom_imgs, move_imgs
+import src.identify_water as iw
 
 @click.group()
 def cli():
@@ -114,7 +125,85 @@ def mask_directory(model, source_dir, output_dir, name):
             print(f"Mask for {product.stem} is finished")
 
 
+@cli.command()
+@click.argument('model', type=str)
+@click.argument('dataset', type=str)
+@click.option('-e', '--epochs', default=10, type=int)
+def train(model, dataset, epochs):
+    # model_path = path_from_model_name(model)
 
+    model = create_model_masked(model)
+    history = {"loss": [], "accuracy": [], "val_loss": [], "val_accuracy": []}
+
+    train_model(model, history, dataset, epochs)
+
+@cli.command()
+@click.argument('vv_image_path', type=str)
+@click.argument('vh_image_path', type=str)
+@click.argument('mask_name', type=str)
+def identify_water(vv_image_path, vh_image_path, mask_name):
+    """identify water using numeric method for training"""
+    prod = iw.Product(vv_image_path, vh_image_path)
+    iw.show_mask(prod, iw.create_mask(prod.vv_image, prod.vh_image, 0.01))
+
+@cli.command()
+@click.argument('first_mask', type=str)
+@click.argument('second_mask', type=str)
+@click.argument('name', type=str)
+def mask_difference(first_mask, second_mask, name):
+    """generate difference mask"""
+    _, mask1_transform, projection, epsg, data_type, no_data = geotiff2data(first_mask)
+    mask1_intersect, mask2_intersect, col, row, bounds = intersection(first_mask, second_mask)
+    mask_difference = difference(mask1_intersect, mask2_intersect)
+    transform = (bounds[0], mask1_transform[1], 0, bounds[3], 0, mask1_transform[5])
+    data2geotiff(mask_difference, transform, projection, data_type, 0, name)
+
+@cli.command()
+@click.argument('image', type=str)
+@click.argument('tile_size', default=512, type=int)
+def tile_image(image, tile_size):
+    """tile tif image to tiles of tile_size with padding"""
+    make_tiles(image, (tile_size, tile_size))
+
+@cli.command()
+@click.argument('directory', type=str)
+@click.argument('holdout', default=0.2, type=float)
+def divide_dataset(directory, holdout):
+    """divide dataset into test and train directories based on holdout"""
+    prepare_mask_data(directory, holdout)
+
+
+@cli.command()
+@click.argument('directory', type=str)
+@click.argument('holdout', default=0.2, type=float)
+def groom_images(directory, holdout):
+    """groom images to remove inaccurate masks"""
+    groom_imgs(directory)
+
+@cli.command()
+@click.argument('directory', type=str)
+@click.argument('new_directory', type=str)
+def move_images(directory, new_directory):
+    """groom images to remove inaccurate masks"""
+    move_imgs(directory, new_directory)
+
+@cli.command()
+@click.argument('model', type=str)
+def model_history(model):
+    """groom images to remove inaccurate masks"""
+    plot_history(model, load_history(model))
+
+@cli.command()
+@click.argument('model', type=str)
+def model_filters(model):
+    """groom images to remove inaccurate masks"""
+    view_filters(model)
+
+@cli.command()
+@click.argument('model', type=str)
+def model_summary(model):
+    """groom images to remove inaccurate masks"""
+    print_summary(model)
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
 # # TODO: Can take products.metalink file as input
@@ -163,11 +252,6 @@ def mask_directory(model, source_dir, output_dir, name):
 #     date_start = date_start.date()
 #     date_end = date_end.date()
 #     click.echo(f"Start: {date_start}, End: {date_end} ")
-
-
-
-
     
-
 if __name__ == '__main__':
     cli()

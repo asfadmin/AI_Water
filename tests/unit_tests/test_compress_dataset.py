@@ -129,12 +129,12 @@ def test_remove_subdirectories_list(input_path, expected_list):
 
 
 @pytest.mark.usefixtures("supply_datadir_cwd")
-@pytest.mark.parametrize("input_path, expected_list", [('datasets/Alaska', ['train', 'test'])])
+@pytest.mark.parametrize("input_path, expected_list", [('datasets/Alaska', {'train', 'test'})])
 def test_remove_subdirectories_test_train(input_path, expected_list):
     """Test that the test and train folder remain after script is ran"""
     make_directory_dataset(input_path)
     remove_subdirectories(input_path)
-    input_list = os.listdir(input_path)
+    input_list = set(os.listdir(input_path))
     assert input_list == expected_list, f"listdir(): {input_list} does NOT match {expected_list}"
 
 
@@ -150,6 +150,6 @@ def test_compress_datasets(input_path, expected_sars, expected_random_calls, moc
     compress_datasets(input_path, holdout=.2)
 
     assert spy_random.call_count == expected_random_calls, f"got {spy_random} random calls, expected {expected_random_calls}. "
-    assert os.listdir(input_path) == ['train', 'test'], f"tree: {tree(Path(input_path))}"
+    assert set(os.listdir(input_path)) == {'train', 'test'}, f"tree: {tree(Path(input_path))}"
     assert total_sars == expected_sars, f"rglob: {list_sar_directory(input_path)}"
 
