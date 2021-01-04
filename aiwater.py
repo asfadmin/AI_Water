@@ -8,26 +8,24 @@
 import getpass
 import click
 from pathlib import Path
+from shapely import wkt
+
 import src.product_download_api as pda
 import src.geo_utility as gu
 from tempfile import TemporaryDirectory
-from src.config import PROJECT_DIR
+from src.config import PROJECT_DIR, MASK_DIR
 from src.api_functions import hyp3_login, grab_subscription
 import src.io_tools as io
 
-from src.mask_class import Mask
-from src.user_class import User
-
+from src.metadata_class import get_sub_products, populate_cmr_product_shape, get_min_granule_coverage, Product, triage_products_newest
 from src.asf_cnn import test_model_masked, train_model
-from src.model import load_model, path_from_model_name
 from src.model.architecture.masked import create_model_masked
-from src.plots import edit_predictions, plot_predictions
-
-
+import matplotlib.pyplot as plt
 
 @click.group()
 def cli():
     pass
+
 
 # TODO: Should work if some dirs already created
 @cli.command()
@@ -93,7 +91,6 @@ def create_mask(model_path, vv_path, vh_path, outfile, verbose):
     gu.create_water_mask(model_path, vv_path, vh_path, outfile, verbose)
 
 
-
 # TODO: Create vrt file
 @cli.command()
 @click.argument('model', type=str)
@@ -133,6 +130,87 @@ def train(model, dataset, epochs):
     train_model(model, history, dataset, epochs)
 
 
+@cli.command()
+@click.argument('model', type=str)
+@click.argument('name', type=str)
+@click.option('--id')
+@click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
+@click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
+@click.option('--aoi', type=click.Path(exists=True, readable=True))
+@click.option('--min-cover', is_flag=True)
+@click.option('--display', is_flag=True)
+@click.option('--dry-run', is_flag=True)
+@click.option('--output_dir', type=click.Path(), default=MASK_DIR)
+def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_run, output_dir):
+    """Finds list of prodcuts meeting given criteria"""
+
+    api = hyp3_login()  # login if .netrc not found
+
+    # Interactively find sub-id if not given already
+    if not id:
+        subscription = grab_subscription(api)
+        id = subscription['id']
+
+    # Get list of Products objects from subscription
+    products = get_sub_products(api, id)
+
+    # Removes products not in date bounds
+    if date_start and date_end:
+        products = [product for product in products if product.time_bounds(date_start, date_end)]
+
+
+    aoi_poly = io.polygon_from_shapefile(aoi)
+    print(f"aoi_poly={aoi_poly}")
+    if aoi:
+        products_inbounds = []
+        for product in products:
+            product.get_shape_cmr()
+            if product.shape is None:
+                continue
+            if product.intersects(aoi_poly):
+                products_inbounds.append(product)
+
+        products = products_inbounds
+
+    print("Products after checking shape bounds")
+    print(f"{len(products)} products in list")
+    for product in products:
+        print(product.granule)
+
+
+    if min_cover:
+        min_products = get_min_granule_coverage(products, aoi_poly)
+        products = min_products
+
+
+    print(f"{len(products)} products after getting min cover by aoi")
+    for product in products:
+        print(product.granule)
+
+    if display:
+        x, y = aoi_poly.exterior.xy
+        plt.plot(x, y)
+        for p in products:
+            x, y = p.shape.exterior.xy
+            plt.plot(x, y)
+        plt.show()
+
+    if not dry_run:
+        netrc_path = PROJECT_DIR / '.netrc'
+        if netrc_path.exists():
+            creds = pda.get_netrc_credentials()
+        else:
+            print("Input earthdata credentials")
+            username = input("username: ")
+            password = getpass.getpass(prompt="password: ")
+            creds = pda.credentials(username, password)
+
+        with TemporaryDirectory() as tmpdir_name:
+            for product in products:
+                print(f"Downloading {product.url}")
+                pda.download_product(product.url, Path(tmpdir_name), creds)
+            mask_directory(model, Path(tmpdir_name), output_dir, name)
+
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
 # # TODO: Can take products.metalink file as input
@@ -168,7 +246,6 @@ def train(model, dataset, epochs):
 #     click.echo(f"Start: {date_start}, End: {date_end} ")
 
 
-
 # @cli.command()
 # @click.argument('model', type=str)
 # @click.argument('name', type=str)
@@ -182,10 +259,6 @@ def train(model, dataset, epochs):
 #     date_end = date_end.date()
 #     click.echo(f"Start: {date_start}, End: {date_end} ")
 
-
-
-
-    
 
 if __name__ == '__main__':
     cli()
