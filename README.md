@@ -120,22 +120,12 @@ and then try running xeyes again.
 $ xhost +
 ```
 
-
-
-
-
 ### Tiling tif Images
-To tile your tif image create a folder in the same directory as
-main.py and name it prep_tiles. Store the tif file within this
-folder, like below:
+To tile your tif image you can use this command:
+```terminal
+$ python aiwater.py tile-image image_path tile_size
 ```
-AI_Water
-├── prep_tiles
-    └── name_of_img.tiff
-```
-Next run this command in the terminal (Note that 512 is the dimensions and
-can be any arbitrary value, but to be ran in the provided Neural Network
-it must be 512):
+This will tile the image in the same directory as the image.
 
 ## Preparing Data
 To run the Neural Net, your data will first need to be prepared. There are a few methods of creating data but all of 
@@ -144,92 +134,23 @@ them require a `datasets` directory within `AI_Water`.
 If the `datasets` directory wasn't created during `setup.py`, cd into the directory `AI_Water` and then run the command:
 ```terminal
 $ mkdir datasets
-
 ```
-
-### Preparing Data With a Neural Network
-
-After following instructions in the [Preparing Data](#Preparing-Data) section, go to [ASF HYP3](http://hyp3.asf.alaska.edu), click on the products tab, then finished.
-Select the granules you'd like to use for your dataset. After that, click the
-button that says "Download Python Script for Selected" and make sure it
-downloads to the Downloads directory.
-
-After that run make_data.py.
-
-Command layout:
+Datasets should be a folder containing train and tests directories. You can create these by placing tiled images in a folder and 
+running this command:
 ```terminal
-$ python3 scripts/make_data.py mkdata ai_model_folder dataset_name dir_dataset_sits 512
-
-```
-NOTE: *`ai_model_folder` and `dataset_name` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
-
-Example:
-```terminal
-$ python scripts/make_data.py ai_model_7 Fairbanks Alaska 64
-```
-To get more information on preparing the data set run:
-```terminal
-$ python3 scripts/make_data.py prepare -h
+$ python aiwater.py divide-dataset directory_path holdout
 ```
 
-After the program is finished the dataset is ready and the directory should
-look like this:
-
-```
-AI_Water
-└── datasets
-    └── Alaska
-        └── Fairbanks
-            ├── test
-            │   └── img1.vv.tif
-            │   └── img1.vh.tif
-            │   └── img1.mask.tif
-            └── train
-                └── img2.vv.tif
-                └── img2.vh.tif
-                └── img2.mask.tif
-```
-
-### Preparing data without a Neural Network 
+### Making Water Mask without Neural Network
 **Making Water Mask:**
 
 First follow the instructions in the [Preparing Data](#Preparing-Data) section.
 
 To create a water mask download, you will need both a VV and VH granule.
-Once you have them move them into a directory called prep_files (You might have
-to create it). Next run this command:
+Once you have them move them into a directory and run this command:
 
 ```terminal
-$ python scripts/identify_water.py prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VV.tif  prep_tiles/S1B_IW_RT30_20190924T145212_G_gpn_VH.tif
-```
-
-Next, move the output 'mask-0.tif' into the directory prep_files.
-
-**Tiling:**
-
-To tile your tiff image create a folder in the same directory as
-main.py and name it prep_tiles. Store the tiff file within this
-folder, like below:
-```
-AI_Water
-├── prep_tiles
-    └── name_of_img.tiff
-```
-Next, run this command in the terminal (Note that 64 is the dimensions and
-can be any arbitrary value, but to be ran in the provided Neural Network
-it must be 64):
-
-```terminal
-$ python3 scripts/prepare_data.py tile tile_name_of_img.tiff 64
-```
-
-You will need to run this command for all the VV, VH, and Mask images.
-
-To get more help on tiling run this
-command:
-
-```terminal
-$ python3 scripts/prepare_data.py tile -h
+$ python aiwater.py identify-water vv_image_path vh_image_path
 ```
 
 ## Project Layout
@@ -263,25 +184,25 @@ $ make test
 
 ## Training a Neural Network
 1. Make sure your dataset is in the `dataset` folder.
-2. If you’re loading in weights run `main.py` with the `--continue` option.
+2. If you’re loading in weights run `python aiwater.py train --continue ...`
 If you’re not loading them in and you're restarting the training of the CNN you
-will need to run `main.py` with the `--overwrite` option.
+will need to run `python aiwater.py --overwrite ...`
 
 ### Examples
 
 Start training a new network:
 ```terminal
-$ python3 main.py train awesome_net awesome_dataset --epochs 10
+$ python3 aiwater.py train awesome_net awesome_dataset --epochs 10
 ```
 
 Evaluate the models performance:
 ```terminal
-$ python3 main.py test awesome_net awesome_dataset
+$ python3 aiwater.py test awesome_net awesome_dataset
 ```
 
 Train for an additional 20 epochs:
 ```terminal
-$ python3 main.py train awesome_net awesome_dataset --epochs 20 --continue
+$ python3 aiwater.py train awesome_net awesome_dataset --epochs 20 --continue
 ```
 
 NOTE: *`awesome_net` and `awesome_dataset` must be in a directories named `models` and `datasets` that live in `AI_Water`.*
@@ -291,69 +212,21 @@ You can view information about a model's performance with `model_info.py`. This
 includes a summary of model parameters, a visualization of convolutional
 filters, a graph of training history and more.
 
-View the models training history:
+To view this information use these commands:
 ```terminal
-$ python3 scripts/model_info.py awesome_net history
+$ python3 aiwater.py model-history awesome_net
+$ python3 aiwater.py model-summary awesome_net
+$ python3 aiwater.py model-filters awesome_net
 ```
-
 NOTE: *`awesome_net` must be in a directory named `models` that lives in `AI_Water`.*
 
-For a list of available statistics run the help command:
-```terminal
-$ python3 scripts/model_info.py -h
-```
-
-## Scripts
-Scripts contained within `AI_Water/scripts`.
-
 ### Identify Water
-`identify_water.py` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
+`identify-water` can be used to an approximate water mask, given dual band SAR images (VV and VH). This is done without a Neural Network.
+Simply drag the filter bar down to make the detection less sensitive until the results are close. There is also the option to draw a polygon
+around misidentified water to remove it by clicking around the area. 
 
 Example command:
  ```terminal
-$ python3 scripts/identify_water.py full_path_to_vv_img full_path_to_vh_img
-
-```
-### Info Model
-`info_model.py` is explained under the section [Getting Descriptive Information and Metrics](#Getting-Descriptive-Information-and-Metrics).
-
-### Mask Subscription
-`mask_subscription.py` can be used to mask a users subscription from [ASF HYP3](http://hyp3.asf.alaska.edu).
-The output is a list of water masks created from the granules within the subscription, and a vrt.
-
-Example command:
- ```terminal
-$ python3 scripts/identify_water.py ai_model_folder name_of_vrt_output
-
+$ python aiwater.py identify-water full_path_to_vv_img full_path_to_vh_img
 ```
 
-After the program is ran, you will be asked for your [NASA Earthdata](https://earthdata.nasa.gov) Credentials.
-```
-Enter your NASA EarthData username: 
-Password: 
-```
-If one were able to login in successfully and have subscriptions through [ASF HYP3](http://hyp3.asf.alaska.edu), one
-should see similar text as  below:
-
-```
-login successful!
-Welcome user
-ID: 1949: Arizona
-ID: 1893: Washington
-ID: 1959: Lake_Erie
-ID: 1836: UAF
-ID: 1826: Alaska
-Pick an id from the list above: 
-```
-The final step is to pick an ID that is listed. Inputting 1826 will create a mask from the subscription `Alaska`.
-
-### Create Mask
-`create_mask.py` can be used to create a water mask using a Neural Network, given dual band SAR images (VV and VH).
-Example command:
- ```terminal
-$ python3 scripts/create_mask.py ai_model_folder full_path_to_vv_img full_path_to_vh_img output_mask_name
-
-```
-
-### Make Data
-`make_data.py` is explained under the section [Preparing Data With a Neural Network](#Preparing-Data-With-a-Neural-Network).
