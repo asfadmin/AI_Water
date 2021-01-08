@@ -11,7 +11,9 @@ import os
 from scipy import ndimage
 from osgeo.gdalconst import GA_ReadOnly
 from osgeo import gdal, ogr, osr
+from typing import Tuple
 import numpy as np
+
 
 
 def overlap_indices(polygon, boundary, pixelSize):
