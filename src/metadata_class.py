@@ -67,6 +67,16 @@ class Product:
         entry = entrys[0]
         self.shape = Polygon(format_points(entry['polygons'][0][0]))
 
+
+    def to_dict(self):
+        metadata = asdict(self)
+        metadata['start'] = self.start.isoformat()
+        metadata['end'] = self.end.isoformat()
+        metadata['shape'] = str(self.shape)
+
+        return metadata
+
+
     def to_json(self):
         metadata = asdict(self)
         metadata['start'] = self.start.isoformat()
@@ -76,23 +86,30 @@ class Product:
         return json.dumps(metadata)
 
 
-# @dc.dataclass()
-# class MaskMetadata:
-#     """Designed to hold product metadata"""
-#
-#     name: str
-#     model: str
-#     products: list = None
-#     aoi: Polygon = None
-#     start: datetime = None
-#     end: datetime = None
-#     description: str = None
-#
-#
-#
-#     def to_json(self):
-#         metadata = asdict(self)
-#         return json.dumps(metadata)
+@dc.dataclass()
+class MaskMetadata:
+    """Designed to hold product metadata"""
+
+    name: str
+    model: str
+    aoi: Polygon = None
+    start: datetime = None
+    end: datetime = None
+    products: list = None
+    description: str = None
+
+    def to_json(self):
+        metadata = asdict(self)
+        metadata['start'] = self.start.isoformat()
+        metadata['end'] = self.end.isoformat()
+        metadata['aoi'] = str(self.aoi)
+        metadata['products'] = []
+
+        for product in self.products:
+            metadata['products'].append(product.to_dict())
+
+        return json.dumps(metadata)
+
 
 
 def triage_products_newest(products: List[Product]):
@@ -128,35 +145,24 @@ def percentage(part, whole):
 
 def get_min_granule_coverage(products: list, aoi: Polygon) -> list:
     """Input list of Product objects and a target Polygon.
-       returns the minimum prodcuts needed to cover the AOI.
-       Gives prefereance to the most recently created Products."""
+       returns the minimum products needed to cover the AOI.
+       Gives preference to the most recently created Products."""
 
     dif = copy(aoi)
     min_products = []
     sorted_products = reversed(triage_products_newest(products))
 
-
     for product in sorted_products:
 
         percent_exposed = round(percentage(dif.area, aoi.area))
-        print(f"{percent_exposed} area percentage uncovered")
         if percent_exposed == 0:
             return min_products
 
         intersect_dif = product.shape.intersection(dif)
 
-        print(f"intersection area = {intersect_dif.area}")
         if product.shape.intersects(dif):
-            print(f"inserted percent covered = {percent_exposed}")
             min_products.insert(0, product)
             dif = dif - intersect_dif
-
-        # min_products.insert(0, product)
-        # intersect_aoi = product.shape.intersection(aoi)
-
-
-
-
 
     return min_products
 

@@ -17,10 +17,12 @@ from src.config import PROJECT_DIR, MASK_DIR
 from src.api_functions import hyp3_login, grab_subscription
 import src.io_tools as io
 
-from src.metadata_class import get_sub_products, populate_cmr_product_shape, get_min_granule_coverage, Product, triage_products_newest
+from src.metadata_class import get_sub_products, populate_cmr_product_shape, get_min_granule_coverage, Product, \
+    triage_products_newest, MaskMetadata
 from src.asf_cnn import test_model_masked, train_model
 from src.model.architecture.masked import create_model_masked
 import matplotlib.pyplot as plt
+
 
 @click.group()
 def cli():
@@ -141,7 +143,7 @@ def train(model, dataset, epochs):
 @click.option('--display', is_flag=True)
 @click.option('--dry-run', is_flag=True)
 @click.option('--output_dir', type=click.Path(), default=MASK_DIR)
-def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_run, output_dir):
+def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry_run, output_dir):
     """Finds list of prodcuts meeting given criteria"""
 
     api = hyp3_login()  # login if .netrc not found
@@ -157,7 +159,6 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
     # Removes products not in date bounds
     if date_start and date_end:
         products = [product for product in products if product.time_bounds(date_start, date_end)]
-
 
     aoi_poly = io.polygon_from_shapefile(aoi)
     print(f"aoi_poly={aoi_poly}")
@@ -177,11 +178,9 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
     for product in products:
         print(product.granule)
 
-
     if min_cover:
         min_products = get_min_granule_coverage(products, aoi_poly)
         products = min_products
-
 
     print(f"{len(products)} products after getting min cover by aoi")
     for product in products:
@@ -195,6 +194,9 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
             plt.plot(x, y)
         plt.show()
 
+    metadata = MaskMetadata(name=name, model=model, aoi=aoi_poly, start=date_start, end=date_end, products=products)
+    print(metadata.to_json())
+
     if not dry_run:
         netrc_path = PROJECT_DIR / '.netrc'
         if netrc_path.exists():
@@ -204,7 +206,6 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
             username = input("username: ")
             password = getpass.getpass(prompt="password: ")
             creds = pda.credentials(username, password)
-
 
         mask_save_directory = Path(output_dir) / name
         if not mask_save_directory.is_dir():
@@ -221,11 +222,6 @@ def mask_sub(model,name, id, date_start, date_end, aoi, min_cover, display, dry_
                 output_file = mask_save_directory / f"{product_path.stem}.tif"
                 gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
                 print(f"Mask for {product_path.stem} is finished")
-
-
-
-
-
 
 
 # # TODO: MUST create vv/vh tiles along with their statistical water mask
