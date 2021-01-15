@@ -64,8 +64,12 @@ def setup():
 @click.argument('metalink_path')
 @click.argument('output_directory')
 def download_metalink(metalink_path, output_directory):
-    """Download files from products.metalink"""
+    """Download files from products.metalink
 
+    \b
+    metalink_path     Path to the metalink file
+    output_directory  The directory the products will be saved in
+    """
     netrc_path = PROJECT_DIR / '.netrc'
 
     if netrc_path.exists():
