@@ -110,3 +110,5 @@ def download_products(products: List, i: int, product) -> None:
     password = contents.split(' ')[5].split('\n')[0]
     args = ['wget', '-c', '-q', '--show-progress', f"--http-user={username}", f"--http-password={password}", product['url']]
     call(args, stdout=PIPE)
+
+
