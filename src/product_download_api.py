@@ -11,8 +11,6 @@ from pathlib import Path
 from dataclasses import dataclass
 from collections import namedtuple
 import requests
-import getpass
-from src.config import PROJECT_DIR
 
 
 @dataclass

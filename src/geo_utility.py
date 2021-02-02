@@ -5,18 +5,13 @@
 """
 
 import os
-import re
 import itertools
 from osgeo import gdal
-from typing import Tuple
 from src.model import load_model
 from src.config import NETWORK_DEMS as dems
-import src.config as config
-
-from pathlib import Path
 import numpy as np
 
-from src.hyp3lib_functions import overlap_indices, geotiff_overlap, data2geotiff, geotiff2data, raster_boundary2shape
+from src.hyp3lib_functions import overlap_indices, geotiff_overlap
 
 
 # TODO: sepearte translate as sperate function that can be tested. (maybe)
