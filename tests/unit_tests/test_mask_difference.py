@@ -4,11 +4,13 @@
  test_mask_difference.py
  unit test for mask_difference.py
 """
+
 import numpy as np
 import pytest
-from scripts.mask_difference import difference, intersection
+from src.geo_utility import difference, intersection
 
 path_ds = "tests/unit_tests/testing_data/Kodiak/"
+
 
 @pytest.fixture
 def supply_intersection():
