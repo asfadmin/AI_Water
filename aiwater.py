@@ -245,8 +245,8 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         products = min_products
 
     print(f"{len(products)} products after getting min cover by aoi")
-    for product in products:
-        print(product.granule)
+    # for product in products:
+    #     print(product.granule)
 
     if display:
         x, y = aoi_poly.exterior.xy
@@ -257,7 +257,7 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         plt.show()
 
     metadata = MaskMetadata(name=name, model=model, aoi=aoi_poly, start=date_start, end=date_end, products=products)
-    print(metadata.to_json())
+    # print(metadata.to_json())
 
     if not dry_run:
         netrc_path = PROJECT_DIR / '.netrc'
