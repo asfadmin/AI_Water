@@ -298,7 +298,7 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
 
                 vv_path, vh_path = io.extract_from_product(product_path, temp_product_dir)
 
-                output_file = mask_save_directory / f"{product.stem}.tif"
+                output_file = mask_save_directory / f"{product_path.stem}.tif"
                 print(f"output_file = {str(output_file)}")
 
                 print(f"Creating mask {product.stem}")
