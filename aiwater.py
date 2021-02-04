@@ -223,7 +223,7 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         products = [product for product in products if product.time_bounds(date_start, date_end)]
 
     aoi_poly = io.polygon_from_shapefile(aoi)
-    print(f"aoi_poly={aoi_poly}")
+    # print(f"aoi_poly={aoi_poly}")
     if aoi:
         products_inbounds = []
         for product in products:
@@ -237,8 +237,8 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
 
     print("Products after checking shape bounds")
     print(f"{len(products)} products in list")
-    for product in products:
-        print(product.granule)
+    # for product in products:
+    #     print(product.granule)
 
     if min_cover:
         min_products = get_min_granule_coverage(products, aoi_poly)
@@ -273,17 +273,49 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         if not mask_save_directory.is_dir():
             mask_save_directory.mkdir()
 
-        with TemporaryDirectory() as tmpdir_name:
-            temp_product_dir = Path(tmpdir_name)
-            for product in products:
+        # with TemporaryDirectory() as tmpdir_name:
+        #     temp_product_dir = Path(tmpdir_name)
+        #     for product in products:
+        #         print(f"Downloading {product.url}")
+        #         pda.download_product(product.url, temp_product_dir, creds)
+        #
+        #         product_path = temp_product_dir / product.name
+        #
+        #         vv_path, vh_path = io.extract_from_product(product_path, temp_product_dir)
+        #         output_file = mask_save_directory / f"{product_path.stem}.tif"
+        #         gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
+        #         print(f"Mask for {product_path.stem} is finished")
+
+        for product in products:
+            with TemporaryDirectory() as tmpdir_name:
+                temp_product_dir = Path(tmpdir_name)
+
                 print(f"Downloading {product.url}")
                 pda.download_product(product.url, temp_product_dir, creds)
-
                 product_path = temp_product_dir / product.name
+
+                print(f"Product_path = {str(product_path)}")
+
                 vv_path, vh_path = io.extract_from_product(product_path, temp_product_dir)
-                output_file = mask_save_directory / f"{product_path.stem}.tif"
+
+                output_file = mask_save_directory / f"{product.stem}.tif"
+                print(f"output_file = {str(output_file)}")
+
+                print(f"Creating mask {product.stem}")
                 gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
-                print(f"Mask for {product_path.stem} is finished")
+                print(f"Mask for {product.stem} is finished")
+
+        print(f"Mask {name} is finished")
+
+
+
+    # for product in product_list:
+    #     print(f"Masking {product.name}")
+    #     with TemporaryDirectory() as tmpdir_name:
+    #         vv_path, vh_path = io.extract_from_product(product, Path(tmpdir_name))
+    #         output_file = mask_save_directory / f"{product.stem}.tif"
+    #         gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
+    #         print(f"Mask for {product.stem} is finished")
 
 def model_history(model):
     """groom images to remove inaccurate masks"""
