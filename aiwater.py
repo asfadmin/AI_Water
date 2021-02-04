@@ -301,7 +301,7 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
                 output_file = mask_save_directory / f"{product_path.stem}.tif"
                 print(f"output_file = {str(output_file)}")
 
-                print(f"Creating mask {product.stem}")
+                print(f"Creating mask {product_path.stem}")
                 gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
                 print(f"Mask for {product.stem} is finished")
 
