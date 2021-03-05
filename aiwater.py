@@ -14,7 +14,7 @@ from shapely import wkt
 import src.product_download_api as pda
 import src.geo_utility as gu
 from tempfile import TemporaryDirectory
-from src.config import PROJECT_DIR, MASK_DIR
+from src.config import PROJECT_DIR, MASK_DIR, PRODUCTS_DIR
 from src.api_functions import hyp3_login, grab_subscription
 import src.io_tools as io
 
@@ -92,7 +92,7 @@ def download_metalink(metalink_path, output_directory):
 @click.option('--min-cover', is_flag=True)
 @click.option('--display', is_flag=True)
 @click.option('--dry-run', is_flag=True)
-@click.option('--output_dir', type=click.Path(), default=MASK_DIR)
+@click.option('--output_dir', type=click.Path(), default=PRODUCTS_DIR)
 def download_sub(name, id, date_start, date_end, aoi, min_cover, display, dry_run, output_dir):
     """Download Prodcuts from sub"""
 
