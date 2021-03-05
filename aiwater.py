@@ -14,7 +14,7 @@ from shapely import wkt
 import src.product_download_api as pda
 import src.geo_utility as gu
 from tempfile import TemporaryDirectory
-from src.config import PROJECT_DIR, MASK_DIR
+from src.config import PROJECT_DIR, MASK_DIR, PRODUCTS_DIR
 from src.api_functions import hyp3_login, grab_subscription
 import src.io_tools as io
 
@@ -82,6 +82,88 @@ def download_metalink(metalink_path, output_directory):
 
     pda.download_metalink_products(Path(metalink_path), Path(output_directory), creds)
 
+
+@cli.command()
+@click.argument('name', type=str)
+@click.option('--id')
+@click.option('--date-start', type=click.DateTime(formats=["%Y-%m-%d"]))
+@click.option('--date-end', type=click.DateTime(formats=["%Y-%m-%d"]))
+@click.option('--aoi', type=click.Path(exists=True, readable=True))
+@click.option('--min-cover', is_flag=True)
+@click.option('--display', is_flag=True)
+@click.option('--dry-run', is_flag=True)
+@click.option('--output_dir', type=click.Path(), default=PRODUCTS_DIR)
+def download_sub(name, id, date_start, date_end, aoi, min_cover, display, dry_run, output_dir):
+    """Download Prodcuts from sub"""
+
+    api = hyp3_login()  # login if .netrc not found
+
+    # Interactively find sub-id if not given already
+    if not id:
+        subscription = grab_subscription(api)
+        id = subscription['id']
+
+    # Get list of Products objects from subscription
+    products = get_sub_products(api, id)
+
+    # Removes products not in date bounds
+    if date_start and date_end:
+        products = [product for product in products if product.time_bounds(date_start, date_end)]
+
+    aoi_poly = io.polygon_from_shapefile(aoi)
+    if aoi:
+        products_inbounds = []
+        for product in products:
+            product.get_shape_cmr()
+            if product.shape is None:
+                continue
+            if product.intersects(aoi_poly):
+                products_inbounds.append(product)
+
+        products = products_inbounds
+
+    print("Products after checking shape bounds")
+    print(f"{len(products)} products in list")
+    # for product in products:
+    #     print(product.granule)
+
+    if min_cover:
+        min_products = get_min_granule_coverage(products, aoi_poly)
+        products = min_products
+
+    print(f"{len(products)} products after getting min cover by aoi")
+    for product in products:
+        print(product.granule)
+
+    if display:
+        x, y = aoi_poly.exterior.xy
+        plt.plot(x, y)
+        for p in products:
+            x, y = p.shape.exterior.xy
+            plt.plot(x, y)
+        plt.show()
+
+    if not dry_run:
+        netrc_path = PROJECT_DIR / '.netrc'
+        if netrc_path.exists():
+            creds = pda.get_netrc_credentials()
+        else:
+            print("Input earthdata credentials")
+            username = input("username: ")
+            password = getpass.getpass(prompt="password: ")
+            creds = pda.credentials(username, password)
+
+        products_save_dir = Path(output_dir) / name
+        if not products_save_dir.is_dir():
+            products_save_dir.mkdir()
+
+
+        for product in products:
+
+            print(f"Downloading {product.url}")
+            pda.download_product(product.url, products_save_dir, creds)
+
+        print("All Products have been downloaded!")
 
 # TODO: create default file name as granule name with _MASK or _mask appended.
 # TODO: make default save directory be the water mask directory
@@ -223,7 +305,7 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         products = [product for product in products if product.time_bounds(date_start, date_end)]
 
     aoi_poly = io.polygon_from_shapefile(aoi)
-    print(f"aoi_poly={aoi_poly}")
+    # print(f"aoi_poly={aoi_poly}")
     if aoi:
         products_inbounds = []
         for product in products:
@@ -237,8 +319,8 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
 
     print("Products after checking shape bounds")
     print(f"{len(products)} products in list")
-    for product in products:
-        print(product.granule)
+    # for product in products:
+    #     print(product.granule)
 
     if min_cover:
         min_products = get_min_granule_coverage(products, aoi_poly)
@@ -257,7 +339,7 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         plt.show()
 
     metadata = MaskMetadata(name=name, model=model, aoi=aoi_poly, start=date_start, end=date_end, products=products)
-    print(metadata.to_json())
+    # print(metadata.to_json())
 
     if not dry_run:
         netrc_path = PROJECT_DIR / '.netrc'
@@ -273,17 +355,49 @@ def mask_sub(model, name, id, date_start, date_end, aoi, min_cover, display, dry
         if not mask_save_directory.is_dir():
             mask_save_directory.mkdir()
 
-        with TemporaryDirectory() as tmpdir_name:
-            temp_product_dir = Path(tmpdir_name)
-            for product in products:
+        # with TemporaryDirectory() as tmpdir_name:
+        #     temp_product_dir = Path(tmpdir_name)
+        #     for product in products:
+        #         print(f"Downloading {product.url}")
+        #         pda.download_product(product.url, temp_product_dir, creds)
+        #
+        #         product_path = temp_product_dir / product.name
+        #
+        #         vv_path, vh_path = io.extract_from_product(product_path, temp_product_dir)
+        #         output_file = mask_save_directory / f"{product_path.stem}.tif"
+        #         gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
+        #         print(f"Mask for {product_path.stem} is finished")
+
+        for product in products:
+            with TemporaryDirectory() as tmpdir_name:
+                temp_product_dir = Path(tmpdir_name)
+
                 print(f"Downloading {product.url}")
                 pda.download_product(product.url, temp_product_dir, creds)
-
                 product_path = temp_product_dir / product.name
+
+                print(f"Product_path = {str(product_path)}")
+
                 vv_path, vh_path = io.extract_from_product(product_path, temp_product_dir)
+
                 output_file = mask_save_directory / f"{product_path.stem}.tif"
+                print(f"output_file = {str(output_file)}")
+
+                print(f"Creating mask {product_path.stem}")
                 gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
                 print(f"Mask for {product_path.stem} is finished")
+
+        print(f"Mask {name} is finished")
+
+
+
+    # for product in product_list:
+    #     print(f"Masking {product.name}")
+    #     with TemporaryDirectory() as tmpdir_name:
+    #         vv_path, vh_path = io.extract_from_product(product, Path(tmpdir_name))
+    #         output_file = mask_save_directory / f"{product.stem}.tif"
+    #         gu.create_water_mask(model, str(vv_path), str(vh_path), str(output_file))
+    #         print(f"Mask for {product.stem} is finished")
 
 def model_history(model):
     """groom images to remove inaccurate masks"""
