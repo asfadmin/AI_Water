@@ -162,7 +162,7 @@ $ python aiwater.py identify-water [vv path] [vh path] [mask name]
 ```
 
 
-## Tile the an image
+## Tile an image
 
 
 ```terminal
