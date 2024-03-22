@@ -10,6 +10,8 @@ from osgeo import gdal
 from src.model import load_model
 from src.config import NETWORK_DEMS as dems
 import numpy as np
+from shapely.geometry import Polygon, shape
+import fiona
 
 from src.hyp3lib_functions import overlap_indices, geotiff_overlap
 
@@ -98,6 +100,38 @@ def create_water_mask(
 
     if not os.path.isfile(vh_path):
         raise FileNotFoundError(f"Tiff '{vh_path}' does not exist")
+
+    # Grabs corner coordinates of the shapefile
+    glacier_check = gdal.Open(vh_path)
+    width = glacier_check.RasterXSize
+    height = glacier_check.RasterYSize
+    gt = glacier_check.GetGeoTransform()
+    minx = gt[0]
+    miny = gt[3] + width*gt[4] + height*gt[5]
+    maxx = gt[0] + width*gt[1] + height*gt[2]
+    maxy = gt[3]    
+    cornercoods = Polygon([(minx, miny), (maxx, miny), (maxx, maxy), (minx, maxy)])
+    
+    # glacier_database = 'glacier_database'
+    glacier_C_database = 'glacier_C_database'
+    
+    # iterating over all glaciers in glacier database
+    for files in os.listdir(glacier_C_database):
+        if files.endswith('shp'):
+            # Open the shapefile
+            with fiona.open(glacier_C_database + '/' + files) as shapefile:
+                # Iterate over the records
+                for record in shapefile:
+                    # Get the geometry from the record (currently only grabs geometry need to grab corner coords instead)
+                    # Can do that with the database file 
+                    # Example: print(dbfread.read('path to dbf file'))
+                    # will also need to import dbfread
+                    geometry = shape(record['geometry'])
+                    if cornercoods.intersects(geometry):
+                        # TODO: need to add the code to register it as a glacier to the model
+                        break
+        else:
+            continue
 
     def get_tiles(img_path):
         f = gdal.Open(img_path)
